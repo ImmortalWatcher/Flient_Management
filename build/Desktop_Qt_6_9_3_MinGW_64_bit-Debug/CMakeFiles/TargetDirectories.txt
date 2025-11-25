@@ -1,9 +1,0 @@
-D:/qt_project/Flight_managerment/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/Flight_managerment.dir
-D:/qt_project/Flight_managerment/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/edit_cache.dir
-D:/qt_project/Flight_managerment/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/rebuild_cache.dir
-D:/qt_project/Flight_managerment/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/list_install_components.dir
-D:/qt_project/Flight_managerment/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/install.dir
-D:/qt_project/Flight_managerment/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/install/local.dir
-D:/qt_project/Flight_managerment/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/install/strip.dir
-D:/qt_project/Flight_managerment/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/Flight_managerment_autogen_timestamp_deps.dir
-D:/qt_project/Flight_managerment/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/CMakeFiles/Flight_managerment_autogen.dir
