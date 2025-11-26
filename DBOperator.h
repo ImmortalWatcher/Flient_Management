@@ -1,9 +1,8 @@
 #ifndef DBOPERATOR_H
 #define DBOPERATOR_H
 
-#include <QtSql/QSqlDatabase>
-#include <QStringList>
-#include <QtSql/QSqlQuery>
+#include <QSqlDatabase>
+#include <QSqlQuery>
 #include <QDebug>
 
 class DBOperator {

@@ -2,11 +2,9 @@
 #include "ui_LoginDlg.h"
 #include "RegisterDlg.h"
 
-#include <QTimer>
-#include <QSqlDatabase>
-#include <QSqlError>
 #include <QSqlQuery>
 #include <QMessageBox>
+#include <QSqlError>
 
 LoginDlg::LoginDlg(QWidget *parent) : QDialog(parent), ui(new Ui::LoginDlg) {
     ui->setupUi(this);
@@ -19,7 +17,7 @@ LoginDlg::~LoginDlg() {
 }
 
 void LoginDlg::on_loginBtn_clicked() {
-    // qDebug()<<__FUNCTION__;
+    // qDebug() <<__FUNCTION__;
     auto username = ui->AccountEdit->text();
     auto password = ui->PasswordEdit->text();
 
@@ -31,14 +29,14 @@ void LoginDlg::on_loginBtn_clicked() {
 
     // 构造 SQL 语句并执行查询
     bool sf = false;
-    QString sqlstr = QString("select * from user_info where username='%1' and password='%2'").arg(username).arg(password);
-    qDebug() << "执行的SQL语句:" << sqlstr;
+    QString sqlstr = QString("select * from user_info where username='%1' and password='%2'").arg(username, password);
+    // qDebug() << "执行的SQL语句:" << sqlstr;
     QSqlQuery qs = dbp.DBGetData(sqlstr, sf);
 
     //query.bindValue(0, username);
     //query.bindValue(1, password);
 
-    // 检查查询是否成功
+    // 检查查询是否执行成功
     if (!sf) {
         QMessageBox::warning(this, "登录失败", qs.lastError().text());
         return;
@@ -53,10 +51,6 @@ void LoginDlg::on_loginBtn_clicked() {
 }
 
 void LoginDlg::on_regBtn_clicked() {
-    this->hide();
-    // RegDlg regWindow;
-    // regWindow.setModal(true);
-    // regWindow.show();
-    // this->activateWindow();
-    this->show();
+    RegDlg regDialog(this);
+    regDialog.exec();
 }

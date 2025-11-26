@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+#include "DBOperator.h"
+
 namespace Ui { class RegDlg; }
 
 class RegDlg : public QDialog {
@@ -12,8 +14,15 @@ public:
     explicit RegDlg(QWidget *parent = nullptr);
     ~RegDlg();
 
+private slots:
+    void on_regBtn_clicked();
+    void on_backBtn_clicked();
+
 private:
+    bool validateInput(QString &username, QString &password, QString &repassword);
+
     Ui::RegDlg *ui;
+    DBOperator dbp;
 };
 
 #endif // REGISTERDLG_H

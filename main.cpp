@@ -1,8 +1,9 @@
 #include "mainwindow.h"
 #include "LoginDlg.h"
-#include "dboperator.h"
+#include "DBOperator.h"
 
 #include <QApplication>
+#include <QDialog>
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
@@ -15,7 +16,7 @@ int main(int argc, char *argv[]) {
     db.DBOpen();
 
     LoginDlg loginDlg;
-    if (loginDlg.exec()==QDialog::Accepted) {
+    if (loginDlg.exec() == QDialog::Accepted) {
         MainWindow w;
         w.show();
         return a.exec();
