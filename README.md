@@ -13,6 +13,9 @@ Flient_Management/
 │  ├─ mainwindow.h/cpp         # 主窗口逻辑代码
 │  └─ mainwindow.ui            # 主窗口界面文件 (Qt Designer)
 └─ 注册模块
-   ├─ regdlg.h/cpp             # 注册对话框逻辑代码
-   └─ regdlg.ui                # 注册对话框界面文件 (Qt Designer)
+   ├─ RegisterDlg.h/cpp        # 注册对话框逻辑代码
+   └─ RegisterDlg.ui           # 注册对话框界面文件 (Qt Designer)
 ```
+## 注意事项
+
+- 图片均采用 (.png) 格式存储，兼容性高
