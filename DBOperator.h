@@ -6,10 +6,11 @@
 #include <QtSql/QSqlQuery>
 #include <QDebug>
 
-class DBOperator
-{ private:
+class DBOperator {
+private:
     QSqlDatabase dbcon;
     bool openFlag;
+
 public:
     DBOperator();
     void DBOpen();

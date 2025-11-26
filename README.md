@@ -1,7 +1,18 @@
 # Flient_Management
 
-git clone 下来之后使用 qt creator 打开 cmake 文件即可。
+## 项目结构
 
-如有缓存文件 .qtcreator / build 则需要删除。
-
-完善项目ing……
+```
+Flient_Management/
+├─ main.cpp                    # 主程序入口
+├─ DBOperator.h/cpp            # 数据库操作管理类
+├─ 登录模块
+│  ├─ LoginDlg.h/cpp           # 登录对话框逻辑代码
+│  └─ LoginDlg.ui              # 登录对话框界面文件 (Qt Designer)
+├─ 主窗口模块
+│  ├─ mainwindow.h/cpp         # 主窗口逻辑代码
+│  └─ mainwindow.ui            # 主窗口界面文件 (Qt Designer)
+└─ 注册模块
+   ├─ regdlg.h/cpp             # 注册对话框逻辑代码
+   └─ regdlg.ui                # 注册对话框界面文件 (Qt Designer)
+```

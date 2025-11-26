@@ -1,14 +1,11 @@
-#ifndef REGDLG_H
-#define REGDLG_H
+#ifndef REGISTERDLG_H
+#define REGISTERDLG_H
 
 #include <QDialog>
 
-namespace Ui {
-class RegDlg;
-}
+namespace Ui { class RegDlg; }
 
-class RegDlg : public QDialog
-{
+class RegDlg : public QDialog {
     Q_OBJECT
 
 public:
@@ -19,4 +16,4 @@ private:
     Ui::RegDlg *ui;
 };
 
-#endif // REGDLG_H
+#endif // REGISTERDLG_H

@@ -4,12 +4,9 @@
 #include <QDialog>
 #include "DBOperator.h"
 
-namespace Ui {
-class LoginDlg;
-}
+namespace Ui { class LoginDlg; }
 
-class LoginDlg : public QDialog
-{
+class LoginDlg : public QDialog {
     Q_OBJECT
 
 public:

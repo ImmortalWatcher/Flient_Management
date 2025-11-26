@@ -1,19 +1,18 @@
 #include "DBOperator.h"
 
-DBOperator::DBOperator()
-{   openFlag = false; }
+DBOperator::DBOperator() { openFlag = false; }
 
-void DBOperator::DBOpen()
-{   if(!openFlag)
-    {   dbcon = QSqlDatabase::addDatabase("QODBC");
+void DBOperator::DBOpen() {
+    if(!openFlag) {
+        dbcon = QSqlDatabase::addDatabase("QODBC");
         dbcon.setHostName("127.0.0.1");
         dbcon.setPort(3306);
         dbcon.setDatabaseName("flient_managementODBC");
         bool ok = dbcon.open();
-        if(!ok)
+        if(!ok) {
             qDebug() << "Error, flient_managementODBC 数据库文件打开失败！";
-        else
-        {   qDebug() << "Sucess, flient_managementODBC 数据库文件成功打开！";
+        } else {
+            qDebug() << "Sucess, flient_managementODBC 数据库文件成功打开！";
             openFlag = true;
         }
     }
@@ -34,13 +33,13 @@ void DBOperator::DBOpen()
 }
 */
 
-void DBOperator::DBClose()
-{   openFlag = false;
+void DBOperator::DBClose() {
+    openFlag = false;
     dbcon.close();
 }
 
-QSqlQuery DBOperator::DBGetData(QString sqlstr, bool &sucessFlag)
-{   QSqlQuery query = QSqlQuery(dbcon);
+QSqlQuery DBOperator::DBGetData(QString sqlstr, bool &sucessFlag) {
+    QSqlQuery query = QSqlQuery(dbcon);
     sucessFlag = query.exec(sqlstr);
     return query;
 }
