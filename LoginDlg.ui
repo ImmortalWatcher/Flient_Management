@@ -209,7 +209,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QLabel" name="label_2">
+  <widget class="QLabel" name="accountlabel">
    <property name="geometry">
     <rect>
      <x>110</x>
@@ -228,7 +228,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QLabel" name="label_3">
+  <widget class="QLabel" name="passwordlabel">
    <property name="geometry">
     <rect>
      <x>110</x>
