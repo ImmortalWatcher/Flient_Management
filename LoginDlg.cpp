@@ -3,10 +3,10 @@
 #include "RegisterDlg.h"
 
 #include <QTimer>
-#include<QSqlDatabase>
-#include<QSqlError>
-#include<QSqlQuery>
-#include<QMessageBox>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QMessageBox>
 
 LoginDlg::LoginDlg(QWidget *parent) : QDialog(parent), ui(new Ui::LoginDlg) {
     ui->setupUi(this);
@@ -25,7 +25,7 @@ void LoginDlg::on_loginBtn_clicked() {
 
     // 空值校验
     if (username.isEmpty()||password.isEmpty()) {
-        qWarning() << "账号或密码不能为空";
+        QMessageBox::warning(this, "警告", "账号或密码不能为空！");
         return;
     }
 
@@ -40,7 +40,7 @@ void LoginDlg::on_loginBtn_clicked() {
 
     // 检查查询是否成功
     if (!sf) {
-        QMessageBox::warning(this, "登录", qs.lastError().text());
+        QMessageBox::warning(this, "登录失败", qs.lastError().text());
         return;
     }
 
@@ -48,7 +48,7 @@ void LoginDlg::on_loginBtn_clicked() {
     if (qs.next()) {
         done(QDialog::Accepted);
     } else {
-        qWarning() << "账号或密码错误";
+        QMessageBox::warning(this, "登录失败", "账号或密码错误，请重新输入！");
     }
 }
 
