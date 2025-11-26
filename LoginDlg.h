@@ -18,6 +18,7 @@ public:
 
 protected slots:
     void on_loginBtn_clicked();
+    void on_regBtn_clicked();
 
 private:
     Ui::LoginDlg *ui;
