@@ -7,12 +7,9 @@
 
 RegDlg::RegDlg(QWidget *parent) : QDialog(parent), ui(new Ui::RegDlg) {
     ui->setupUi(this);
-    dbp.DBOpen();
 }
 
-RegDlg::~RegDlg() {
-    delete ui;
-}
+RegDlg::~RegDlg() { delete ui; }
 
 // 输入合法性校验
 bool RegDlg::validateInput(QString &username, QString &password, QString &repassword) {
