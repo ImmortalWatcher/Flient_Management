@@ -12,14 +12,14 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    MainWindow(LoginDlg *loginDlg = nullptr,QWidget *parent = nullptr);
+    MainWindow(LoginDlg *loginDlg = nullptr, QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
-    void on_pushButton_clicked();
-    void on_pushButton_2_clicked();
-    void on_pushButton_5_clicked();
-    void on_pushButton_6_clicked();
+    void on_flightQueryBtn_clicked();
+    void on_myOrdersBtn_clicked();
+    void on_myFavoritesBtn_clicked();
+    void on_personalCenterBtn_clicked();
     void on_backBtn_clicked();
 
 private:

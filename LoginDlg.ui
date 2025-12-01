@@ -172,7 +172,7 @@
   <widget class="QLabel" name="planelabel">
    <property name="geometry">
     <rect>
-     <x>120</x>
+     <x>110</x>
      <y>60</y>
      <width>40</width>
      <height>40</height>
