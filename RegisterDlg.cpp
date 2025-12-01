@@ -7,11 +7,11 @@
 
 RegDlg::RegDlg(QWidget *parent) : QDialog(parent), ui(new Ui::RegDlg) {
     ui->setupUi(this);
-    //设计 Tab 导航
+    // 设计 Tab 导航
     QWidget::setTabOrder(ui->AccountEdit, ui->PasswordEdit);
-    QWidget::setTabOrder(ui->PasswordEdit,ui->RePasswordEdit);
-    QWidget::setTabOrder(ui->RePasswordEdit,ui->regBtn);
-    QWidget::setTabOrder(ui->regBtn,ui->backBtn);
+    QWidget::setTabOrder(ui->PasswordEdit, ui->RePasswordEdit);
+    QWidget::setTabOrder(ui->RePasswordEdit, ui->regBtn);
+    QWidget::setTabOrder(ui->regBtn, ui->backBtn);
 }
 
 RegDlg::~RegDlg() { delete ui; }

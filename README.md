@@ -12,9 +12,13 @@ Flient_Management/
 ├─ 主窗口模块
 │  ├─ mainwindow.h/cpp         # 主窗口逻辑代码
 │  └─ mainwindow.ui            # 主窗口界面文件 (Qt Designer)
-└─ 注册模块
-   ├─ RegisterDlg.h/cpp        # 注册对话框逻辑代码
-   └─ RegisterDlg.ui           # 注册对话框界面文件 (Qt Designer)
+│─ 注册模块
+│  ├─ RegisterDlg.h/cpp        # 注册对话框逻辑代码
+│  └─ RegisterDlg.ui           # 注册对话框界面文件 (Qt Designer)
+├─ source/                     # 核心源码目录
+│  ├─ databases/               # 数据库相关文件
+│  │  └─ dbSchema.sql          # 数据库代码
+│  ├─ figures/                 # 界面资源图片
 ```
 
 ## 现存问题
@@ -22,7 +26,5 @@ Flient_Management/
 - 应用窗口界面无法跟随放大 / 缩小 (自适应)，原因在于各控件是 "自由放置" 的，后续需要设置严格的 "布局" (暂时设置了窗体不可拉伸)
 
 ## 注意事项
-
-- 数据库代码存放在 `source/databases/dbSchema.sql`
 
 - 图片均采用 (.png) 格式存储，兼容性高
