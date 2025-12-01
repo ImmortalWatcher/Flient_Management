@@ -9,6 +9,10 @@
 // 同时打开和关闭数据库
 LoginDlg::LoginDlg(QWidget *parent) : QDialog(parent), ui(new Ui::LoginDlg) {
     ui->setupUi(this);
+    //设计 Tab 导航
+    QWidget::setTabOrder(ui->AccountEdit,ui->PasswordEdit);
+    QWidget::setTabOrder(ui->PasswordEdit,ui->loginBtn);
+    QWidget::setTabOrder(ui->loginBtn,ui->regBtn);
     dbp.DBOpen();
 }
 
