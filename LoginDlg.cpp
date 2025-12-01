@@ -16,9 +16,16 @@ LoginDlg::LoginDlg(QWidget *parent) : QDialog(parent), ui(new Ui::LoginDlg) {
     dbp.DBOpen();
 }
 
+// 实现清空输入的函数（内部可访问私有ui）
 LoginDlg::~LoginDlg() {
     dbp.DBClose();
     delete ui;
+}
+
+void LoginDlg::clearInput()
+{
+    ui->AccountEdit->clear(); // 清空账号框
+    ui->PasswordEdit->clear(); // 清空密码框
 }
 
 void LoginDlg::on_loginBtn_clicked() {
@@ -49,7 +56,10 @@ void LoginDlg::on_loginBtn_clicked() {
 
     // 验证账号密码是否匹配
     if (qs.next()) {
-        done(QDialog::Accepted);
+        this->hide();//隐藏登录框
+        QDialog::accept();//通知main.cpp登录成功
+
+        // done(QDialog::Accepted);
     } else {
         QMessageBox::warning(this, "登录失败", "账号或密码错误，请重新输入！");
     }

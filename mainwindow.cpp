@@ -3,6 +3,7 @@
 
 MainWindow::MainWindow(LoginDlg *loginDlg,QWidget *parent) : QMainWindow(parent), ui(new Ui::MainWindow),m_loginDlg(loginDlg){
     ui->setupUi(this);
+    connect(ui->backBtn, &QPushButton::clicked, this, &MainWindow::on_backBtn_clicked);
 }
 
 MainWindow::~MainWindow() { delete ui; }
@@ -32,9 +33,6 @@ void MainWindow::on_pushButton_6_clicked()
 
 void MainWindow::on_backBtn_clicked()
 {
-    this->close();
-    if(m_loginDlg){
-        m_loginDlg->show();
-    }
+    this->close();//关闭主窗口
 }
 

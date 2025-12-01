@@ -14,6 +14,8 @@ public:
     explicit LoginDlg(QWidget *parent = nullptr);
     ~LoginDlg();
 
+    void clearInput(); // 声明清空输入的函数
+
 protected slots:
     void on_loginBtn_clicked();
     void on_regBtn_clicked();
