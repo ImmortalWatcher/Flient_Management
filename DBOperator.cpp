@@ -19,15 +19,14 @@ void DBOperator::DBOpen() {
 }
 
 /*
-void DBOperator::DBOpen()
-{   QString dsn;
-    if(!openFlag)
-    {   dbcon = QSqlDatabase::addDatabase("QODBC");
-        dsn = QString("DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};FIL={MS Access};DBQ=c:/qtsrc/SQLTest/SQLDB.mdb");
+void DBOperator::DBOpen() {
+    QString dsn;
+    if(!openFlag) {
+        dbcon = QSqlDatabase::addDatabase("QODBC");
+        dsn = QString("DRIVER={Microsoft Access Driver (*.mdb, *.accdb)}; FIL={MS Access}; DBQ=C:/qtsrc/SQLTest/SQLDB.mdb");
         dbcon.setDatabaseName(dsn);
         bool ok = dbcon.open();
-        if(!ok)
-            qDebug() << "错误, SQLDB 数据库文件打开失败！";
+        if(!ok) qDebug() << "错误, SQLDB 数据库文件打开失败！";
         openFlag = true;
     }
 }

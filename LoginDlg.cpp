@@ -6,8 +6,13 @@
 #include <QMessageBox>
 #include <QSqlError>
 
+// 同时打开和关闭数据库
 LoginDlg::LoginDlg(QWidget *parent) : QDialog(parent), ui(new Ui::LoginDlg) {
     ui->setupUi(this);
+    //设计 Tab 导航
+    QWidget::setTabOrder(ui->AccountEdit,ui->PasswordEdit);
+    QWidget::setTabOrder(ui->PasswordEdit,ui->loginBtn);
+    QWidget::setTabOrder(ui->loginBtn,ui->regBtn);
     dbp.DBOpen();
 }
 
@@ -30,7 +35,7 @@ void LoginDlg::on_loginBtn_clicked() {
     // 构造 SQL 语句并执行查询
     bool sf = false;
     QString sqlstr = QString("select * from user_info where username='%1' and password='%2'").arg(username, password);
-    // qDebug() << "执行的SQL语句:" << sqlstr;
+    // qDebug() << "执行的 SQL 语句:" << sqlstr;
     QSqlQuery qs = dbp.DBGetData(sqlstr, sf);
 
     //query.bindValue(0, username);
