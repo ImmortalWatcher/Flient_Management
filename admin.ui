@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>admin</class>
+ <widget class="QMainWindow" name="admin">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>801</width>
+    <height>598</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="styleSheet">
+    <string notr="true">QWidget#centralwidget {
+    border: 2px solid #000000; /* 纯黑2px边框，必显 */
+    background-color: #FFFFFF; /* 背景设为白色，避免灰色底色干扰 */
+    margin: 0; /* 贴紧QMainWindow边缘 */
+    padding: 0;
+}</string>
+   </property>
+   <widget class="QWidget" name="widget_top" native="true">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>801</width>
+      <height>61</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>华文楷体</family>
+      <pointsize>14</pointsize>
+     </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QWidget#widget_title {
+    border: 2px solid #000000; /* 纯黑2px四周边框（包括底部） */
+    background-color: #FFFFFF; /* 白色背景，避免底色干扰 */
+    padding: 5px; /* 内部文字留空，不贴边框 */
+    margin: 0; /* 贴紧widget_top的边缘，不被挤压 */
+    min-height: 40px; /* 强制最低高度，避免容器被压缩导致底部边框消失 */
+}</string>
+    </property>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>10</y>
+       <width>311</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>华文楷体</family>
+       <pointsize>15</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>航班管理系统（管理员端）</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>690</x>
+       <y>20</y>
+       <width>69</width>
+       <height>19</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>admin</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btn_user_dropdown">
+     <property name="geometry">
+      <rect>
+       <x>760</x>
+       <y>20</y>
+       <width>21</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset resource="figures.qrc">
+       <normaloff>:/img/source/figures/button1.png</normaloff>:/img/source/figures/button1.png</iconset>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>51</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="pixmap">
+      <pixmap resource="figures.qrc">:/img/source/figures/plane.png</pixmap>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="widget_main" native="true">
+    <property name="geometry">
+     <rect>
+      <x>-1</x>
+      <y>59</y>
+      <width>141</width>
+      <height>541</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QWidget#widget_main {
+    border: 2px solid #000000; /* 纯黑2px边框 */
+    border-top: none; /* 与上方widget_top衔接，避免重复线条 */
+    padding: 5px;
+}</string>
+    </property>
+    <widget class="QWidget" name="widget_nav" native="true">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>-1</y>
+       <width>141</width>
+       <height>291</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QPushButton" name="btn_flight">
+        <property name="font">
+         <font>
+          <family>华文楷体</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton:checked { background-color: #87CEEB; color: black; }</string>
+        </property>
+        <property name="text">
+         <string>航班管理</string>
+        </property>
+        <property name="icon">
+         <iconset resource="figures.qrc">
+          <normaloff>:/img/source/figures/p1.png</normaloff>:/img/source/figures/p1.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_order">
+        <property name="font">
+         <font>
+          <family>华文楷体</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton:checked { background-color: #87CEEB; color: black; }</string>
+        </property>
+        <property name="text">
+         <string>订单查看</string>
+        </property>
+        <property name="icon">
+         <iconset resource="figures.qrc">
+          <normaloff>:/img/source/figures/p2.png</normaloff>:/img/source/figures/p2.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_user">
+        <property name="font">
+         <font>
+          <family>华文楷体</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton:checked { background-color: #87CEEB; color: black; }</string>
+        </property>
+        <property name="text">
+         <string>用户管理</string>
+        </property>
+        <property name="icon">
+         <iconset resource="figures.qrc">
+          <normaloff>:/img/source/figures/p3.png</normaloff>:/img/source/figures/p3.png</iconset>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btn_statistics">
+        <property name="font">
+         <font>
+          <family>华文楷体</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton:checked { background-color: #87CEEB; color: black; }</string>
+        </property>
+        <property name="text">
+         <string>数据统计</string>
+        </property>
+        <property name="icon">
+         <iconset resource="figures.qrc">
+          <normaloff>:/img/source/figures/p4.png</normaloff>:/img/source/figures/p4.png</iconset>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="btn_change_pwd">
+    <property name="geometry">
+     <rect>
+      <x>690</x>
+      <y>70</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>华文楷体</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>修改密码</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_logout">
+    <property name="geometry">
+     <rect>
+      <x>690</x>
+      <y>120</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>华文楷体</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>退出登录</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="widget_content" native="true">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>90</y>
+      <width>411</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <widget class="QFrame" name="frame_filter">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>-1</y>
+       <width>411</width>
+       <height>131</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QFrame { background-color: #1E90FF; color: white; border-radius: 5px; padding: 5px; }</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Shape::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <widget class="QLabel" name="le_departure">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>20</y>
+        <width>91</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>华文琥珀</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>出发地：</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="le_destination">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>20</y>
+        <width>91</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>华文琥珀</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>目的地：</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>70</y>
+        <width>321</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>华文琥珀</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>起飞时间：</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="sb_year">
+      <property name="geometry">
+       <rect>
+        <x>150</x>
+        <y>70</y>
+        <width>42</width>
+        <height>25</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="sb_month">
+      <property name="geometry">
+       <rect>
+        <x>240</x>
+        <y>70</y>
+        <width>42</width>
+        <height>25</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="sb_day">
+      <property name="geometry">
+       <rect>
+        <x>320</x>
+        <y>70</y>
+        <width>42</width>
+        <height>25</height>
+       </rect>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QTableWidget" name="tableWidget_flight">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>281</y>
+      <width>601</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>华文楷体</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <property name="columnCount">
+     <number>10</number>
+    </property>
+    <attribute name="horizontalHeaderDefaultSectionSize">
+     <number>100</number>
+    </attribute>
+    <column>
+     <property name="text">
+      <string>航班ID</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>航班号</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>出发地</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>目的地</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>起飞时间</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>到达时间</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>总座位数</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>剩余座位</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>票价</string>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>操作</string>
+     </property>
+    </column>
+   </widget>
+   <widget class="QWidget" name="widget_operate" native="true">
+    <property name="geometry">
+     <rect>
+      <x>260</x>
+      <y>460</y>
+      <width>351</width>
+      <height>50</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="btn_edit">
+       <property name="font">
+        <font>
+         <family>华文楷体</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>编辑</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_delete">
+       <property name="font">
+        <font>
+         <family>华文楷体</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>删除</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources>
+  <include location="figures.qrc"/>
+ </resources>
+ <connections/>
+</ui>

@@ -12,5 +12,10 @@
         <file>source/figures/shopcar.png</file>
         <file>source/figures/star.png</file>
         <file>source/figures/personal_Info.png</file>
+        <file>source/figures/button1.png</file>
+        <file>source/figures/p1.png</file>
+        <file>source/figures/p2.png</file>
+        <file>source/figures/p3.png</file>
+        <file>source/figures/p4.png</file>
     </qresource>
 </RCC>
