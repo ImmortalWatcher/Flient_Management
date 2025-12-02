@@ -55,7 +55,18 @@ void LoginDlg::on_loginBtn_clicked() {
 
     // 验证账号密码是否匹配
     if (qs.next()) {
+        // 从查询结果中获取用户ID、用户名和角色
+        // 注意：这里的字段名需要与您的数据库表结构匹配
+        // 假设您的表中有 user_id, username, role 这些字段
+        int userId = qs.value("id").toInt();  // 获取用户ID
+        QString dbUsername = qs.value("username").toString();  // 获取用户名
+        int role = qs.value("role").toInt();  // 获取角色（0: 普通用户, 1: 管理员）
+
         this->hide(); // 隐藏登录框
+
+        // 发射信号，传递用户ID、用户名和角色
+        emit loginSuccess(userId, dbUsername, role);
+
         QDialog::accept(); // 通知 main.cpp 登录成功
 
         // done(QDialog::Accepted);
