@@ -226,25 +226,6 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QLabel" name="accountlabel_2">
-   <property name="geometry">
-    <rect>
-     <x>300</x>
-     <y>370</y>
-     <width>40</width>
-     <height>40</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="pixmap">
-    <pixmap resource="figures.qrc">:/img/source/figures/account.png</pixmap>
-   </property>
-   <property name="scaledContents">
-    <bool>true</bool>
-   </property>
-  </widget>
  </widget>
  <resources>
   <include location="figures.qrc"/>
