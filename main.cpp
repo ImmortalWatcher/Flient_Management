@@ -11,12 +11,11 @@ int main(int argc, char *argv[]) {
 
     // 创建数据库操作对象
     DBOperator db;
-
     // 连接数据库
     db.DBOpen();
 
     LoginDlg *loginDlg = new LoginDlg;
-    MainWindow *mainWin = nullptr;//主窗口指针
+    MainWindow *mainWin = nullptr; // 主窗口指针
 
     while (true) {
         if (loginDlg->exec() == QDialog::Accepted) {
@@ -25,7 +24,7 @@ int main(int argc, char *argv[]) {
             mainWin->setAttribute(Qt::WA_DeleteOnClose); // 主窗口关闭时自动释放
             mainWin->show();
 
-            // 等待主窗口关闭（阻塞到主窗口销毁）
+            // 等待主窗口关闭 (阻塞到主窗口销毁)
             a.exec();
             mainWin = nullptr; // 主窗口关闭后置空
 

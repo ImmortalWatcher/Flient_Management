@@ -14,7 +14,9 @@ RegDlg::RegDlg(QWidget *parent) : QDialog(parent), ui(new Ui::RegDlg) {
     QWidget::setTabOrder(ui->regBtn, ui->backBtn);
 }
 
-RegDlg::~RegDlg() { delete ui; }
+RegDlg::~RegDlg() { 
+    delete ui; 
+}
 
 // 输入合法性校验
 bool RegDlg::validateInput(QString &username, QString &password, QString &repassword) {
@@ -23,15 +25,15 @@ bool RegDlg::validateInput(QString &username, QString &password, QString &repass
     repassword = ui->RePasswordEdit->text();
 
     if (username.isEmpty()) {
-        QMessageBox::warning(this, "注册", "用户名不能为空");
+        QMessageBox::warning(this, "警告", "用户名不能为空");
         return false;
     }
     if (password.isEmpty()) {
-        QMessageBox::warning(this, "注册", "密码不能为空");
+        QMessageBox::warning(this, "警告", "密码不能为空");
         return false;
     }
     if (password != repassword) {
-        QMessageBox::warning(this, "注册", "两次输入的密码不一致");
+        QMessageBox::warning(this, "警告", "两次输入的密码不一致");
         return false;
     }
     return true;
@@ -70,4 +72,6 @@ void RegDlg::on_regBtn_clicked() {
     accept();
 }
 
-void RegDlg::on_backBtn_clicked() { reject(); }
+void RegDlg::on_backBtn_clicked() {
+    reject();
+}
