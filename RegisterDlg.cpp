@@ -12,11 +12,9 @@ RegDlg::RegDlg(QWidget *parent) : QDialog(parent), ui(new Ui::RegDlg) {
     QWidget::setTabOrder(ui->PasswordEdit, ui->RePasswordEdit);
     QWidget::setTabOrder(ui->RePasswordEdit, ui->regBtn);
     QWidget::setTabOrder(ui->regBtn, ui->backBtn);
-    dbp.DBOpen();
 }
 
 RegDlg::~RegDlg() {
-    dbp.DBClose();
     delete ui; 
 }
 
