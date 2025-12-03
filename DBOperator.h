@@ -15,6 +15,8 @@ public:
     void DBOpen();
     void DBClose();
     QSqlQuery DBGetData(QString sqlstr, bool &sucessFlag);
+    int getUserAvatarId(int userId);
+    bool updateUserAvatarId(int userId, int avatarId);
 };
 
 #endif // DBOPERATOR_H

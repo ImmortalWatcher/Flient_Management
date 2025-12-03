@@ -16,9 +16,6 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
 set(PROJECT_SOURCES
         main.cpp
-        UserMainWindow.h
-        UserMainWindow.cpp
-        UserMainWindow.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -28,8 +25,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         DBOperator.h DBOperator.cpp
         WindowFactory.h WindowFactory.cpp
         figures.qrc
+        avatars.qrc
         LoginDlg.h LoginDlg.cpp LoginDlg.ui
         RegisterDlg.h RegisterDlg.cpp RegisterDlg.ui
+        UserMainWindow.h UserMainWindow.cpp UserMainWindow.ui
         AdminMainWindow.h AdminMainWindow.cpp AdminMainWindow.ui
     )
 # Define target properties for Android with Qt 6 as:

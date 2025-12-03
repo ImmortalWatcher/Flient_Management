@@ -44,3 +44,21 @@ QSqlQuery DBOperator::DBGetData(QString sqlstr, bool &sucessFlag) {
     sucessFlag = query.exec(sqlstr);
     return query;
 }
+
+// 获取用户头像编号
+int DBOperator::getUserAvatarId(int userId) {
+    bool sf = false;
+    QString sqlstr = QString("select avatar_id from user_info where id=%1").arg(userId);
+    QSqlQuery qs = DBGetData(sqlstr, sf);
+
+    if (sf && qs.next()) return qs.value("avatar_id").toInt();
+    return 1;
+}
+
+// 更新用户头像编号
+bool DBOperator::updateUserAvatarId(int userId, int avatarId) {
+    bool sf = false;
+    QString sqlstr = QString("update user_info set avatar_id=%1 where id=%2").arg(avatarId).arg(userId);
+    QSqlQuery qs = DBGetData(sqlstr, sf);
+    return sf;
+}

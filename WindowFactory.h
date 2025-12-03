@@ -21,10 +21,11 @@ public:
     /**
      * @brief 创建主窗口
      * @param isAdmin 是否为管理员 (true: 管理员, false: 普通用户)
+     * @param userId 用户ID
      * @param parent 父窗口
      * @return 创建的主窗口指针
      */
-    QMainWindow* createMainWindow(bool isAdmin, QWidget *parent = nullptr);
+    QMainWindow* createMainWindow(bool isAdmin, int userId = 0, QWidget *parent = nullptr);
 
     /**
      * @brief 创建登录窗口

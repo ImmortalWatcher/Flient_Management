@@ -1,7 +1,7 @@
 #ifndef USERMAINWINDOW_H
 #define USERMAINWINDOW_H
 
-#include "LoginDlg.h"
+#include "DBOperator.h"
 
 #include <QMainWindow>
 
@@ -14,7 +14,7 @@ class UserMainWindow : public QMainWindow {
 
 public:
     // UserMainWindow(LoginDlg *loginDlg = nullptr, QWidget *parent = nullptr);
-    UserMainWindow(QWidget *parent = nullptr);
+    UserMainWindow(int userId = 0, QWidget *parent = nullptr);
     ~UserMainWindow();
 
 private slots:
@@ -26,6 +26,15 @@ private slots:
 
 private:
     Ui::UserMainWindow *ui;
-    LoginDlg *m_loginDlg;
+    int m_userId;                     // 当前用户 ID
+    DBOperator m_dbOperator;          // 数据库操作对象
+
+    // 头像相关方法
+    void loadAvatar();                // 加载头像
+    void showAvatarSelectionDialog(); // 显示头像选择对话框
+    void setAvatar(int avatarId);     // 设置头像
+
+    // 事件过滤器
+    bool eventFilter(QObject *obj, QEvent *event) override;
 };
 #endif // USERMAINWINDOW_H

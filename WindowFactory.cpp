@@ -13,17 +13,17 @@ WindowFactory& WindowFactory::instance() {
 
 WindowFactory::WindowFactory(QObject *parent) : QObject(parent), m_currentMainWindow(nullptr) {}
 
-QMainWindow* WindowFactory::createMainWindow(bool isAdmin, QWidget *parent) {
+QMainWindow* WindowFactory::createMainWindow(bool isAdmin, int userId, QWidget *parent) {
     // 如果已有窗口，先销毁
     destroyCurrentWindow();
 
     QMainWindow *window = nullptr;
 
     if (!isAdmin) { // 普通用户
-        window = new UserMainWindow();
+        window = new UserMainWindow(userId);
         window->setWindowTitle("用户界面");
-        qDebug() << "创建普通用户窗口";
-    } else {       // 管理员
+        qDebug() << "创建普通用户窗口，用户ID:" << userId;
+    } else {        // 管理员
         window = new AdminMainWindow(parent);
         window->setWindowTitle("管理员界面");
         qDebug() << "创建管理员窗口";
@@ -53,11 +53,9 @@ QDialog* WindowFactory::createLoginWindow(QWidget *parent) {
             [this, loginDlg](int userId, const QString &username, bool isAdmin) {
                 qDebug() << "登录成功，用户ID:" << userId << "用户名:" << username << "是否管理员:" << isAdmin;
 
-                // 创建对应的主窗口
-                QMainWindow *mainWindow = createMainWindow(isAdmin);
-                if (mainWindow) {
-                    mainWindow->showMaximized();
-                }
+                // 创建对应的主窗口，传递用户 ID
+                QMainWindow *mainWindow = createMainWindow(isAdmin, userId);
+                if (mainWindow) mainWindow->showMaximized();
 
                 // 删除登录窗口
                 loginDlg->deleteLater();
@@ -72,8 +70,7 @@ QDialog* WindowFactory::createLoginWindow(QWidget *parent) {
     return loginDlg;
 }
 
-void WindowFactory::switchToLogin()
-{
+void WindowFactory::switchToLogin() {
     // 销毁当前主窗口
     destroyCurrentWindow();
 

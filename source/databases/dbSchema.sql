@@ -7,7 +7,8 @@ use flient_management;
 create table if not exists user_info (
 	id int primary key auto_increment comment 'id',
     username varchar(32) not null unique comment '用户名',
-    password varchar(32) not null comment '密码'
+    password varchar(32) not null comment '密码',
+    avatar_id int not null default 1 comment '头像编号，默认值为 1'
 );
 
 -- 管理员表

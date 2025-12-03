@@ -158,7 +158,7 @@
    <widget class="QPushButton" name="orderViewBtn">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>7</x>
       <y>150</y>
       <width>130</width>
       <height>50</height>
@@ -187,9 +187,9 @@
    <widget class="QPushButton" name="userManagementBtn">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>7</x>
       <y>230</y>
-      <width>131</width>
+      <width>130</width>
       <height>50</height>
      </rect>
     </property>
@@ -216,7 +216,7 @@
    <widget class="QPushButton" name="dataStatisticsBtn">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>7</x>
       <y>310</y>
       <width>130</width>
       <height>50</height>
@@ -277,10 +277,10 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="page_1">
-     <widget class="QFrame" name="frame_filter">
+     <widget class="QFrame" name="frameFilter">
       <property name="geometry">
        <rect>
         <x>110</x>
