@@ -21,11 +21,11 @@ QMainWindow* WindowFactory::createMainWindow(bool isAdmin, QWidget *parent) {
 
     if (!isAdmin) { // 普通用户
         window = new UserMainWindow();
-        window->setWindowTitle("用户界面 - 学生成绩管理系统");
+        window->setWindowTitle("用户界面");
         qDebug() << "创建普通用户窗口";
     } else {       // 管理员
         window = new AdminMainWindow(parent);
-        window->setWindowTitle("管理员界面 - 学生成绩管理系统");
+        window->setWindowTitle("管理员界面");
         qDebug() << "创建管理员窗口";
     }
 
@@ -46,7 +46,7 @@ QMainWindow* WindowFactory::createMainWindow(bool isAdmin, QWidget *parent) {
 
 QDialog* WindowFactory::createLoginWindow(QWidget *parent) {
     LoginDlg *loginDlg = new LoginDlg(parent);
-    loginDlg->setWindowTitle("用户登录 - 学生成绩管理系统");
+    loginDlg->setWindowTitle("用户登录");
 
     // 连接登录成功信号
     connect(loginDlg, &LoginDlg::loginSuccess, this,
