@@ -25,7 +25,7 @@
   <property name="windowTitle">
    <string>登录</string>
   </property>
-  <widget class="QLabel" name="bglabel">
+  <widget class="QLabel" name="bgLabel">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -169,7 +169,7 @@
     <string>登录</string>
    </property>
   </widget>
-  <widget class="QLabel" name="planelabel">
+  <widget class="QLabel" name="planeLabel">
    <property name="geometry">
     <rect>
      <x>110</x>
@@ -207,7 +207,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QLabel" name="passwordlabel">
+  <widget class="QLabel" name="passwordLabel">
    <property name="geometry">
     <rect>
      <x>110</x>

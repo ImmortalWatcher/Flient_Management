@@ -1,14 +1,13 @@
 #include "UserMainWindow.h"
 #include "ui_UserMainWindow.h"
 
-UserMainWindow::UserMainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::UserMainWindow)
-{
+UserMainWindow::UserMainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::UserMainWindow) {
     ui->setupUi(this);
 }
 
-UserMainWindow::~UserMainWindow() { delete ui; }
+UserMainWindow::~UserMainWindow() {
+    delete ui;
+}
 
 void UserMainWindow::on_flightQueryBtn_clicked() {
     ui->stackedWidget->setCurrentIndex(0);

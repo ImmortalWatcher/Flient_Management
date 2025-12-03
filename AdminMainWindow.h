@@ -3,12 +3,9 @@
 
 #include <QMainWindow>
 
-namespace Ui {
-class AdminMainWindow;
-}
+namespace Ui { class AdminMainWindow; }
 
-class AdminMainWindow : public QMainWindow
-{
+class AdminMainWindow : public QMainWindow {
     Q_OBJECT
 
 public:

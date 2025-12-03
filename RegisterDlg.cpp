@@ -12,9 +12,11 @@ RegDlg::RegDlg(QWidget *parent) : QDialog(parent), ui(new Ui::RegDlg) {
     QWidget::setTabOrder(ui->PasswordEdit, ui->RePasswordEdit);
     QWidget::setTabOrder(ui->RePasswordEdit, ui->regBtn);
     QWidget::setTabOrder(ui->regBtn, ui->backBtn);
+    dbp.DBOpen();
 }
 
-RegDlg::~RegDlg() { 
+RegDlg::~RegDlg() {
+    dbp.DBClose();
     delete ui; 
 }
 
@@ -46,10 +48,22 @@ void RegDlg::on_regBtn_clicked() {
         return;
     }
 
-    // 检查用户名是否已被注册
+    // 检查用户名是否已被注册 (同时检查用户表和管理员表)
     bool success = false;
     QString checkSql = QString("select count(1) from user_info where username='%1'").arg(username);
     QSqlQuery checkQuery = dbp.DBGetData(checkSql, success);
+    if (!success) {
+        QMessageBox::warning(this, "注册失败", checkQuery.lastError().text());
+        return;
+    }
+    if (checkQuery.next() && checkQuery.value(0).toInt() > 0) {
+        QMessageBox::warning(this, "注册失败", "该用户名已存在，请重新输入");
+        return;
+    }
+    
+    // 检查管理员表中是否也有同名用户
+    checkSql = QString("select count(1) from admin_info where username='%1'").arg(username);
+    checkQuery = dbp.DBGetData(checkSql, success);
     if (!success) {
         QMessageBox::warning(this, "注册失败", checkQuery.lastError().text());
         return;

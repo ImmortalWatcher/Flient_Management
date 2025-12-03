@@ -1,15 +1,14 @@
 #ifndef WINDOWFACTORY_H
 #define WINDOWFACTORY_H
 
-#include <QObject>
 #include <QMainWindow>
+#include <QObject>
 
 // 前向声明，避免循环包含
-class AdminMainWindow;
 class UserMainWindow;
+class AdminMainWindow;
 
-class WindowFactory : public QObject
-{
+class WindowFactory : public QObject {
     Q_OBJECT
 public:
     // 禁止拷贝和赋值
@@ -21,11 +20,11 @@ public:
 
     /**
      * @brief 创建主窗口
-     * @param role 用户角色 (0:普通用户, 1:管理员)
+     * @param isAdmin 是否为管理员 (true: 管理员, false: 普通用户)
      * @param parent 父窗口
      * @return 创建的主窗口指针
      */
-    QMainWindow* createMainWindow(int role, QWidget *parent = nullptr);
+    QMainWindow* createMainWindow(bool isAdmin, QWidget *parent = nullptr);
 
     /**
      * @brief 创建登录窗口

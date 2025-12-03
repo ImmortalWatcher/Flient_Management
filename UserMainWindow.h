@@ -1,8 +1,9 @@
 #ifndef USERMAINWINDOW_H
 #define USERMAINWINDOW_H
 
-#include <QMainWindow>
 #include "LoginDlg.h"
+
+#include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class UserMainWindow; }

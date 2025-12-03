@@ -53,7 +53,7 @@ int main(int argc, char *argv[]) {
     if (loginWindow) {
         loginWindow->show();
 
-        // 连接注销请求（当主窗口注销时，回到登录界面）
+        // 连接注销请求 (当主窗口注销时，回到登录界面)
         QObject::connect(&factory, &WindowFactory::logoutRequested,
                          [loginWindow, &factory]() {
                              // 如果有登录窗口，先删除
@@ -66,8 +66,8 @@ int main(int argc, char *argv[]) {
                              if (newLoginWindow) {
                                  newLoginWindow->show();
 
-                                 // 更新loginWindow指针（如果需要）
-                                 // 注意：这里lambda捕获的loginWindow是局部变量的引用
+                                 // 更新 loginWindow 指针 (如果需要)
+                                 // 注意：这里 lambda 捕获的 loginWindow 是局部变量的引用
                                  // 实际使用中可能需要更好的管理方式
                              }
                          });

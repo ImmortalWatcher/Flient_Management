@@ -16,8 +16,8 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
 
 set(PROJECT_SOURCES
         main.cpp
-        UserMainWindow.cpp
         UserMainWindow.h
+        UserMainWindow.cpp
         UserMainWindow.ui
 )
 
@@ -25,12 +25,12 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(Flight_managerment
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
-        LoginDlg.h LoginDlg.cpp LoginDlg.ui
         DBOperator.h DBOperator.cpp
-        RegisterDlg.h RegisterDlg.cpp RegisterDlg.ui
-        figures.qrc
-        AdminMainWindow.h AdminMainWindow.cpp AdminMainWindow.ui
         WindowFactory.h WindowFactory.cpp
+        figures.qrc
+        LoginDlg.h LoginDlg.cpp LoginDlg.ui
+        RegisterDlg.h RegisterDlg.cpp RegisterDlg.ui
+        AdminMainWindow.h AdminMainWindow.cpp AdminMainWindow.ui
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET Flight_managerment APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

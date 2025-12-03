@@ -1,6 +1,8 @@
 #include "DBOperator.h"
 
-DBOperator::DBOperator() { openFlag = false; }
+DBOperator::DBOperator() {
+    openFlag = false;
+}
 
 void DBOperator::DBOpen() {
     if(!openFlag) {

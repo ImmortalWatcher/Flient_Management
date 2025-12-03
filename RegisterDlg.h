@@ -1,9 +1,9 @@
 #ifndef REGISTERDLG_H
 #define REGISTERDLG_H
 
-#include <QDialog>
-
 #include "DBOperator.h"
+
+#include <QDialog>
 
 namespace Ui { class RegDlg; }
 

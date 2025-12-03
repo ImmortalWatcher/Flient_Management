@@ -1,42 +1,32 @@
 #include "WindowFactory.h"
 #include "LoginDlg.h"
-#include "AdminMainWindow.h"
 #include "UserMainWindow.h"
+#include "AdminMainWindow.h"
+
 #include <QApplication>
 #include <QDebug>
 
-WindowFactory& WindowFactory::instance()
-{
+WindowFactory& WindowFactory::instance() {
     static WindowFactory instance;
     return instance;
 }
 
-WindowFactory::WindowFactory(QObject *parent)
-    : QObject(parent)
-    , m_currentMainWindow(nullptr)
-{
-}
+WindowFactory::WindowFactory(QObject *parent) : QObject(parent), m_currentMainWindow(nullptr) {}
 
-QMainWindow* WindowFactory::createMainWindow(int role, QWidget *parent)
-{
+QMainWindow* WindowFactory::createMainWindow(bool isAdmin, QWidget *parent) {
     // 如果已有窗口，先销毁
     destroyCurrentWindow();
 
     QMainWindow *window = nullptr;
 
-    switch(role) {
-    case 1:  // 管理员
-        window = new AdminMainWindow(parent);
-        window->setWindowTitle("管理员界面 - 学生成绩管理系统");
-        qDebug() << "创建管理员窗口";
-        break;
-
-    case 0:  // 普通用户
-    default:
+    if (!isAdmin) { // 普通用户
         window = new UserMainWindow();
         window->setWindowTitle("用户界面 - 学生成绩管理系统");
         qDebug() << "创建普通用户窗口";
-        break;
+    } else {       // 管理员
+        window = new AdminMainWindow(parent);
+        window->setWindowTitle("管理员界面 - 学生成绩管理系统");
+        qDebug() << "创建管理员窗口";
     }
 
     if (window) {
@@ -54,18 +44,17 @@ QMainWindow* WindowFactory::createMainWindow(int role, QWidget *parent)
     return window;
 }
 
-QDialog* WindowFactory::createLoginWindow(QWidget *parent)
-{
+QDialog* WindowFactory::createLoginWindow(QWidget *parent) {
     LoginDlg *loginDlg = new LoginDlg(parent);
     loginDlg->setWindowTitle("用户登录 - 学生成绩管理系统");
 
     // 连接登录成功信号
     connect(loginDlg, &LoginDlg::loginSuccess, this,
-            [this, loginDlg](int userId, const QString &username, int role) {
-                qDebug() << "登录成功，用户ID:" << userId << "用户名:" << username << "角色:" << role;
+            [this, loginDlg](int userId, const QString &username, bool isAdmin) {
+                qDebug() << "登录成功，用户ID:" << userId << "用户名:" << username << "是否管理员:" << isAdmin;
 
                 // 创建对应的主窗口
-                QMainWindow *mainWindow = createMainWindow(role);
+                QMainWindow *mainWindow = createMainWindow(isAdmin);
                 if (mainWindow) {
                     mainWindow->showMaximized();
                 }
@@ -96,13 +85,11 @@ void WindowFactory::switchToLogin()
     loginDlg->show();
 }
 
-QMainWindow* WindowFactory::currentMainWindow() const
-{
+QMainWindow* WindowFactory::currentMainWindow() const {
     return m_currentMainWindow;
 }
 
-void WindowFactory::destroyCurrentWindow()
-{
+void WindowFactory::destroyCurrentWindow() {
     if (m_currentMainWindow) {
         m_currentMainWindow->close();
         m_currentMainWindow->deleteLater();
