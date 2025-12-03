@@ -113,7 +113,7 @@
      </property>
     </item>
    </widget>
-   <widget class="Line" name="horizontalline_1">
+   <widget class="Line" name="horizontalLine_1">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -242,7 +242,7 @@
      </size>
     </property>
    </widget>
-   <widget class="Line" name="Verticalline">
+   <widget class="Line" name="VerticalLine">
     <property name="geometry">
      <rect>
       <x>140</x>
@@ -280,32 +280,13 @@
      <number>3</number>
     </property>
     <widget class="QWidget" name="page_1">
-     <widget class="QLabel" name="label_1">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>80</width>
-        <height>50</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>华文楷体</family>
-        <pointsize>18</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>Page 1</string>
-      </property>
-     </widget>
      <widget class="QFrame" name="flightsearch">
       <property name="geometry">
        <rect>
-        <x>100</x>
-        <y>20</y>
-        <width>441</width>
-        <height>151</height>
+        <x>110</x>
+        <y>30</y>
+        <width>440</width>
+        <height>150</height>
        </rect>
       </property>
       <property name="font">
@@ -318,7 +299,7 @@
        <string notr="true">QFrame {
     background-color: #156080;
     color: white;
-    border-radius: 18px; /* 关键：50%实现椭圆，固定宽高时也可写具体数值（如50px） */
+    border-radius: 18px;
 }</string>
       </property>
       <property name="frameShape">
@@ -327,13 +308,13 @@
       <property name="frameShadow">
        <enum>QFrame::Shadow::Raised</enum>
       </property>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="DepartureLabel">
        <property name="geometry">
         <rect>
          <x>40</x>
-         <y>20</y>
-         <width>81</width>
-         <height>51</height>
+         <y>10</y>
+         <width>80</width>
+         <height>50</height>
         </rect>
        </property>
        <property name="palette">
@@ -548,13 +529,13 @@
         <string>出发地：</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_4">
+      <widget class="QLabel" name="destinationLabel">
        <property name="geometry">
         <rect>
          <x>220</x>
-         <y>20</y>
-         <width>81</width>
-         <height>51</height>
+         <y>10</y>
+         <width>80</width>
+         <height>50</height>
         </rect>
        </property>
        <property name="palette">
@@ -769,13 +750,13 @@
         <string>目的地：</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_5">
+      <widget class="QLabel" name="departureTimeLabel">
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>70</y>
-         <width>81</width>
-         <height>41</height>
+         <y>60</y>
+         <width>80</width>
+         <height>40</height>
         </rect>
        </property>
        <property name="palette">
@@ -998,9 +979,9 @@
        <property name="geometry">
         <rect>
          <x>100</x>
-         <y>80</y>
-         <width>81</width>
-         <height>22</height>
+         <y>70</y>
+         <width>80</width>
+         <height>25</height>
         </rect>
        </property>
        <property name="minimum">
@@ -1014,9 +995,9 @@
        <property name="geometry">
         <rect>
          <x>220</x>
-         <y>80</y>
-         <width>61</width>
-         <height>22</height>
+         <y>70</y>
+         <width>60</width>
+         <height>25</height>
         </rect>
        </property>
        <property name="minimum">
@@ -1030,9 +1011,9 @@
        <property name="geometry">
         <rect>
          <x>320</x>
-         <y>80</y>
-         <width>51</width>
-         <height>22</height>
+         <y>70</y>
+         <width>50</width>
+         <height>25</height>
         </rect>
        </property>
        <property name="minimum">
@@ -1042,13 +1023,13 @@
         <number>31</number>
        </property>
       </widget>
-      <widget class="QLabel" name="label_7">
+      <widget class="QLabel" name="monthLabel">
        <property name="geometry">
         <rect>
-         <x>270</x>
-         <y>70</y>
-         <width>41</width>
-         <height>41</height>
+         <x>280</x>
+         <y>60</y>
+         <width>40</width>
+         <height>40</height>
         </rect>
        </property>
        <property name="palette">
@@ -1267,13 +1248,13 @@ border: none; /* 移除边框 */</string>
         <set>Qt::AlignmentFlag::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="label_8">
+      <widget class="QLabel" name="yearLabel_2">
        <property name="geometry">
         <rect>
-         <x>360</x>
-         <y>70</y>
-         <width>41</width>
-         <height>41</height>
+         <x>370</x>
+         <y>60</y>
+         <width>40</width>
+         <height>40</height>
         </rect>
        </property>
        <property name="palette">
@@ -1492,13 +1473,13 @@ border: none; /* 移除边框 */</string>
         <set>Qt::AlignmentFlag::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="label_6">
+      <widget class="QLabel" name="yearLabel">
        <property name="geometry">
         <rect>
-         <x>170</x>
-         <y>70</y>
-         <width>41</width>
-         <height>41</height>
+         <x>180</x>
+         <y>60</y>
+         <width>40</width>
+         <height>40</height>
         </rect>
        </property>
        <property name="palette">
@@ -1721,9 +1702,9 @@ border: none; /* 移除边框 */</string>
        <property name="geometry">
         <rect>
          <x>110</x>
-         <y>30</y>
-         <width>81</width>
-         <height>31</height>
+         <y>20</y>
+         <width>80</width>
+         <height>30</height>
         </rect>
        </property>
        <property name="font">
@@ -1762,9 +1743,9 @@ border: none; /* 移除边框 */</string>
        <property name="geometry">
         <rect>
          <x>290</x>
-         <y>30</y>
-         <width>81</width>
-         <height>31</height>
+         <y>20</y>
+         <width>80</width>
+         <height>30</height>
         </rect>
        </property>
        <property name="font">
@@ -1835,8 +1816,8 @@ border: none; /* 移除边框 */</string>
      <widget class="QLabel" name="label_2">
       <property name="geometry">
        <rect>
-        <x>510</x>
-        <y>20</y>
+        <x>290</x>
+        <y>80</y>
         <width>80</width>
         <height>50</height>
        </rect>
@@ -1856,8 +1837,8 @@ border: none; /* 移除边框 */</string>
      <widget class="QLabel" name="label_3">
       <property name="geometry">
        <rect>
-        <x>510</x>
-        <y>30</y>
+        <x>290</x>
+        <y>80</y>
         <width>80</width>
         <height>50</height>
        </rect>
@@ -1877,20 +1858,20 @@ border: none; /* 移除边框 */</string>
      <widget class="QLabel" name="avatarLabel">
       <property name="geometry">
        <rect>
-        <x>290</x>
-        <y>30</y>
-        <width>70</width>
-        <height>70</height>
+        <x>260</x>
+        <y>50</y>
+        <width>110</width>
+        <height>110</height>
        </rect>
       </property>
-      <property name="font">
-       <font>
-        <family>华文楷体</family>
-        <pointsize>18</pointsize>
-       </font>
-      </property>
       <property name="text">
-       <string>头像</string>
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="avatars.qrc">:/img/source/avatars/avatar_1.png</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
       </property>
       <property name="alignment">
        <set>Qt::AlignmentFlag::AlignCenter</set>
@@ -1900,7 +1881,7 @@ border: none; /* 移除边框 */</string>
       <property name="geometry">
        <rect>
         <x>40</x>
-        <y>130</y>
+        <y>190</y>
         <width>80</width>
         <height>40</height>
        </rect>
@@ -1922,7 +1903,7 @@ border: none; /* 移除边框 */</string>
       <property name="geometry">
        <rect>
         <x>150</x>
-        <y>140</y>
+        <y>200</y>
         <width>150</width>
         <height>20</height>
        </rect>
@@ -1938,7 +1919,7 @@ border: none; /* 移除边框 */</string>
       <property name="geometry">
        <rect>
         <x>330</x>
-        <y>130</y>
+        <y>190</y>
         <width>80</width>
         <height>40</height>
        </rect>
@@ -1963,7 +1944,7 @@ border: none; /* 移除边框 */</string>
       <property name="geometry">
        <rect>
         <x>40</x>
-        <y>200</y>
+        <y>250</y>
         <width>80</width>
         <height>40</height>
        </rect>
@@ -1985,7 +1966,7 @@ border: none; /* 移除边框 */</string>
       <property name="geometry">
        <rect>
         <x>150</x>
-        <y>210</y>
+        <y>260</y>
         <width>150</width>
         <height>20</height>
        </rect>
@@ -2001,7 +1982,7 @@ border: none; /* 移除边框 */</string>
       <property name="geometry">
        <rect>
         <x>330</x>
-        <y>200</y>
+        <y>250</y>
         <width>80</width>
         <height>40</height>
        </rect>
@@ -2023,7 +2004,7 @@ border: none; /* 移除边框 */</string>
       <property name="geometry">
        <rect>
         <x>410</x>
-        <y>210</y>
+        <y>260</y>
         <width>150</width>
         <height>20</height>
        </rect>
@@ -2039,7 +2020,7 @@ border: none; /* 移除边框 */</string>
       <property name="geometry">
        <rect>
         <x>40</x>
-        <y>270</y>
+        <y>320</y>
         <width>90</width>
         <height>40</height>
        </rect>
@@ -2058,7 +2039,7 @@ border: none; /* 移除边框 */</string>
       <property name="geometry">
        <rect>
         <x>150</x>
-        <y>280</y>
+        <y>330</y>
         <width>150</width>
         <height>20</height>
        </rect>
@@ -2070,11 +2051,11 @@ border: none; /* 移除边框 */</string>
        </font>
       </property>
      </widget>
-     <widget class="Line" name="horizontalline_2">
+     <widget class="Line" name="horizontalLine_2">
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>350</y>
+        <y>380</y>
         <width>660</width>
         <height>20</height>
        </rect>
@@ -2096,7 +2077,7 @@ border: none; /* 移除边框 */</string>
       <property name="geometry">
        <rect>
         <x>30</x>
-        <y>430</y>
+        <y>450</y>
         <width>160</width>
         <height>40</height>
        </rect>
@@ -2126,9 +2107,9 @@ border: none; /* 移除边框 */</string>
       <property name="geometry">
        <rect>
         <x>240</x>
-        <y>430</y>
+        <y>450</y>
         <width>160</width>
-        <height>41</height>
+        <height>40</height>
        </rect>
       </property>
       <property name="font">
@@ -2156,9 +2137,9 @@ border: none; /* 移除边框 */</string>
       <property name="geometry">
        <rect>
         <x>450</x>
-        <y>430</y>
+        <y>450</y>
         <width>160</width>
-        <height>41</height>
+        <height>40</height>
        </rect>
       </property>
       <property name="font">
@@ -2185,6 +2166,7 @@ border: none; /* 移除边框 */</string>
  </widget>
  <resources>
   <include location="figures.qrc"/>
+  <include location="avatars.qrc"/>
  </resources>
  <connections/>
 </ui>
