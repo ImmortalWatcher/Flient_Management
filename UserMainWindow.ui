@@ -277,7 +277,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="page_1">
      <widget class="QFrame" name="flightsearch">

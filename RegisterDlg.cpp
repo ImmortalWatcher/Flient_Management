@@ -71,8 +71,8 @@ void RegDlg::on_regBtn_clicked() {
         return;
     }
 
-    // 构造 SQL 语句并执行插入
-    QString insertSql = QString("insert into user_info(username, password) values('%1', '%2')").arg(username, password);
+    // 构造 SQL 语句并执行插入，设置默认头像为编号 1
+    QString insertSql = QString("insert into user_info(username, password, avatar_id) values('%1', '%2', 1)").arg(username, password);
     QSqlQuery insertQuery = dbp.DBGetData(insertSql, success);
     if (!success) {
         QMessageBox::warning(this, "注册失败", insertQuery.lastError().text());
