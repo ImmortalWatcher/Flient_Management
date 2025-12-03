@@ -16,7 +16,7 @@ public:
 
     void clearInput(); // 声明清空输入的函数
 
-signals:  // 添加这个信号声明
+signals: // 添加这个信号声明
     void loginSuccess(int userId, const QString &username, bool isAdmin);
 
 protected slots:
