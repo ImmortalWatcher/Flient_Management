@@ -120,7 +120,7 @@ void UserMainWindow::showAvatarSelectionDialog() {
         QDialog *m_dialog;
     };
 
-    for (int i = 1; i <= 10; i++) {
+    for (int i = 1; i <= 15; i++) {
         // 构建头像资源路径
         QString avatarPath = QString(":/img/source/avatars/avatar_%1.png").arg(i);
 
