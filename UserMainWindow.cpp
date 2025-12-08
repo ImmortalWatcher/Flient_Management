@@ -1,5 +1,6 @@
 #include "UserMainWindow.h"
 #include "ui_UserMainWindow.h"
+#include "FlightItemWidget.h"
 
 #include <QDialog>
 #include <QMessageBox>
@@ -8,6 +9,7 @@
 #include <QMouseEvent>
 #include <QVBoxLayout>
 #include <QGridLayout>
+#include <QSqlError>
 
 UserMainWindow::UserMainWindow(int userId, QWidget *parent) 
     : QMainWindow(parent), ui(new Ui::UserMainWindow), m_userId(userId) {
@@ -22,6 +24,13 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent)
     // 加载用户信息和头像
     loadUserInfo();
     loadAvatar();
+
+    flightLayout = new QVBoxLayout(ui->scrollAreaWidgetContents);
+    ui->scrollAreaWidgetContents->setLayout(flightLayout);
+    flightLayout->setSpacing(10); // 条目之间的间距
+    flightLayout->setContentsMargins(10, 10, 10, 10);
+    flightLayout->setAlignment(Qt::AlignTop); // 确保条目从顶部开始排列
+    connect(ui->searchBtn, &QPushButton::clicked, this, &UserMainWindow::on_searchBtn_clicked);
 }
 
 UserMainWindow::~UserMainWindow() {
@@ -185,8 +194,6 @@ void UserMainWindow::showAvatarSelectionDialog() {
     delete dialog;
 }
 
-void UserMainWindow::on_searchBtn_clicked() {}
-
 void UserMainWindow::loadUserInfo() {
     DBOperator::UserInfo userInfo;
     if (m_dbOperator.getUserInfo(m_userId, userInfo)) {
@@ -200,4 +207,74 @@ void UserMainWindow::loadUserInfo() {
     } else {
         QMessageBox::warning(this, "错误", "加载用户信息失败！");
     }
+}
+
+void UserMainWindow::clearFlightItems() {
+    while (QLayoutItem* item = flightLayout->takeAt(0)) {
+        if (QWidget* widget = item->widget()) {
+            widget->deleteLater(); // 安全删除Widget
+        }
+        delete item; // 删除布局项
+    }
+}
+
+void UserMainWindow::on_searchBtn_clicked()
+{
+    // 每次查询前清空旧的条目，避免布局被填满或拉伸项挡住新内容
+    clearFlightItems();
+
+    QString departure = ui->departureCbox->currentText(); // 出发地下拉框
+    QString destination = ui->arrivalCbox->currentText(); // 目的地下拉框
+    QString year = ui->yearSpin->text();
+    QString month = ui->monthSpin->text().rightJustified(2, '0'); // 补0（如“1”→“01”）
+    QString day = ui->daySpin->text().rightJustified(2, '0');
+    QString takeoffDate = QString("%1-%2-%3").arg(year, month, day);
+
+    bool sf = false;
+    QString sqlstr = QString("select * from flight_info where departure_city='%1' and arrival_city='%2' and departure_time='%3'").arg(departure,destination,takeoffDate);
+    // qDebug() << "执行的 SQL 语句:" << sqlstr;
+    QSqlQuery query = m_dbOperator.DBGetData(sqlstr, sf);
+    if (!sf)
+    {
+        QMessageBox::critical(this, "查询失败", "数据库错误：" + query.lastError().text());
+        return;
+    }
+
+    //添加查询结果到滚动区域
+
+    while (query.next()) {
+        // 从查询结果中提取字段
+        QString flightNo = query.value("flight_id").toString();
+        QString takeoffTime = query.value("departure_time").toString(); // 格式如“2025-01-01 10:30”
+        QString dep = query.value("departure_city").toString();
+        QString dest = query.value("arrival_city").toString();
+        QString price = query.value("price").toString() + "元";
+        QString remaining = QString("%1/80").arg(query.value("remaining_seats").toString()); // 假设总座位80
+
+        // 创建航班条目Widget
+        FlightItemWidget* itemWidget = new FlightItemWidget(
+            flightNo, takeoffTime, dep, dest, price, remaining, this
+            );
+
+        // 连接条目内按钮的信号（处理预订/收藏）
+        connect(itemWidget, &FlightItemWidget::bookClicked, this, &UserMainWindow::on_book_clicked);
+        connect(itemWidget, &FlightItemWidget::collectClicked, this, &UserMainWindow::on_collect_clicked);
+
+        // 添加到滚动区域的布局中
+        flightLayout->addWidget(itemWidget);
+        qDebug()<<"成功创建widget";
+    }
+    // 追加弹性空间，保证列表顶部对齐并可滚动
+    flightLayout->addStretch(1);
+    ui->scrollAreaWidgetContents->adjustSize(); // 刷新内容区域尺寸以触发重绘
+}
+
+void UserMainWindow::on_book_clicked(const QString& flightNo) {
+    // 示例：弹出预订窗口，或向数据库写入订单
+    QMessageBox::information(this, "预订成功", "已预订航班：" + flightNo);
+}
+
+void UserMainWindow::on_collect_clicked(const QString& flightNo) {
+    // 示例：将航班号写入“我的收藏”表
+    QMessageBox::information(this, "收藏成功", "已收藏航班：" + flightNo);
 }

@@ -30,6 +30,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         RegisterDlg.h RegisterDlg.cpp RegisterDlg.ui
         UserMainWindow.h UserMainWindow.cpp UserMainWindow.ui
         AdminMainWindow.h AdminMainWindow.cpp AdminMainWindow.ui
+        FlightItemWidget.h FlightItemWidget.cpp FlightItemWidget.ui
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET Flight_managerment APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

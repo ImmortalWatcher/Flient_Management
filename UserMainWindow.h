@@ -2,6 +2,7 @@
 #define USERMAINWINDOW_H
 
 #include "DBOperator.h"
+#include <QVBoxLayout>
 
 #include <QMainWindow>
 
@@ -25,6 +26,9 @@ private slots:
     void on_backBtn_clicked();
 
     void on_searchBtn_clicked();
+    void on_book_clicked(const QString& flightNo);
+    void on_collect_clicked(const QString& flightNo);
+
 
 private:
     Ui::UserMainWindow *ui;
@@ -41,5 +45,9 @@ private:
 
     // 事件过滤器
     bool eventFilter(QObject *obj, QEvent *event) override;
+
+    void clearFlightItems();
+    QVBoxLayout* flightLayout;
+
 };
 #endif // USERMAINWINDOW_H
