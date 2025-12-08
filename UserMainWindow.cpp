@@ -173,6 +173,13 @@ void UserMainWindow::showAvatarSelectionDialog() {
     buttonLayout->addWidget(cancelBtn);
     mainLayout->addLayout(buttonLayout);
 
+
     dialog->exec();
     delete dialog;
 }
+
+void UserMainWindow::on_searchBtn_clicked()
+{
+
+}
+

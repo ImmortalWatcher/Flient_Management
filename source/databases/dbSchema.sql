@@ -21,3 +21,27 @@ create table if not exists admin_info (
 -- 测试数据
 insert user_info (username, password) values ('test', '123456');
 insert admin_info (username, password) values ('admin', '123456');
+
+-- 航班信息表
+create table if not exists flight_info(
+    flight_id varchar(20) primary key not null comment '航班号',
+    airline_company varchar(50) not null comment '航空公司',
+    departure_city varchar(50) not null comment '出发城市',
+    departure_airport varchar(50) not null comment '出发机场',
+    departure_time datetime not null comment '出发时间',
+    arrival_city varchar(50) not null comment '到达城市',
+    arrival_airport varchar(50) not null comment '到达机场',
+    arrival_time datetime not null comment '到达时间',
+    price decimal(10,2) not null comment '价格',
+    total_seats int not null comment '总座位数',
+    remaining_seats int not null comment '剩余座位（实时更新)'
+);
+
+-- 测试数据
+INSERT INTO flight_info VALUES ('国航CA8394','中国国航','北京','北京大兴机场','2026-01-01 10:30:00','广州','广州白云机场','2026-01-01 15:00:00',455,80,33);
+INSERT INTO flight_info VALUES ('东航MU5101','东方航空','北京','北京首都机场','2026-01-01 08:00:00','上海','上海浦东机场','2026-01-01 10:15:00',135,85,45);
+INSERT INTO flight_info VALUES ('南航CZ3102','中国南方航空','广州','广州白云机场','2026-01-01 09:20:00','北京','北京大兴机场','2026-01-01 12:50:00',410,78,28);
+INSERT INTO flight_info VALUES ('深航ZH9404','深圳航空','深圳','深圳宝安机场','2026-01-01 13:10:00','成都','成都天府机场','2026-01-01 16:30:00',620,90,37);
+INSERT INTO flight_info VALUES ('国航CA1406','中国国航','成都','成都双流机场','2026-01-01 15:30:00','北京','北京首都机场','2026-01-01 18:45:00',615,86,22);
+INSERT INTO flight_info VALUES ('东航MU2307','东方航空','上海','上海虹桥机场','2026-01-01 17:15:00','广州','广州白云机场','2026-01-01 19:30:00',135,79,41);
+INSERT INTO flight_info VALUES ('深航ZH1610','深圳航空','北京','北京大兴机场','2026-01-01 19:00:00','深圳','深圳宝安机场','2026-01-01 22:25:00',625,89,15);

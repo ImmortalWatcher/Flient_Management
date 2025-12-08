@@ -24,6 +24,8 @@ private slots:
     void on_personalCenterBtn_clicked();
     void on_backBtn_clicked();
 
+    void on_searchBtn_clicked();
+
 private:
     Ui::UserMainWindow *ui;
     int m_userId;                     // 当前用户 ID
