@@ -36,6 +36,9 @@ private:
     void showAvatarSelectionDialog(); // 显示头像选择对话框
     void setAvatar(int avatarId);     // 设置头像
 
+    // 用户信息相关方法
+    void loadUserInfo();              // 加载用户信息到个人中心
+
     // 事件过滤器
     bool eventFilter(QObject *obj, QEvent *event) override;
 };

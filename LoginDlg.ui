@@ -71,7 +71,7 @@
     <set>Qt::AlignmentFlag::AlignCenter</set>
    </property>
   </widget>
-  <widget class="QLineEdit" name="AccountEdit">
+  <widget class="QLineEdit" name="UsernameEdit">
    <property name="geometry">
     <rect>
      <x>160</x>
@@ -87,7 +87,7 @@
     </font>
    </property>
    <property name="placeholderText">
-    <string>请输入账号</string>
+    <string>请输入用户名</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="PasswordEdit">

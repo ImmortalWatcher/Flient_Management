@@ -73,7 +73,7 @@
    <widget class="QPushButton" name="backBtn">
     <property name="geometry">
      <rect>
-      <x>580</x>
+      <x>700</x>
       <y>10</y>
       <width>90</width>
       <height>30</height>
@@ -98,36 +98,7 @@
      </size>
     </property>
    </widget>
-   <widget class="QComboBox" name="comboBox">
-    <property name="geometry">
-     <rect>
-      <x>690</x>
-      <y>12</y>
-      <width>100</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <item>
-     <property name="text">
-      <string>UserName</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>修改密码</string>
-     </property>
-     <property name="icon">
-      <iconset resource="figures.qrc">
-       <normaloff>:/img/source/figures/pwdLock.png</normaloff>:/img/source/figures/pwdLock.png</iconset>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>退出登录</string>
-     </property>
-    </item>
-   </widget>
-   <widget class="Line" name="horizontalLine_1">
+   <widget class="Line" name="horizontalLine">
     <property name="geometry">
      <rect>
       <x>0</x>
@@ -291,7 +262,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="page_1">
      <widget class="QFrame" name="flightsearch">
@@ -2447,7 +2418,7 @@ border: none; /* 移除边框 */</string>
       <property name="geometry">
        <rect>
         <x>260</x>
-        <y>50</y>
+        <y>30</y>
         <width>110</width>
         <height>110</height>
        </rect>
@@ -2465,13 +2436,13 @@ border: none; /* 移除边框 */</string>
        <set>Qt::AlignmentFlag::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="accountLabel">
+     <widget class="QLabel" name="usernameLabel">
       <property name="geometry">
        <rect>
-        <x>40</x>
-        <y>190</y>
-        <width>80</width>
-        <height>40</height>
+        <x>100</x>
+        <y>180</y>
+        <width>70</width>
+        <height>30</height>
        </rect>
       </property>
       <property name="font">
@@ -2481,35 +2452,38 @@ border: none; /* 移除边框 */</string>
        </font>
       </property>
       <property name="text">
-       <string>账号：</string>
+       <string>用户名：</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
       </property>
      </widget>
-     <widget class="QLineEdit" name="accountEdit">
+     <widget class="QLabel" name="UsernameEdit">
       <property name="geometry">
        <rect>
-        <x>150</x>
-        <y>200</y>
-        <width>150</width>
+        <x>180</x>
+        <y>185</y>
+        <width>120</width>
         <height>20</height>
        </rect>
       </property>
       <property name="font">
        <font>
-        <family>华文楷体</family>
-        <pointsize>10</pointsize>
+        <family>Microsoft YaHei UI</family>
+        <pointsize>12</pointsize>
        </font>
       </property>
+      <property name="text">
+       <string>username</string>
+      </property>
      </widget>
-     <widget class="QLabel" name="genderLabel">
+     <widget class="QLabel" name="realnameLabel">
       <property name="geometry">
        <rect>
-        <x>330</x>
-        <y>190</y>
-        <width>80</width>
-        <height>40</height>
+        <x>80</x>
+        <y>280</y>
+        <width>90</width>
+        <height>30</height>
        </rect>
       </property>
       <property name="font">
@@ -2522,7 +2496,7 @@ border: none; /* 移除边框 */</string>
        <enum>QFrame::Shadow::Raised</enum>
       </property>
       <property name="text">
-       <string>性别：</string>
+       <string>真实姓名：</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
@@ -2531,10 +2505,10 @@ border: none; /* 移除边框 */</string>
      <widget class="QLabel" name="phoneLabel">
       <property name="geometry">
        <rect>
-        <x>40</x>
-        <y>250</y>
-        <width>80</width>
-        <height>40</height>
+        <x>100</x>
+        <y>230</y>
+        <width>70</width>
+        <height>30</height>
        </rect>
       </property>
       <property name="font">
@@ -2550,29 +2524,32 @@ border: none; /* 移除边框 */</string>
        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
       </property>
      </widget>
-     <widget class="QLineEdit" name="phoneEdit">
+     <widget class="QLabel" name="PhoneEdit">
       <property name="geometry">
        <rect>
-        <x>150</x>
-        <y>260</y>
-        <width>150</width>
+        <x>180</x>
+        <y>235</y>
+        <width>120</width>
         <height>20</height>
        </rect>
       </property>
       <property name="font">
        <font>
-        <family>华文楷体</family>
-        <pointsize>10</pointsize>
+        <family>Microsoft YaHei UI</family>
+        <pointsize>12</pointsize>
        </font>
       </property>
+      <property name="text">
+       <string>phone</string>
+      </property>
      </widget>
-     <widget class="QLabel" name="emailLabel">
+     <widget class="QLabel" name="idcardLabel">
       <property name="geometry">
        <rect>
         <x>330</x>
-        <y>250</y>
-        <width>80</width>
-        <height>40</height>
+        <y>280</y>
+        <width>90</width>
+        <height>30</height>
        </rect>
       </property>
       <property name="font">
@@ -2582,35 +2559,38 @@ border: none; /* 移除边框 */</string>
        </font>
       </property>
       <property name="text">
-       <string>邮箱：</string>
+       <string>身份证号：</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
       </property>
      </widget>
-     <widget class="QLineEdit" name="emailEdit">
+     <widget class="QLabel" name="EmailEdit">
       <property name="geometry">
        <rect>
-        <x>410</x>
-        <y>260</y>
+        <x>430</x>
+        <y>235</y>
         <width>150</width>
         <height>20</height>
        </rect>
       </property>
       <property name="font">
        <font>
-        <family>华文楷体</family>
-        <pointsize>10</pointsize>
+        <family>Microsoft YaHei UI</family>
+        <pointsize>12</pointsize>
        </font>
+      </property>
+      <property name="text">
+       <string>email</string>
       </property>
      </widget>
      <widget class="QLabel" name="balanceLabel">
       <property name="geometry">
        <rect>
-        <x>40</x>
-        <y>320</y>
+        <x>80</x>
+        <y>330</y>
         <width>90</width>
-        <height>40</height>
+        <height>31</height>
        </rect>
       </property>
       <property name="font">
@@ -2623,23 +2603,26 @@ border: none; /* 移除边框 */</string>
        <string>账户余额：</string>
       </property>
      </widget>
-     <widget class="QLineEdit" name="balanceEdit">
+     <widget class="QLabel" name="RealnameEdit">
       <property name="geometry">
        <rect>
-        <x>150</x>
-        <y>330</y>
-        <width>150</width>
+        <x>180</x>
+        <y>285</y>
+        <width>120</width>
         <height>20</height>
        </rect>
       </property>
       <property name="font">
        <font>
-        <family>华文楷体</family>
-        <pointsize>10</pointsize>
+        <family>Microsoft YaHei UI</family>
+        <pointsize>12</pointsize>
        </font>
       </property>
+      <property name="text">
+       <string>realname</string>
+      </property>
      </widget>
-     <widget class="Line" name="horizontalLine_2">
+     <widget class="Line" name="horizontalLine_page_4">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -2746,6 +2729,98 @@ border: none; /* 移除边框 */</string>
       </property>
       <property name="text">
        <string>注销账号</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="PasswordEdit">
+      <property name="geometry">
+       <rect>
+        <x>430</x>
+        <y>185</y>
+        <width>150</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Microsoft YaHei UI</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>password</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="passwordLabel">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>180</y>
+        <width>60</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>华文楷体</family>
+        <pointsize>14</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>密  码：</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="IdcardEdit">
+      <property name="geometry">
+       <rect>
+        <x>430</x>
+        <y>285</y>
+        <width>150</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Microsoft YaHei UI</family>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>idcard</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="emailLabel">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>230</y>
+        <width>60</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>华文楷体</family>
+        <pointsize>14</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>邮  箱：</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="BalanceEdit">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>335</y>
+        <width>150</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>华文楷体</family>
+        <pointsize>10</pointsize>
+       </font>
       </property>
      </widget>
     </widget>

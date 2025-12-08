@@ -45,20 +45,29 @@ QSqlQuery DBOperator::DBGetData(QString sqlstr, bool &sucessFlag) {
     return query;
 }
 
-// 获取用户头像编号
-int DBOperator::getUserAvatarId(int userId) {
+// 获取用户完整信息
+bool DBOperator::getUserInfo(int userId, UserInfo &userInfo) {
     bool sf = false;
-    QString sqlstr = QString("select avatar_id from user_info where id=%1").arg(userId);
+    QString sqlstr = QString("select username, password, phone, email, realname, idcard, avatarid from user_info where id=%1").arg(userId);
     QSqlQuery qs = DBGetData(sqlstr, sf);
 
-    if (sf && qs.next()) return qs.value("avatar_id").toInt();
-    return 1;
+    if (sf && qs.next()) {
+        userInfo.username = qs.value("username").toString();
+        userInfo.password = qs.value("password").toString();
+        userInfo.phone = qs.value("phone").toString();
+        userInfo.email = qs.value("email").toString();
+        userInfo.realname = qs.value("realname").toString();
+        userInfo.idcard = qs.value("idcard").toString();
+        userInfo.avatarId = qs.value("avatarid").toInt();
+        return true;
+    }
+    return false;
 }
 
 // 更新用户头像编号
 bool DBOperator::updateUserAvatarId(int userId, int avatarId) {
     bool sf = false;
-    QString sqlstr = QString("update user_info set avatar_id=%1 where id=%2").arg(avatarId).arg(userId);
+    QString sqlstr = QString("update user_info set avatarid=%1 where id=%2").arg(avatarId).arg(userId);
     QSqlQuery qs = DBGetData(sqlstr, sf);
     return sf;
 }

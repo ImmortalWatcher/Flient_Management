@@ -19,7 +19,7 @@ private slots:
     void on_backBtn_clicked();
 
 private:
-    bool validateInput(QString &username, QString &password, QString &repassword);
+    bool validateInput(QString &username, QString &password, QString &repassword, QString &phone, QString &email, QString &realname, QString &idcard);
 
     Ui::RegDlg *ui;
     DBOperator dbp;

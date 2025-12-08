@@ -19,7 +19,8 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent)
     ui->avatarLabel->setCursor(Qt::PointingHandCursor);
     ui->avatarLabel->installEventFilter(this);
 
-    // 加载头像
+    // 加载用户信息和头像
+    loadUserInfo();
     loadAvatar();
 }
 
@@ -41,6 +42,7 @@ void UserMainWindow::on_myFavoritesBtn_clicked() {
 
 void UserMainWindow::on_personalCenterBtn_clicked() {
     ui->stackedWidget->setCurrentIndex(3);
+    loadUserInfo(); // 加载用户信息
 }
 
 void UserMainWindow::on_backBtn_clicked() {
@@ -59,8 +61,13 @@ bool UserMainWindow::eventFilter(QObject *obj, QEvent *event) {
 }
 
 void UserMainWindow::loadAvatar() {
-    int avatarId = m_dbOperator.getUserAvatarId(m_userId);
-    setAvatar(avatarId);
+    DBOperator::UserInfo userInfo;
+    if (m_dbOperator.getUserInfo(m_userId, userInfo)) {
+        setAvatar(userInfo.avatarId);
+    } else {
+        // 如果获取失败，使用默认头像
+        setAvatar(1);
+    }
 }
 
 void UserMainWindow::setAvatar(int avatarId) {
@@ -178,8 +185,19 @@ void UserMainWindow::showAvatarSelectionDialog() {
     delete dialog;
 }
 
-void UserMainWindow::on_searchBtn_clicked()
-{
+void UserMainWindow::on_searchBtn_clicked() {}
 
+void UserMainWindow::loadUserInfo() {
+    DBOperator::UserInfo userInfo;
+    if (m_dbOperator.getUserInfo(m_userId, userInfo)) {
+        // 显示用户信息到个人中心页面
+        ui->UsernameEdit->setText(userInfo.username);
+        ui->PasswordEdit->setText(userInfo.password);
+        ui->PhoneEdit->setText(userInfo.phone);
+        ui->EmailEdit->setText(userInfo.email);
+        ui->RealnameEdit->setText(userInfo.realname);
+        ui->IdcardEdit->setText(userInfo.idcard);
+    } else {
+        QMessageBox::warning(this, "错误", "加载用户信息失败！");
+    }
 }
-

@@ -11,11 +11,22 @@ private:
     bool openFlag;
 
 public:
+    struct UserInfo {
+        QString username;
+        QString password;
+        QString phone;
+        QString email;
+        QString realname;
+        QString idcard;
+        int avatarId;
+    };
+
     DBOperator();
     void DBOpen();
     void DBClose();
+
     QSqlQuery DBGetData(QString sqlstr, bool &sucessFlag);
-    int getUserAvatarId(int userId);
+    bool getUserInfo(int userId, UserInfo &userInfo);
     bool updateUserAvatarId(int userId, int avatarId);
 };
 

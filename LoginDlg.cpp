@@ -10,7 +10,7 @@
 LoginDlg::LoginDlg(QWidget *parent) : QDialog(parent), ui(new Ui::LoginDlg) {
     ui->setupUi(this);
     // 设计 Tab 导航
-    QWidget::setTabOrder(ui->AccountEdit, ui->PasswordEdit);
+    QWidget::setTabOrder(ui->UsernameEdit, ui->PasswordEdit);
     QWidget::setTabOrder(ui->PasswordEdit, ui->loginBtn);
     QWidget::setTabOrder(ui->loginBtn, ui->regBtn);
     dbp.DBOpen();
@@ -23,18 +23,18 @@ LoginDlg::~LoginDlg() {
 
 // 实现清空输入的函数 (内部可访问私有 ui)
 void LoginDlg::clearInput() {
-    ui->AccountEdit->clear();  // 清空账号框
-    ui->PasswordEdit->clear(); // 清空密码框
+    ui->UsernameEdit->clear();  // 清空用户名框
+    ui->PasswordEdit->clear();  // 清空密码框
 }
 
 void LoginDlg::on_loginBtn_clicked() {
     // qDebug() <<__FUNCTION__;
-    auto username = ui->AccountEdit->text();
+    auto username = ui->UsernameEdit->text();
     auto password = ui->PasswordEdit->text();
 
     // 空值校验
     if (username.isEmpty()||password.isEmpty()) {
-        QMessageBox::warning(this, "警告", "账号或密码不能为空！");
+        QMessageBox::warning(this, "警告", "用户名或密码不能为空！");
         return;
     }
 
@@ -53,7 +53,7 @@ void LoginDlg::on_loginBtn_clicked() {
         return;
     }
 
-    // 验证账号密码是否匹配
+    // 验证用户名密码是否匹配
     bool isAdmin = false;
     int userId = 0;
     QString dbUsername;
@@ -78,7 +78,7 @@ void LoginDlg::on_loginBtn_clicked() {
             dbUsername = qs.value("username").toString();
             isAdmin = true; // 管理员
         } else {
-            QMessageBox::warning(this, "登录失败", "账号或密码错误，请重新输入！");
+            QMessageBox::warning(this, "登录失败", "用户名或密码错误，请重新输入！");
             return;
         }
     }
