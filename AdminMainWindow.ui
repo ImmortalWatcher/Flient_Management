@@ -98,35 +98,6 @@
      </size>
     </property>
    </widget>
-   <widget class="QComboBox" name="comboBox">
-    <property name="geometry">
-     <rect>
-      <x>700</x>
-      <y>12</y>
-      <width>90</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <item>
-     <property name="text">
-      <string>admin</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>修改密码</string>
-     </property>
-     <property name="icon">
-      <iconset resource="figures.qrc">
-       <normaloff>:/img/source/figures/pwdLock.png</normaloff>:/img/source/figures/pwdLock.png</iconset>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>退出登录</string>
-     </property>
-    </item>
-   </widget>
    <widget class="Line" name="horizontalline">
     <property name="geometry">
      <rect>
