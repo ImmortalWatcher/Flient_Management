@@ -10,6 +10,7 @@
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QSqlError>
+#include <QDateTime>
 
 UserMainWindow::UserMainWindow(int userId, QWidget *parent) 
     : QMainWindow(parent), ui(new Ui::UserMainWindow), m_userId(userId) {
@@ -27,9 +28,19 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent)
 
     flightLayout = new QVBoxLayout(ui->scrollAreaWidgetContents);
     ui->scrollAreaWidgetContents->setLayout(flightLayout);
-    flightLayout->setSpacing(10); // 条目之间的间距
-    flightLayout->setContentsMargins(10, 10, 10, 10);
+    flightLayout->setSpacing(3); // 条目之间的间距
+    flightLayout->setContentsMargins(10, 5, 10, 5);
     flightLayout->setAlignment(Qt::AlignTop); // 确保条目从顶部开始排列
+    
+    // 移除固定的minimumSize，让内容区域根据内容自动调整大小
+    ui->scrollAreaWidgetContents->setMinimumSize(0, 0);
+    // 确保scrollAreaWidgetContents有正确的大小策略
+    // 当widgetResizable为true时，宽度会自动调整，高度应该根据内容调整
+    ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    
+    // 确保scrollAreaWidgetContents初始可见
+    ui->scrollAreaWidgetContents->show();
+    
     connect(ui->searchBtn, &QPushButton::clicked, this, &UserMainWindow::on_searchBtn_clicked);
 }
 
@@ -55,7 +66,6 @@ void UserMainWindow::on_personalCenterBtn_clicked() {
 }
 
 void UserMainWindow::on_backBtn_clicked() {
-    emit logoutRequested();
     this->close();
 }
 
@@ -232,8 +242,8 @@ void UserMainWindow::on_searchBtn_clicked()
     QString takeoffDate = QString("%1-%2-%3").arg(year, month, day);
 
     bool sf = false;
-    QString sqlstr = QString("select * from flight_info where departure_city='%1' and arrival_city='%2' and departure_time='%3'").arg(departure,destination,takeoffDate);
-    // qDebug() << "执行的 SQL 语句:" << sqlstr;
+    // 使用DATE()函数匹配日期部分，因为departure_time是datetime类型
+    QString sqlstr = QString("select * from flight_info where departure_city='%1' and arrival_city='%2' and DATE(departure_time)='%3'").arg(departure,destination,takeoffDate);
     QSqlQuery query = m_dbOperator.DBGetData(sqlstr, sf);
     if (!sf)
     {
@@ -242,31 +252,104 @@ void UserMainWindow::on_searchBtn_clicked()
     }
 
     //添加查询结果到滚动区域
+    // 首先确保scrollAreaWidgetContents有正确的宽度
+    int availableWidth = ui->scrollArea->viewport()->width() - 20; // 减去margins
+    if (availableWidth > 0) {
+        ui->scrollAreaWidgetContents->setMinimumWidth(availableWidth);
+        ui->scrollAreaWidgetContents->resize(availableWidth, ui->scrollAreaWidgetContents->height());
+    }
+    
+    int count = 0;
     while (query.next()) {
+        count++;
         // 从查询结果中提取字段
         QString flightNo = query.value("flight_id").toString();
-        QString takeoffTime = query.value("departure_time").toString(); // 格式如“2025-01-01 10:30”
+        
+        // 解析并格式化时间：从数据库datetime转换为"2026年1月1日10:30"
+        QDateTime takeoffDateTime = query.value("departure_time").toDateTime();
+        QString takeoffTime = QString("%1年%2月%3日%4:%5")
+            .arg(takeoffDateTime.date().year())
+            .arg(takeoffDateTime.date().month())
+            .arg(takeoffDateTime.date().day())
+            .arg(takeoffDateTime.time().hour(), 2, 10, QChar('0'))
+            .arg(takeoffDateTime.time().minute(), 2, 10, QChar('0'));
+        
+        // 解析并格式化到达时间
+        QDateTime arriveDateTime = query.value("arrival_time").toDateTime();
+        QString arriveTime = QString("%1年%2月%3日%4:%5")
+            .arg(arriveDateTime.date().year())
+            .arg(arriveDateTime.date().month())
+            .arg(arriveDateTime.date().day())
+            .arg(arriveDateTime.time().hour(), 2, 10, QChar('0'))
+            .arg(arriveDateTime.time().minute(), 2, 10, QChar('0'));
+        
         QString dep = query.value("departure_city").toString();
         QString dest = query.value("arrival_city").toString();
         QString price = query.value("price").toString() + "元";
-        QString remaining = QString("%1/80").arg(query.value("remaining_seats").toString()); // 假设总座位 80
+        QString remaining = QString("%1/%2").arg(query.value("remaining_seats").toString(),query.value("total_seats").toString());
 
-        // 创建航班条目Widget
+        // 创建航班条目Widget，父窗口必须是scrollAreaWidgetContents
         FlightItemWidget* itemWidget = new FlightItemWidget(
-            flightNo, takeoffTime, dep, dest, price, remaining, this
+            flightNo, takeoffTime, arriveTime, dep, dest, price, remaining, ui->scrollAreaWidgetContents
             );
 
-        // 连接条目内按钮的信号 (处理预订/收藏)
+        // 设置widget的大小策略，确保能够正确显示
+        itemWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        
+        // 设置widget的宽度为父窗口可用宽度，避免超出
+        int widgetWidth = availableWidth > 0 ? availableWidth : ui->scrollAreaWidgetContents->width() - 20;
+        itemWidget->setFixedWidth(widgetWidth);
+        itemWidget->setFixedHeight(229); // 固定高度
+        
+        // 确保widget可见
+        itemWidget->show();
+
+        // 连接条目内按钮的信号（处理预订/收藏）
         connect(itemWidget, &FlightItemWidget::bookClicked, this, &UserMainWindow::on_book_clicked);
         connect(itemWidget, &FlightItemWidget::collectClicked, this, &UserMainWindow::on_collect_clicked);
 
         // 添加到滚动区域的布局中
         flightLayout->addWidget(itemWidget);
-        qDebug()<<"成功创建widget";
     }
+    
+    if (count == 0) {
+        QMessageBox::information(this, "查询结果", "未找到符合条件的航班");
+        return;
+    }
+    
     // 追加弹性空间，保证列表顶部对齐并可滚动
     flightLayout->addStretch(1);
-    ui->scrollAreaWidgetContents->adjustSize(); // 刷新内容区域尺寸以触发重绘
+    
+    // 强制布局重新计算大小
+    flightLayout->invalidate(); // 使布局无效，强制重新计算
+    flightLayout->update(); // 更新布局
+    flightLayout->activate(); // 激活布局
+    
+    // 强制scrollAreaWidgetContents重新计算几何信息
+    ui->scrollAreaWidgetContents->updateGeometry();
+    
+    // 计算内容所需的最小高度（包括margins和spacing）
+    QSize layoutSize = flightLayout->sizeHint();
+    int contentHeight = layoutSize.height();
+    
+    // 计算实际内容高度：每个widget高度 + 间距 + margins
+    int actualHeight = count * 229 + (count - 1) * 3 + 10; // widget高度 + spacing + margins
+    
+    // 当widgetResizable为true时，scrollArea会自动调整widget大小
+    // 但我们需要确保内容区域至少是内容的高度
+    int minHeight = qMax(contentHeight, actualHeight);
+    if (minHeight > 0) {
+        ui->scrollAreaWidgetContents->setMinimumHeight(minHeight);
+        ui->scrollAreaWidgetContents->resize(ui->scrollAreaWidgetContents->width(), minHeight);
+    }
+    
+    // 更新scrollAreaWidgetContents的尺寸
+    ui->scrollAreaWidgetContents->adjustSize();
+    ui->scrollAreaWidgetContents->update(); // 强制更新显示
+    
+    // 确保scrollArea刷新显示
+    ui->scrollArea->update();
+    ui->scrollArea->viewport()->update();
 }
 
 void UserMainWindow::on_book_clicked(const QString& flightNo) {

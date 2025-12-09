@@ -4,7 +4,6 @@
 #include "AdminMainWindow.h"
 
 #include <QApplication>
-#include <QScreen>
 #include <QDebug>
 
 WindowFactory& WindowFactory::instance() {
@@ -33,21 +32,6 @@ QMainWindow* WindowFactory::createMainWindow(bool isAdmin, int userId, QWidget *
     if (window) {
         m_currentMainWindow = window;
 
-        // 连接注销信号到 switchToLogin
-        if (!isAdmin) {
-            // 普通用户窗口
-            UserMainWindow *userWindow = qobject_cast<UserMainWindow*>(window);
-            if (userWindow) {
-                connect(userWindow, &UserMainWindow::logoutRequested, this, &WindowFactory::switchToLogin);
-            }
-        } else {
-            // 管理员窗口
-            AdminMainWindow *adminWindow = qobject_cast<AdminMainWindow*>(window);
-            if (adminWindow) {
-                connect(adminWindow, &AdminMainWindow::logoutRequested, this, &WindowFactory::switchToLogin);
-            }
-        }
-
         // 连接窗口关闭信号
         connect(window, &QMainWindow::destroyed, this, [this]() {
             m_currentMainWindow = nullptr;
@@ -71,17 +55,7 @@ QDialog* WindowFactory::createLoginWindow(QWidget *parent) {
 
                 // 创建对应的主窗口，传递用户 ID
                 QMainWindow *mainWindow = createMainWindow(isAdmin, userId);
-                if (mainWindow) {
-                    // 居中显示窗口
-                    mainWindow->adjustSize();
-                    QScreen *screen = QApplication::primaryScreen();
-                    QRect screenGeometry = screen->geometry();
-                    QRect windowGeometry = mainWindow->geometry();
-                    int x = (screenGeometry.width() - windowGeometry.width()) / 2;
-                    int y = (screenGeometry.height() - windowGeometry.height()) / 2 - windowGeometry.height() / 10;
-                    mainWindow->move(x, y);
-                    mainWindow->show();
-                }
+                if (mainWindow) mainWindow->showMaximized();
 
                 // 删除登录窗口
                 loginDlg->deleteLater();

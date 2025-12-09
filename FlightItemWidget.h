@@ -7,13 +7,21 @@ namespace Ui {
 class FlightItemWidget;
 }
 
-class FlightItemWidget : public QWidget {
+class FlightItemWidget : public QWidget
+{
     Q_OBJECT
 
 public:
     explicit FlightItemWidget(QWidget *parent = nullptr);
     ~FlightItemWidget();
-    explicit FlightItemWidget(const QString& flightNo, const QString& takeoffTime, const QString& departure, const QString& destination, const QString& price, const QString& remaining, QWidget *parent = nullptr);
+    explicit FlightItemWidget(const QString& flightNo,
+                              const QString& takeoffTime,
+                              const QString& arriveTime,
+                              const QString& departure,
+                              const QString& destination,
+                              const QString& price,
+                              const QString& remaining,
+                              QWidget *parent = nullptr);
 
 private:
     Ui::FlightItemWidget *ui;

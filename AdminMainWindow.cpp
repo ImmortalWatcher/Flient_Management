@@ -46,13 +46,15 @@ void AdminMainWindow::initFlightManagement() {
 void AdminMainWindow::initOrderView() {
     orderModel = new QSqlQueryModel(this);
     ui->tableWidget->setColumnCount(7);
-    ui->tableWidget->setHorizontalHeaderLabels(QStringList() << "订单号" << "用户名" << "航班号" << "出发地" << "目的地" << "起飞时间" << "票价");
+    ui->tableWidget->setHorizontalHeaderLabels(QStringList() << "订单号" << "用户名" << "航班号"
+                                                             << "出发地" << "目的地" << "起飞时间" << "票价");
 }
 
 void AdminMainWindow::initUserManagement() {
     userModel = new QSqlQueryModel(this);
     ui->tableWidget_2->setColumnCount(5);
-    ui->tableWidget_2->setHorizontalHeaderLabels(QStringList() << "用户名" << "性别" << "手机号" << "邮箱" << "账户余额");
+    ui->tableWidget_2->setHorizontalHeaderLabels(QStringList() << "用户名" << "性别" << "手机号"
+                                                               << "邮箱" << "账户余额");
     loadUserData();
 }
 
@@ -98,7 +100,7 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
     QSqlQuery query = dbOperator->DBGetData(sql, success);
 
     if (success) {
-        flightModel->setQuery(std::move(query)); // 使用移动语义，消除警告
+        flightModel->setQuery(std::move(query));  // 使用移动语义，消除警告
         ui->flightTable->setRowCount(0);
 
         int row = 0;
@@ -258,13 +260,13 @@ void AdminMainWindow::on_backBtn_clicked() {
 }
 
 void AdminMainWindow::on_comboBox_currentIndexChanged(int index) {
-    if (index == 2) {        // 退出登录
+    if (index == 2) { // 退出登录
         emit logoutRequested();
         this->close();
     } else if (index == 1) { // 修改密码
         // 这里可以实现修改密码的逻辑
         QMessageBox::information(this, "提示", "修改密码功能待实现");
-        ui->comboBox_2->setCurrentIndex(0); // 回到初始状态
+        ui->comboBox->setCurrentIndex(0); // 回到初始状态
     }
 }
 
