@@ -66,6 +66,7 @@ void UserMainWindow::on_personalCenterBtn_clicked() {
 }
 
 void UserMainWindow::on_backBtn_clicked() {
+    emit logoutRequested();
     this->close();
 }
 

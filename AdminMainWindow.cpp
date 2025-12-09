@@ -46,15 +46,13 @@ void AdminMainWindow::initFlightManagement() {
 void AdminMainWindow::initOrderView() {
     orderModel = new QSqlQueryModel(this);
     ui->tableWidget->setColumnCount(7);
-    ui->tableWidget->setHorizontalHeaderLabels(QStringList() << "订单号" << "用户名" << "航班号"
-                                                             << "出发地" << "目的地" << "起飞时间" << "票价");
+    ui->tableWidget->setHorizontalHeaderLabels(QStringList() << "订单号" << "用户名" << "航班号" << "出发地" << "目的地" << "起飞时间" << "票价");
 }
 
 void AdminMainWindow::initUserManagement() {
     userModel = new QSqlQueryModel(this);
     ui->tableWidget_2->setColumnCount(5);
-    ui->tableWidget_2->setHorizontalHeaderLabels(QStringList() << "用户名" << "性别" << "手机号"
-                                                               << "邮箱" << "账户余额");
+    ui->tableWidget_2->setHorizontalHeaderLabels(QStringList() << "用户名" << "性别" << "手机号" << "邮箱" << "账户余额");
     loadUserData();
 }
 
@@ -260,7 +258,7 @@ void AdminMainWindow::on_backBtn_clicked() {
 }
 
 void AdminMainWindow::on_comboBox_currentIndexChanged(int index) {
-    if (index == 2) { // 退出登录
+    if (index == 2) {        // 退出登录
         emit logoutRequested();
         this->close();
     } else if (index == 1) { // 修改密码

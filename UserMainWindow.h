@@ -18,6 +18,9 @@ public:
     UserMainWindow(int userId = 0, QWidget *parent = nullptr);
     ~UserMainWindow();
 
+signals:
+    void logoutRequested();
+
 private slots:
     void on_flightQueryBtn_clicked();
     void on_myOrdersBtn_clicked();
