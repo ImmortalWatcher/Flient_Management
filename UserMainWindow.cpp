@@ -55,6 +55,7 @@ void UserMainWindow::on_personalCenterBtn_clicked() {
 }
 
 void UserMainWindow::on_backBtn_clicked() {
+    emit logoutRequested();
     this->close();
 }
 
@@ -241,7 +242,6 @@ void UserMainWindow::on_searchBtn_clicked()
     }
 
     //添加查询结果到滚动区域
-
     while (query.next()) {
         // 从查询结果中提取字段
         QString flightNo = query.value("flight_id").toString();
@@ -249,14 +249,14 @@ void UserMainWindow::on_searchBtn_clicked()
         QString dep = query.value("departure_city").toString();
         QString dest = query.value("arrival_city").toString();
         QString price = query.value("price").toString() + "元";
-        QString remaining = QString("%1/80").arg(query.value("remaining_seats").toString()); // 假设总座位80
+        QString remaining = QString("%1/80").arg(query.value("remaining_seats").toString()); // 假设总座位 80
 
         // 创建航班条目Widget
         FlightItemWidget* itemWidget = new FlightItemWidget(
             flightNo, takeoffTime, dep, dest, price, remaining, this
             );
 
-        // 连接条目内按钮的信号（处理预订/收藏）
+        // 连接条目内按钮的信号 (处理预订/收藏)
         connect(itemWidget, &FlightItemWidget::bookClicked, this, &UserMainWindow::on_book_clicked);
         connect(itemWidget, &FlightItemWidget::collectClicked, this, &UserMainWindow::on_collect_clicked);
 

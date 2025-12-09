@@ -7,8 +7,7 @@ namespace Ui {
 class FlightItemWidget;
 }
 
-class FlightItemWidget : public QWidget
-{
+class FlightItemWidget : public QWidget {
     Q_OBJECT
 
 public:

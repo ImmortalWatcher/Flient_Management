@@ -33,6 +33,21 @@ QMainWindow* WindowFactory::createMainWindow(bool isAdmin, int userId, QWidget *
     if (window) {
         m_currentMainWindow = window;
 
+        // 连接注销信号到 switchToLogin
+        if (!isAdmin) {
+            // 普通用户窗口
+            UserMainWindow *userWindow = qobject_cast<UserMainWindow*>(window);
+            if (userWindow) {
+                connect(userWindow, &UserMainWindow::logoutRequested, this, &WindowFactory::switchToLogin);
+            }
+        } else {
+            // 管理员窗口
+            AdminMainWindow *adminWindow = qobject_cast<AdminMainWindow*>(window);
+            if (adminWindow) {
+                connect(adminWindow, &AdminMainWindow::logoutRequested, this, &WindowFactory::switchToLogin);
+            }
+        }
+
         // 连接窗口关闭信号
         connect(window, &QMainWindow::destroyed, this, [this]() {
             m_currentMainWindow = nullptr;
@@ -48,15 +63,6 @@ QMainWindow* WindowFactory::createMainWindow(bool isAdmin, int userId, QWidget *
 QDialog* WindowFactory::createLoginWindow(QWidget *parent) {
     LoginDlg *loginDlg = new LoginDlg(parent);
     loginDlg->setWindowTitle("用户登录");
-    
-    // 居中显示登录窗口
-    // loginDlg->adjustSize();
-    // QScreen *screen = QApplication::primaryScreen();
-    // QRect screenGeometry = screen->geometry();
-    // QRect dialogGeometry = loginDlg->geometry();
-    // int x = (screenGeometry.width() - dialogGeometry.width()) / 2;
-    // int y = (screenGeometry.height() - dialogGeometry.height()) / 2;
-    // loginDlg->move(x, y);
 
     // 连接登录成功信号
     connect(loginDlg, &LoginDlg::loginSuccess, this,
