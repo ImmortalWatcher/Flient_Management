@@ -14,13 +14,7 @@ class FlightItemWidget : public QWidget
 public:
     explicit FlightItemWidget(QWidget *parent = nullptr);
     ~FlightItemWidget();
-    explicit FlightItemWidget(const QString& flightNo,
-                              const QString& takeoffTime,
-                              const QString& departure,
-                              const QString& destination,
-                              const QString& price,
-                              const QString& remaining,
-                              QWidget *parent = nullptr);
+    explicit FlightItemWidget(const QString& flightNo, const QString& takeoffTime, const QString& departure, const QString& destination, const QString& price, const QString& remaining, QWidget *parent = nullptr);
 
 private:
     Ui::FlightItemWidget *ui;

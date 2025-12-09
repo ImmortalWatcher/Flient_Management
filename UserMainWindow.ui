@@ -73,9 +73,9 @@
    <widget class="QPushButton" name="backBtn">
     <property name="geometry">
      <rect>
-      <x>700</x>
+      <x>690</x>
       <y>10</y>
-      <width>90</width>
+      <width>100</width>
       <height>30</height>
      </rect>
     </property>
@@ -262,7 +262,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="page_1">
      <widget class="QFrame" name="flightsearch">
@@ -2046,7 +2046,7 @@ border: none; /* 移除边框 */</string>
        <rect>
         <x>430</x>
         <y>235</y>
-        <width>150</width>
+        <width>180</width>
         <height>20</height>
        </rect>
       </property>
@@ -2212,7 +2212,7 @@ border: none; /* 移除边框 */</string>
        <rect>
         <x>430</x>
         <y>185</y>
-        <width>150</width>
+        <width>180</width>
         <height>20</height>
        </rect>
       </property>
@@ -2250,7 +2250,7 @@ border: none; /* 移除边框 */</string>
        <rect>
         <x>430</x>
         <y>285</y>
-        <width>150</width>
+        <width>180</width>
         <height>20</height>
        </rect>
       </property>
@@ -2288,7 +2288,7 @@ border: none; /* 移除边框 */</string>
        <rect>
         <x>180</x>
         <y>335</y>
-        <width>150</width>
+        <width>180</width>
         <height>20</height>
        </rect>
       </property>

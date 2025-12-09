@@ -4,6 +4,7 @@
 #include "AdminMainWindow.h"
 
 #include <QApplication>
+#include <QScreen>
 #include <QDebug>
 
 WindowFactory& WindowFactory::instance() {
@@ -47,6 +48,15 @@ QMainWindow* WindowFactory::createMainWindow(bool isAdmin, int userId, QWidget *
 QDialog* WindowFactory::createLoginWindow(QWidget *parent) {
     LoginDlg *loginDlg = new LoginDlg(parent);
     loginDlg->setWindowTitle("用户登录");
+    
+    // 居中显示登录窗口
+    // loginDlg->adjustSize();
+    // QScreen *screen = QApplication::primaryScreen();
+    // QRect screenGeometry = screen->geometry();
+    // QRect dialogGeometry = loginDlg->geometry();
+    // int x = (screenGeometry.width() - dialogGeometry.width()) / 2;
+    // int y = (screenGeometry.height() - dialogGeometry.height()) / 2;
+    // loginDlg->move(x, y);
 
     // 连接登录成功信号
     connect(loginDlg, &LoginDlg::loginSuccess, this,
@@ -55,7 +65,17 @@ QDialog* WindowFactory::createLoginWindow(QWidget *parent) {
 
                 // 创建对应的主窗口，传递用户 ID
                 QMainWindow *mainWindow = createMainWindow(isAdmin, userId);
-                if (mainWindow) mainWindow->showMaximized();
+                if (mainWindow) {
+                    // 居中显示窗口
+                    mainWindow->adjustSize();
+                    QScreen *screen = QApplication::primaryScreen();
+                    QRect screenGeometry = screen->geometry();
+                    QRect windowGeometry = mainWindow->geometry();
+                    int x = (screenGeometry.width() - windowGeometry.width()) / 2;
+                    int y = (screenGeometry.height() - windowGeometry.height()) / 2 - windowGeometry.height() / 10;
+                    mainWindow->move(x, y);
+                    mainWindow->show();
+                }
 
                 // 删除登录窗口
                 loginDlg->deleteLater();
