@@ -11,10 +11,6 @@ int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
     // qDebug() << "Starting database test...";
 
-    // 设置当最后一个窗口关闭时不自动退出程序
-    // 这样点击退出登录后可以回到登录窗口
-    a.setQuitOnLastWindowClosed(false);
-
     // 创建数据库操作对象
     DBOperator db;
     // 连接数据库
@@ -56,6 +52,25 @@ int main(int argc, char *argv[]) {
     QDialog *loginWindow = factory.createLoginWindow();
     if (loginWindow) {
         loginWindow->show();
+
+        // 连接注销请求 (当主窗口注销时，回到登录界面)
+        QObject::connect(&factory, &WindowFactory::logoutRequested,
+                         [loginWindow, &factory]() {
+                             // 如果有登录窗口，先删除
+                             if (loginWindow) {
+                                 loginWindow->deleteLater();
+                             }
+
+                             // 创建新的登录窗口
+                             QDialog *newLoginWindow = factory.createLoginWindow();
+                             if (newLoginWindow) {
+                                 newLoginWindow->show();
+
+                                 // 更新 loginWindow 指针 (如果需要)
+                                 // 注意：这里 lambda 捕获的 loginWindow 是局部变量的引用
+                                 // 实际使用中可能需要更好的管理方式
+                             }
+                         });
     } else {
         QMessageBox::critical(nullptr, "错误", "无法创建登录窗口！");
         return -1;

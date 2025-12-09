@@ -93,6 +93,5 @@ void LoginDlg::on_loginBtn_clicked() {
 
 void LoginDlg::on_regBtn_clicked() {
     RegDlg regDialog(this);
-    regDialog.setGeometry(this->geometry());
     regDialog.exec();
 }

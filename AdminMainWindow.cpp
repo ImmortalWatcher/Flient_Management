@@ -98,7 +98,7 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
     QSqlQuery query = dbOperator->DBGetData(sql, success);
 
     if (success) {
-        flightModel->setQuery(std::move(query));  // 使用移动语义，消除警告
+        flightModel->setQuery(std::move(query)); // 使用移动语义，消除警告
         ui->flightTable->setRowCount(0);
 
         int row = 0;
@@ -264,7 +264,7 @@ void AdminMainWindow::on_comboBox_currentIndexChanged(int index) {
     } else if (index == 1) { // 修改密码
         // 这里可以实现修改密码的逻辑
         QMessageBox::information(this, "提示", "修改密码功能待实现");
-        ui->comboBox->setCurrentIndex(0); // 回到初始状态
+        ui->comboBox_2->setCurrentIndex(0); // 回到初始状态
     }
 }
 
