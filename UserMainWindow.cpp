@@ -284,8 +284,8 @@ void UserMainWindow::loadAllFlights() {
         QDateTime arriveDateTime = query.value("arrival_time").toDateTime();
         QString arriveTime = QString("%1年%2月%3日%4:%5").arg(arriveDateTime.date().year()).arg(arriveDateTime.date().month()).arg(arriveDateTime.date().day()).arg(arriveDateTime.time().hour(), 2, 10, QChar('0')).arg(arriveDateTime.time().minute(), 2, 10, QChar('0'));
 
-        QString dep = query.value("departure_city").toString();
-        QString dest = query.value("arrival_city").toString();
+        QString dep = query.value("departure_airport").toString();
+        QString dest = query.value("arrival_airport").toString();
         QString price = query.value("price").toString() + "元";
         QString remaining = QString("%1/%2").arg(query.value("remaining_seats").toString(), query.value("total_seats").toString());
         QString airlineCompany = query.value("airline_company").toString();
@@ -374,8 +374,8 @@ void UserMainWindow::on_searchBtn_clicked() {
         QDateTime arriveDateTime = query.value("arrival_time").toDateTime();
         QString arriveTime = QString("%1年%2月%3日%4:%5").arg(arriveDateTime.date().year()).arg(arriveDateTime.date().month()).arg(arriveDateTime.date().day()).arg(arriveDateTime.time().hour(), 2, 10, QChar('0')).arg(arriveDateTime.time().minute(), 2, 10, QChar('0'));
 
-        QString dep = query.value("departure_city").toString();
-        QString dest = query.value("arrival_city").toString();
+        QString dep = query.value("departure_airport").toString();
+        QString dest = query.value("arrival_airport").toString();
         QString price = query.value("price").toString() + "元";
         QString remaining = QString("%1/%2").arg(query.value("remaining_seats").toString(), query.value("total_seats").toString());
         QString airlineCompany = query.value("airline_company").toString();
@@ -424,8 +424,8 @@ void UserMainWindow::on_book_clicked(const QString &flightNo) {
     }
     
     // 获取航班信息
-    QString departureCity = query.value("departure_city").toString();
-    QString arrivalCity = query.value("arrival_city").toString();
+    QString departureAirport = query.value("departure_airport").toString();
+    QString arrivalAirport = query.value("arrival_airport").toString();
     QDateTime departureTime = query.value("departure_time").toDateTime();
     QDateTime arrivalTime = query.value("arrival_time").toDateTime();
     double price = query.value("price").toDouble();
@@ -463,11 +463,11 @@ void UserMainWindow::on_book_clicked(const QString &flightNo) {
     flightNoLabel->setStyleSheet("font-size: 14px; padding: 5px;");
     mainLayout->addWidget(flightNoLabel);
     
-    QLabel *departureLabel = new QLabel(QString("出发地：%1").arg(departureCity), bookDialog);
+    QLabel *departureLabel = new QLabel(QString("出发地：%1").arg(departureAirport), bookDialog);
     departureLabel->setStyleSheet("font-size: 14px; padding: 5px;");
     mainLayout->addWidget(departureLabel);
     
-    QLabel *arrivalLabel = new QLabel(QString("目的地：%1").arg(arrivalCity), bookDialog);
+    QLabel *arrivalLabel = new QLabel(QString("目的地：%1").arg(arrivalAirport), bookDialog);
     arrivalLabel->setStyleSheet("font-size: 14px; padding: 5px;");
     mainLayout->addWidget(arrivalLabel);
     
@@ -578,8 +578,8 @@ void UserMainWindow::on_book_clicked(const QString &flightNo) {
                            .arg(flightNo)
                            .arg(passengerName)
                            .arg(passengerIdcard)
-                           .arg(departureCity)
-                           .arg(arrivalCity)
+                           .arg(departureAirport)
+                           .arg(arrivalAirport)
                            .arg(departureTime.toString("yyyy-MM-dd hh:mm:ss"))
                            .arg(arrivalTime.toString("yyyy-MM-dd hh:mm:ss"))
                            .arg(price);
