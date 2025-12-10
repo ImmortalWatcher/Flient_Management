@@ -87,7 +87,7 @@ void RegDlg::on_regBtn_clicked() {
         return;
     }
 
-    // 检查用户名是否已被注册（用户表）
+    // 检查用户名是否已被注册 (用户表)
     bool success = false;
     QString checkSql = QString("select count(1) from user_info where username='%1'").arg(username);
     QSqlQuery checkQuery = dbp.DBGetData(checkSql, success);
@@ -100,7 +100,7 @@ void RegDlg::on_regBtn_clicked() {
         return;
     }
 
-    // 检查用户名是否已被注册（管理员表）
+    // 检查用户名是否已被注册 (管理员表)
     checkSql = QString("select count(1) from admin_info where username='%1'").arg(username);
     checkQuery = dbp.DBGetData(checkSql, success);
     if (!success) {

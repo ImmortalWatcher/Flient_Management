@@ -115,7 +115,7 @@
   <widget class="QPushButton" name="regBtn">
    <property name="geometry">
     <rect>
-     <x>290</x>
+     <x>225</x>
      <y>270</y>
      <width>90</width>
      <height>36</height>
@@ -145,7 +145,7 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>100</x>
      <y>270</y>
      <width>90</width>
      <height>36</height>
@@ -224,6 +224,36 @@
    </property>
    <property name="scaledContents">
     <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="exitBtn">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>350</x>
+     <y>270</y>
+     <width>90</width>
+     <height>36</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>华文楷体</family>
+     <pointsize>18</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QPushButton {
+    background-color: white;
+    color: black;
+    border: 1px solid #ababab;
+    border-radius: 12px;
+}</string>
+   </property>
+   <property name="text">
+    <string>退出</string>
    </property>
   </widget>
  </widget>

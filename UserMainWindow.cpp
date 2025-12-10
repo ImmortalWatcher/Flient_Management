@@ -23,6 +23,17 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent
     ui->avatarLabel->setCursor(Qt::PointingHandCursor);
     ui->avatarLabel->installEventFilter(this);
 
+    // 初始化编辑模式相关变量
+    m_isEditMode = false;
+    m_usernameEdit = nullptr;
+    m_passwordEdit = nullptr;
+    m_phoneEdit = nullptr;
+    m_emailEdit = nullptr;
+    m_realnameEdit = nullptr;
+    m_idcardEdit = nullptr;
+    m_saveBtn = nullptr;
+    m_cancelBtn = nullptr;
+
     loadUserInfo();
     loadAvatar();
 
@@ -44,6 +55,10 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent
 }
 
 UserMainWindow::~UserMainWindow() {
+    // 如果处于编辑模式，先退出编辑模式以清理资源
+    if (m_isEditMode) {
+        exitEditMode();
+    }
     delete ui;
 }
 
@@ -405,4 +420,328 @@ void UserMainWindow::on_book_clicked(const QString &flightNo) {
 // 处理航班收藏按钮点击
 void UserMainWindow::on_collect_clicked(const QString &flightNo) {
     QMessageBox::information(this, "收藏成功", "已收藏航班：" + flightNo);
+}
+
+// 处理编辑个人信息按钮点击，进入编辑模式
+void UserMainWindow::on_editInfoBtn_clicked() {
+    enterEditMode();
+}
+
+// 处理保存按钮点击，保存用户信息
+void UserMainWindow::on_saveBtn_clicked() {
+    saveUserInfo();
+    exitEditMode();
+}
+
+// 处理取消按钮点击，退出编辑模式并恢复原始数据
+void UserMainWindow::on_cancelBtn_clicked() {
+    ui->UsernameEdit->setText(m_originalUserInfo.username);
+    ui->PasswordEdit->setText(m_originalUserInfo.password);
+    ui->PhoneEdit->setText(m_originalUserInfo.phone);
+    ui->EmailEdit->setText(m_originalUserInfo.email);
+    ui->RealnameEdit->setText(m_originalUserInfo.realname);
+    ui->IdcardEdit->setText(m_originalUserInfo.idcard);
+
+    exitEditMode();
+}
+
+// 进入编辑模式：将标签转换为可编辑的输入框，隐藏原按钮，显示保存和取消按钮
+void UserMainWindow::enterEditMode() {
+    if (m_isEditMode) {
+        return;
+    }
+
+    m_isEditMode = true;
+
+    // 保存原始用户信息
+    m_dbOperator.getUserInfo(m_userId, m_originalUserInfo);
+
+    // 获取各个标签的位置和大小
+    QRect usernameRect = ui->UsernameEdit->geometry();
+    QRect passwordRect = ui->PasswordEdit->geometry();
+    QRect phoneRect = ui->PhoneEdit->geometry();
+    QRect emailRect = ui->EmailEdit->geometry();
+    QRect realnameRect = ui->RealnameEdit->geometry();
+    QRect idcardRect = ui->IdcardEdit->geometry();
+
+    // 创建用户名输入框
+    m_usernameEdit = new QLineEdit(ui->page_4);
+    m_usernameEdit->setGeometry(usernameRect);
+    m_usernameEdit->setText(ui->UsernameEdit->text());
+    m_usernameEdit->setFont(ui->UsernameEdit->font());
+    m_usernameEdit->show();
+    ui->UsernameEdit->hide();
+
+    // 创建密码输入框
+    m_passwordEdit = new QLineEdit(ui->page_4);
+    m_passwordEdit->setGeometry(passwordRect);
+    m_passwordEdit->setText(ui->PasswordEdit->text());
+    m_passwordEdit->setFont(ui->PasswordEdit->font());
+    m_passwordEdit->setEchoMode(QLineEdit::Normal);
+    m_passwordEdit->show();
+    ui->PasswordEdit->hide();
+
+    // 创建手机号输入框
+    m_phoneEdit = new QLineEdit(ui->page_4);
+    m_phoneEdit->setGeometry(phoneRect);
+    m_phoneEdit->setText(ui->PhoneEdit->text());
+    m_phoneEdit->setFont(ui->PhoneEdit->font());
+    m_phoneEdit->show();
+    ui->PhoneEdit->hide();
+    
+    // 创建邮箱输入框
+    m_emailEdit = new QLineEdit(ui->page_4);
+    m_emailEdit->setGeometry(emailRect);
+    m_emailEdit->setText(ui->EmailEdit->text());
+    m_emailEdit->setFont(ui->EmailEdit->font());
+    m_emailEdit->show();
+    ui->EmailEdit->hide();
+    
+    // 创建真实姓名输入框
+    m_realnameEdit = new QLineEdit(ui->page_4);
+    m_realnameEdit->setGeometry(realnameRect);
+    m_realnameEdit->setText(ui->RealnameEdit->text());
+    m_realnameEdit->setFont(ui->RealnameEdit->font());
+    m_realnameEdit->show();
+    ui->RealnameEdit->hide();
+    
+    // 创建身份证号输入框
+    m_idcardEdit = new QLineEdit(ui->page_4);
+    m_idcardEdit->setGeometry(idcardRect);
+    m_idcardEdit->setText(ui->IdcardEdit->text());
+    m_idcardEdit->setFont(ui->IdcardEdit->font());
+    m_idcardEdit->show();
+    ui->IdcardEdit->hide();
+
+    // 隐藏原来的 3 个按钮
+    ui->editInfoBtn->hide();
+    ui->rechargeBtn->hide();
+    ui->cancelAccountBtn->hide();
+
+    // 创建并显示保存按钮
+    m_saveBtn = new QPushButton(ui->page_4);
+    m_saveBtn->setGeometry(ui->editInfoBtn->geometry());
+    m_saveBtn->setText("保存");
+    m_saveBtn->setFont(ui->editInfoBtn->font());
+    m_saveBtn->setStyleSheet(ui->editInfoBtn->styleSheet());
+    m_saveBtn->show();
+    connect(m_saveBtn, &QPushButton::clicked, this, &UserMainWindow::on_saveBtn_clicked);
+
+    // 创建并显示取消按钮
+    m_cancelBtn = new QPushButton(ui->page_4);
+    m_cancelBtn->setGeometry(ui->rechargeBtn->geometry());
+    m_cancelBtn->setText("取消");
+    m_cancelBtn->setFont(ui->rechargeBtn->font());
+    m_cancelBtn->setStyleSheet(ui->rechargeBtn->styleSheet());
+    m_cancelBtn->show();
+    connect(m_cancelBtn, &QPushButton::clicked, this, &UserMainWindow::on_cancelBtn_clicked);
+}
+
+// 退出编辑模式：恢复标签显示，隐藏输入框，恢复原按钮
+void UserMainWindow::exitEditMode() {
+    if (!m_isEditMode) {
+        return;
+    }
+
+    m_isEditMode = false;
+
+    // 恢复标签显示
+    if (m_usernameEdit) {
+        ui->UsernameEdit->show();
+        m_usernameEdit->hide();
+        m_usernameEdit->deleteLater();
+        m_usernameEdit = nullptr;
+    }
+
+    if (m_passwordEdit) {
+        ui->PasswordEdit->show();
+        m_passwordEdit->hide();
+        m_passwordEdit->deleteLater();
+        m_passwordEdit = nullptr;
+    }
+
+    if (m_phoneEdit) {
+        ui->PhoneEdit->show();
+        m_phoneEdit->hide();
+        m_phoneEdit->deleteLater();
+        m_phoneEdit = nullptr;
+    }
+
+    if (m_emailEdit) {
+        ui->EmailEdit->show();
+        m_emailEdit->hide();
+        m_emailEdit->deleteLater();
+        m_emailEdit = nullptr;
+    }
+
+    if (m_realnameEdit) {
+        ui->RealnameEdit->show();
+        m_realnameEdit->hide();
+        m_realnameEdit->deleteLater();
+        m_realnameEdit = nullptr;
+    }
+
+    if (m_idcardEdit) {
+        ui->IdcardEdit->show();
+        m_idcardEdit->hide();
+        m_idcardEdit->deleteLater();
+        m_idcardEdit = nullptr;
+    }
+
+    // 恢复原按钮显示
+    ui->editInfoBtn->show();
+    ui->rechargeBtn->show();
+    ui->cancelAccountBtn->show();
+
+    // 删除保存和取消按钮
+    if (m_saveBtn) {
+        m_saveBtn->hide();
+        m_saveBtn->deleteLater();
+        m_saveBtn = nullptr;
+    }
+
+    if (m_cancelBtn) {
+        m_cancelBtn->hide();
+        m_cancelBtn->deleteLater();
+        m_cancelBtn = nullptr;
+    }
+}
+
+// 保存用户信息到数据库
+void UserMainWindow::saveUserInfo() {
+    if (!m_isEditMode) {
+        return;
+    }
+
+    // 获取输入框中的值
+    QString username = m_usernameEdit->text().trimmed();
+    QString password = m_passwordEdit->text().trimmed();
+    QString phone = m_phoneEdit->text().trimmed();
+    QString email = m_emailEdit->text().trimmed();
+    QString realname = m_realnameEdit->text().trimmed();
+    QString idcard = m_idcardEdit->text().trimmed();
+
+    // 验证用户名是否为空
+    if (username.isEmpty()) {
+        QMessageBox::warning(this, "警告", "用户名不能为空");
+        return;
+    }
+
+    // 验证密码是否为空
+    if (password.isEmpty()) {
+        QMessageBox::warning(this, "警告", "密码不能为空");
+        return;
+    }
+
+    // 验证手机号格式
+    if (phone.isEmpty()) {
+        QMessageBox::warning(this, "警告", "手机号不能为空");
+        return;
+    }
+    if (phone.length() != 11 || !phone.toLongLong()) {
+        QMessageBox::warning(this, "警告", "手机号格式不正确，请输入11位数字");
+        return;
+    }
+
+    // 验证邮箱格式
+    if (email.isEmpty()) {
+        QMessageBox::warning(this, "警告", "邮箱不能为空");
+        return;
+    }
+    if (!email.contains("@") || !email.contains(".")) {
+        QMessageBox::warning(this, "警告", "邮箱格式不正确");
+        return;
+    }
+
+    // 验证真实姓名是否为空
+    if (realname.isEmpty()) {
+        QMessageBox::warning(this, "警告", "真实姓名不能为空");
+        return;
+    }
+
+    // 验证身份证号格式
+    if (idcard.isEmpty()) {
+        QMessageBox::warning(this, "警告", "身份证号不能为空");
+        return;
+    }
+    if (idcard.length() != 18) {
+        QMessageBox::warning(this, "警告", "身份证号格式不正确，请输入18位身份证号");
+        return;
+    }
+
+    // 检查用户名是否已被其他用户使用 (排除当前用户)
+    bool success = false;
+    QString checkSql = QString("select count(1) from user_info where username='%1' AND id!=%2").arg(username).arg(m_userId);
+    QSqlQuery checkQuery = m_dbOperator.DBGetData(checkSql, success);
+    if (!success) {
+        QMessageBox::warning(this, "更新失败", checkQuery.lastError().text());
+        return;
+    }
+    if (checkQuery.next() && checkQuery.value(0).toInt() > 0) {
+        QMessageBox::warning(this, "更新失败", "该用户名已被使用，请重新输入");
+        return;
+    }
+
+    // 检查用户名是否已被管理员使用
+    checkSql = QString("select count(1) from admin_info where username='%1'").arg(username);
+    checkQuery = m_dbOperator.DBGetData(checkSql, success);
+    if (!success) {
+        QMessageBox::warning(this, "更新失败", checkQuery.lastError().text());
+        return;
+    }
+    if (checkQuery.next() && checkQuery.value(0).toInt() > 0) {
+        QMessageBox::warning(this, "更新失败", "该用户名已被使用，请重新输入");
+        return;
+    }
+
+    // 检查手机号是否已被其他用户使用 (排除当前用户)
+    checkSql = QString("select count(1) from user_info where phone='%1' AND id!=%2").arg(phone).arg(m_userId);
+    checkQuery = m_dbOperator.DBGetData(checkSql, success);
+    if (!success) {
+        QMessageBox::warning(this, "更新失败", checkQuery.lastError().text());
+        return;
+    }
+    if (checkQuery.next() && checkQuery.value(0).toInt() > 0) {
+        QMessageBox::warning(this, "更新失败", "该手机号已被注册，请重新输入");
+        return;
+    }
+
+    // 检查邮箱是否已被其他用户使用 (排除当前用户)
+    checkSql = QString("select count(1) from user_info where email='%1' AND id!=%2").arg(email).arg(m_userId);
+    checkQuery = m_dbOperator.DBGetData(checkSql, success);
+    if (!success) {
+        QMessageBox::warning(this, "更新失败", checkQuery.lastError().text());
+        return;
+    }
+    if (checkQuery.next() && checkQuery.value(0).toInt() > 0) {
+        QMessageBox::warning(this, "更新失败", "该邮箱已被注册，请重新输入");
+        return;
+    }
+    
+    // 检查身份证号是否已被其他用户使用 (排除当前用户)
+    checkSql = QString("select count(1) from user_info where idcard='%1' AND id!=%2").arg(idcard).arg(m_userId);
+    checkQuery = m_dbOperator.DBGetData(checkSql, success);
+    if (!success) {
+        QMessageBox::warning(this, "更新失败", checkQuery.lastError().text());
+        return;
+    }
+    if (checkQuery.next() && checkQuery.value(0).toInt() > 0) {
+        QMessageBox::warning(this, "更新失败", "该身份证号已被注册，请重新输入");
+        return;
+    }
+
+    // 构建更新 SQL 语句
+    QString sqlstr = QString("UPDATE user_info SET username='%1', password='%2', phone='%3', email='%4', realname='%5', idcard='%6' WHERE id=%7").arg(username).arg(password).arg(phone).arg(email).arg(realname).arg(idcard).arg(m_userId);
+
+    // 执行更新
+    QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
+
+    if (!success) {
+        QMessageBox::warning(this, "更新失败", "数据库错误：" + query.lastError().text());
+        return;
+    }
+
+    // 更新成功，重新加载用户信息
+    loadUserInfo();
+    QMessageBox::information(this, "成功", "个人信息已更新！");
 }

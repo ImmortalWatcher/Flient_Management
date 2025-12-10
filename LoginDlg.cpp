@@ -3,6 +3,7 @@
 
 #include "RegisterDlg.h"
 
+#include <QApplication>
 #include <QMessageBox>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -88,4 +89,9 @@ void LoginDlg::on_regBtn_clicked() {
     RegDlg regDialog(this);
     regDialog.setGeometry(this->geometry());
     regDialog.exec();
+}
+
+// 处理退出按钮点击，退出程序
+void LoginDlg::on_exitBtn_clicked() {
+    QApplication::quit();
 }

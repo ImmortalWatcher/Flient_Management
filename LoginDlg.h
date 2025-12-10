@@ -22,6 +22,7 @@ signals: // 添加这个信号声明
 protected slots:
     void on_loginBtn_clicked();
     void on_regBtn_clicked();
+    void on_exitBtn_clicked();
 
 private:
     Ui::LoginDlg *ui;
