@@ -1970,7 +1970,7 @@ border: none; /* 移除边框 */</string>
        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="UsernameEdit">
+     <widget class="QLabel" name="UsernameLabel">
       <property name="geometry">
        <rect>
         <x>180</x>
@@ -2036,7 +2036,7 @@ border: none; /* 移除边框 */</string>
        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="PhoneEdit">
+     <widget class="QLabel" name="PhoneLabel">
       <property name="geometry">
        <rect>
         <x>180</x>
@@ -2077,12 +2077,12 @@ border: none; /* 移除边框 */</string>
        <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignLeft|Qt::AlignmentFlag::AlignVCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="EmailEdit">
+     <widget class="QLabel" name="EmailLabel">
       <property name="geometry">
        <rect>
         <x>430</x>
         <y>235</y>
-        <width>181</width>
+        <width>180</width>
         <height>20</height>
        </rect>
       </property>
@@ -2115,7 +2115,7 @@ border: none; /* 移除边框 */</string>
        <string>账户余额：</string>
       </property>
      </widget>
-     <widget class="QLabel" name="RealnameEdit">
+     <widget class="QLabel" name="RealnameLabel">
       <property name="geometry">
        <rect>
         <x>180</x>
@@ -2189,7 +2189,7 @@ border: none; /* 移除边框 */</string>
       </property>
       <property name="geometry">
        <rect>
-        <x>240</x>
+        <x>245</x>
         <y>450</y>
         <width>160</width>
         <height>40</height>
@@ -2219,7 +2219,7 @@ border: none; /* 移除边框 */</string>
       </property>
       <property name="geometry">
        <rect>
-        <x>450</x>
+        <x>460</x>
         <y>450</y>
         <width>160</width>
         <height>40</height>
@@ -2243,12 +2243,12 @@ border: none; /* 移除边框 */</string>
        <string>注销账号</string>
       </property>
      </widget>
-     <widget class="QLabel" name="PasswordEdit">
+     <widget class="QLabel" name="PasswordLabel">
       <property name="geometry">
        <rect>
         <x>430</x>
         <y>185</y>
-        <width>181</width>
+        <width>180</width>
         <height>20</height>
        </rect>
       </property>
@@ -2281,12 +2281,12 @@ border: none; /* 移除边框 */</string>
        <string>密  码：</string>
       </property>
      </widget>
-     <widget class="QLabel" name="IdcardEdit">
+     <widget class="QLabel" name="IdcardLabel">
       <property name="geometry">
        <rect>
         <x>430</x>
         <y>285</y>
-        <width>181</width>
+        <width>180</width>
         <height>20</height>
        </rect>
       </property>
@@ -2319,7 +2319,7 @@ border: none; /* 移除边框 */</string>
        <string>邮  箱：</string>
       </property>
      </widget>
-     <widget class="QLineEdit" name="BalanceEdit">
+     <widget class="QLabel" name="BalanceLabel">
       <property name="geometry">
        <rect>
         <x>180</x>
@@ -2330,9 +2330,12 @@ border: none; /* 移除边框 */</string>
       </property>
       <property name="font">
        <font>
-        <family>华文楷体</family>
-        <pointsize>10</pointsize>
+        <family>Microsoft YaHei UI</family>
+        <pointsize>12</pointsize>
        </font>
+      </property>
+      <property name="text">
+       <string>balance</string>
       </property>
      </widget>
     </widget>

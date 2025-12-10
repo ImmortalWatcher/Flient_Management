@@ -31,7 +31,6 @@ void DBOperator::DBOpen() {
 void DBOperator::DBClose() {
     openFlag = false;
     dbcon.close();
-    // 不调用 removeDatabase，避免其他实例正在使用同名连接
 }
 
 // 执行 SQL 查询并返回结果
@@ -44,7 +43,7 @@ QSqlQuery DBOperator::DBGetData(QString sqlstr, bool &sucessFlag) {
 // 根据用户 ID 获取用户完整信息
 bool DBOperator::getUserInfo(int userId, UserInfo &userInfo) {
     bool sf = false;
-    QString sqlstr = QString("select username, password, phone, email, realname, idcard, avatarid from user_info where id=%1").arg(userId);
+    QString sqlstr = QString("select username, password, phone, email, realname, idcard, avatarid, COALESCE(balance, 0) as balance from user_info where id=%1").arg(userId);
     QSqlQuery qs = DBGetData(sqlstr, sf);
 
     // 如果查询成功，填充用户信息结构体
@@ -55,6 +54,7 @@ bool DBOperator::getUserInfo(int userId, UserInfo &userInfo) {
         userInfo.email = qs.value("email").toString();
         userInfo.realname = qs.value("realname").toString();
         userInfo.idcard = qs.value("idcard").toString();
+        userInfo.balance = qs.value("balance").toDouble();
         userInfo.avatarId = qs.value("avatarid").toInt();
         return true;
     }

@@ -36,7 +36,8 @@ private slots:
     void on_editInfoBtn_clicked();
     void on_saveBtn_clicked();
     void on_cancelBtn_clicked();
-
+    void on_cancelAccountBtn_clicked();
+    void on_rechargeBtn_clicked();
 
 private:
     Ui::UserMainWindow *ui;

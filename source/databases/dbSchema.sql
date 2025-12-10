@@ -12,7 +12,8 @@ create table if not exists user_info (
     email varchar(64) not null unique comment '邮箱',
     realname varchar(32) not null comment '真实姓名',
     idcard varchar(18) not null unique comment '身份证号',
-    avatarid int not null default 1 comment '头像编号，默认值为 1'
+    avatarid int not null default 1 comment '头像编号，默认值为 1',
+    balance decimal(10, 2) not null default 0.00 comment '账户余额'
 );
 
 -- 管理员表
@@ -34,7 +35,7 @@ create table if not exists flight_info (
     arrival_time datetime not null comment '到达时间',
     price decimal(10, 2) not null comment '价格',
     total_seats int not null comment '总座位数',
-    remaining_seats int not null comment '剩余座位（实时更新)'
+    remaining_seats int not null comment '剩余座位 (实时更新)'
 );
 
 -- 测试数据

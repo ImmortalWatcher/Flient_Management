@@ -3,12 +3,12 @@
 
 #include <QPixmap>
 
-// 默认构造函数：仅初始化UI
+// 默认构造函数：仅初始化 UI
 FlightItemWidget::FlightItemWidget(QWidget *parent) : QWidget(parent), ui(new Ui::FlightItemWidget) {
     ui->setupUi(this);
 }
 
-// 带参数构造函数：初始化UI并填充航班数据
+// 带参数构造函数：初始化 UI 并填充航班数据
 FlightItemWidget::FlightItemWidget(const QString &flightNo, const QString &takeoffTime, const QString &arriveTime, const QString &departure, const QString &destination, const QString &price, const QString &remaining, const QString &airlineCompany, QWidget *parent): QWidget(parent), ui(new Ui::FlightItemWidget), m_flightNo(flightNo) {
     ui->setupUi(this);
 
@@ -32,7 +32,7 @@ FlightItemWidget::FlightItemWidget(const QString &flightNo, const QString &takeo
     } else if (airlineCompany == "深圳航空") {
         logoPath = ":/img/source/figures/ShenzhenAirlines.png";
     } else {
-        // 默认使用中国国航logo
+        // 默认使用中国国航 logo
         logoPath = ":/img/source/figures/AirChina.png";
     }
     ui->airlineLogoLabel->setPixmap(QPixmap(logoPath));

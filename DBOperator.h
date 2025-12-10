@@ -20,6 +20,7 @@ public:
         QString email;
         QString realname;
         QString idcard;
+        double balance;
         int avatarId;
     };
 

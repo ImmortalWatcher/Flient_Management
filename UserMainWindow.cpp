@@ -48,9 +48,6 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent
     ui->scrollArea->setWidgetResizable(false);
     ui->scrollAreaWidgetContents->show();
 
-    connect(ui->searchBtn, &QPushButton::clicked, this, &UserMainWindow::on_searchBtn_clicked);
-    connect(ui->resetBtn, &QPushButton::clicked, this, &UserMainWindow::on_resetBtn_clicked);
-
     loadAllFlights();
 }
 
@@ -108,7 +105,7 @@ void UserMainWindow::loadAvatar() {
     if (m_dbOperator.getUserInfo(m_userId, userInfo)) {
         setAvatar(userInfo.avatarId);
     } else {
-        setAvatar(1);  // 使用默认头像
+        setAvatar(1); // 使用默认头像
     }
 }
 
@@ -226,12 +223,13 @@ void UserMainWindow::showAvatarselectionDialog() {
 void UserMainWindow::loadUserInfo() {
     DBOperator::UserInfo userInfo;
     if (m_dbOperator.getUserInfo(m_userId, userInfo)) {
-        ui->UsernameEdit->setText(userInfo.username);
-        ui->PasswordEdit->setText(userInfo.password);
-        ui->PhoneEdit->setText(userInfo.phone);
-        ui->EmailEdit->setText(userInfo.email);
-        ui->RealnameEdit->setText(userInfo.realname);
-        ui->IdcardEdit->setText(userInfo.idcard);
+        ui->UsernameLabel->setText(userInfo.username);
+        ui->PasswordLabel->setText(userInfo.password);
+        ui->PhoneLabel->setText(userInfo.phone);
+        ui->EmailLabel->setText(userInfo.email);
+        ui->RealnameLabel->setText(userInfo.realname);
+        ui->IdcardLabel->setText(userInfo.idcard);
+        ui->BalanceLabel->setText(QString::number(userInfo.balance, 'f', 2) + " 元");
     } else {
         QMessageBox::warning(this, "错误", "加载用户信息失败！");
     }
@@ -290,7 +288,7 @@ void UserMainWindow::loadAllFlights() {
 
         itemWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         itemWidget->setFixedWidth(600);
-        itemWidget->setFixedHeight(229);
+        itemWidget->setFixedHeight(180);
         itemWidget->show();
 
         // 连接预订和收藏按钮信号
@@ -367,18 +365,12 @@ void UserMainWindow::on_searchBtn_clicked() {
         QString takeoffTime = QString("%1年%2月%3日%4:%5").arg(takeoffDateTime.date().year()).arg(takeoffDateTime.date().month()).arg(takeoffDateTime.date().day()).arg(takeoffDateTime.time().hour(), 2, 10, QChar('0')).arg(takeoffDateTime.time().minute(), 2, 10, QChar('0'));
 
         QDateTime arriveDateTime = query.value("arrival_time").toDateTime();
-        QString arriveTime = QString("%1年%2月%3日%4:%5")
-                                .arg(arriveDateTime.date().year())
-                                .arg(arriveDateTime.date().month())
-                                .arg(arriveDateTime.date().day())
-                                .arg(arriveDateTime.time().hour(), 2, 10, QChar('0'))
-                                .arg(arriveDateTime.time().minute(), 2, 10, QChar('0'));
+        QString arriveTime = QString("%1年%2月%3日%4:%5").arg(arriveDateTime.date().year()).arg(arriveDateTime.date().month()).arg(arriveDateTime.date().day()).arg(arriveDateTime.time().hour(), 2, 10, QChar('0')).arg(arriveDateTime.time().minute(), 2, 10, QChar('0'));
 
         QString dep = query.value("departure_city").toString();
         QString dest = query.value("arrival_city").toString();
         QString price = query.value("price").toString() + "元";
-        QString remaining = QString("%1/%2")
-                                .arg(query.value("remaining_seats").toString(), query.value("total_seats").toString());
+        QString remaining = QString("%1/%2").arg(query.value("remaining_seats").toString(), query.value("total_seats").toString());
         QString airlineCompany = query.value("airline_company").toString();
 
         FlightItemWidget *itemWidget = new FlightItemWidget(flightNo, takeoffTime, arriveTime, dep, dest, price, remaining, airlineCompany, ui->scrollAreaWidgetContents);
@@ -435,14 +427,152 @@ void UserMainWindow::on_saveBtn_clicked() {
 
 // 处理取消按钮点击，退出编辑模式并恢复原始数据
 void UserMainWindow::on_cancelBtn_clicked() {
-    ui->UsernameEdit->setText(m_originalUserInfo.username);
-    ui->PasswordEdit->setText(m_originalUserInfo.password);
-    ui->PhoneEdit->setText(m_originalUserInfo.phone);
-    ui->EmailEdit->setText(m_originalUserInfo.email);
-    ui->RealnameEdit->setText(m_originalUserInfo.realname);
-    ui->IdcardEdit->setText(m_originalUserInfo.idcard);
+    ui->UsernameLabel->setText(m_originalUserInfo.username);
+    ui->PasswordLabel->setText(m_originalUserInfo.password);
+    ui->PhoneLabel->setText(m_originalUserInfo.phone);
+    ui->EmailLabel->setText(m_originalUserInfo.email);
+    ui->RealnameLabel->setText(m_originalUserInfo.realname);
+    ui->IdcardLabel->setText(m_originalUserInfo.idcard);
 
     exitEditMode();
+}
+
+// 处理注销账号按钮点击
+void UserMainWindow::on_cancelAccountBtn_clicked() {
+    // 显示确认对话框，提示用户一旦注销账号不可找回
+    int ret = QMessageBox::question(this, "确认注销", "一旦注销，账号不可找回。\n确定要注销账号吗？", QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+
+    if (ret != QMessageBox::Yes) {
+        return;
+    }
+
+    // 从数据库中删除用户信息
+    bool success = false;
+    QString sqlstr = QString("DELETE FROM user_info WHERE id=%1").arg(m_userId);
+    QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
+
+    if (!success) {
+        QMessageBox::warning(this, "注销失败", "数据库错误：" + query.lastError().text());
+        return;
+    }
+
+    // 注销成功，显示提示信息并退出登录
+    QMessageBox::information(this, "注销成功", "账号已成功注销");
+    emit logoutRequested();
+    this->close();
+}
+
+// 处理充值按钮点击
+void UserMainWindow::on_rechargeBtn_clicked() {
+    // 创建充值对话框
+    QDialog *rechargeDialog = new QDialog(this);
+    rechargeDialog->setWindowTitle("账户充值");
+    rechargeDialog->setModal(true);
+    rechargeDialog->resize(350, 200);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(rechargeDialog);
+
+    // 添加标题标签
+    QLabel *titleLabel = new QLabel("请输入充值金额：", rechargeDialog);
+    titleLabel->setStyleSheet("font-size: 16px; font-weight: bold; padding: 10px;");
+    mainLayout->addWidget(titleLabel);
+
+    // 创建输入框
+    QLineEdit *amountEdit = new QLineEdit(rechargeDialog);
+    amountEdit->setPlaceholderText("请输入充值金额（元）");
+    amountEdit->setStyleSheet("font-size: 14px; padding: 8px;");
+    mainLayout->addWidget(amountEdit);
+
+    // 显示当前余额
+    DBOperator::UserInfo userInfo;
+    if (m_dbOperator.getUserInfo(m_userId, userInfo)) {
+        QLabel *balanceLabel = new QLabel(QString("当前余额：%1 元").arg(QString::number(userInfo.balance, 'f', 2)), rechargeDialog);
+        balanceLabel->setStyleSheet("font-size: 12px; color: #666; padding: 5px;");
+        mainLayout->addWidget(balanceLabel);
+    }
+
+    mainLayout->addStretch();
+
+    // 创建按钮布局
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addStretch();
+
+    QPushButton *confirmBtn = new QPushButton("确认充值", rechargeDialog);
+    confirmBtn->setStyleSheet("QPushButton {"
+                             "    background-color: #156080;"
+                             "    color: white;"
+                             "    border-radius: 5px;"
+                             "    padding: 8px 30px;"
+                             "    font-size: 14px;"
+                             "}"
+                             "QPushButton:hover {"
+                             "    background-color: #1a7a9f;"
+                             "}");
+    buttonLayout->addWidget(confirmBtn);
+
+    QPushButton *cancelBtn = new QPushButton("取消", rechargeDialog);
+    cancelBtn->setStyleSheet("QPushButton {"
+                            "    background-color: #999;"
+                            "    color: white;"
+                            "    border-radius: 5px;"
+                            "    padding: 8px 30px;"
+                            "    font-size: 14px;"
+                            "}"
+                            "QPushButton:hover {"
+                            "    background-color: #777;"
+                            "}");
+    buttonLayout->addWidget(cancelBtn);
+    mainLayout->addLayout(buttonLayout);
+
+    // 连接确认按钮
+    connect(confirmBtn, &QPushButton::clicked, rechargeDialog, [=]() {
+        QString amountStr = amountEdit->text().trimmed();
+        
+        // 验证输入是否为空
+        if (amountStr.isEmpty()) {
+            QMessageBox::warning(rechargeDialog, "警告", "请输入充值金额！");
+            return;
+        }
+        
+        // 验证输入是否为有效数字
+        bool ok;
+        double amount = amountStr.toDouble(&ok);
+        if (!ok || amount <= 0) {
+            QMessageBox::warning(rechargeDialog, "警告", "请输入有效的充值金额（必须大于0）！");
+            return;
+        }
+        
+        // 获取当前余额
+        DBOperator::UserInfo currentUserInfo;
+        if (!m_dbOperator.getUserInfo(m_userId, currentUserInfo)) {
+            QMessageBox::warning(rechargeDialog, "错误", "获取用户信息失败！");
+            return;
+        }
+        
+        // 计算新余额
+        double newBalance = currentUserInfo.balance + amount;
+        
+        // 更新数据库中的余额
+        bool success = false;
+        QString sqlstr = QString("UPDATE user_info SET balance=%1 WHERE id=%2").arg(newBalance).arg(m_userId);
+        QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
+        
+        if (!success) {
+            QMessageBox::warning(rechargeDialog, "充值失败", "数据库错误：" + query.lastError().text());
+            return;
+        }
+        
+        // 充值成功，刷新余额显示
+        loadUserInfo();
+        QMessageBox::information(rechargeDialog, "充值成功", QString("充值成功！\n充值金额：%1 元\n当前余额：%2 元").arg(QString::number(amount, 'f', 2), QString::number(newBalance, 'f', 2)));
+        rechargeDialog->accept();
+    });
+
+    // 连接取消按钮
+    connect(cancelBtn, &QPushButton::clicked, rechargeDialog, &QDialog::reject);
+
+    rechargeDialog->exec();
+    delete rechargeDialog;
 }
 
 // 进入编辑模式：将标签转换为可编辑的输入框，隐藏原按钮，显示保存和取消按钮
@@ -457,79 +587,83 @@ void UserMainWindow::enterEditMode() {
     m_dbOperator.getUserInfo(m_userId, m_originalUserInfo);
 
     // 获取各个标签的位置和大小
-    QRect usernameRect = ui->UsernameEdit->geometry();
-    QRect passwordRect = ui->PasswordEdit->geometry();
-    QRect phoneRect = ui->PhoneEdit->geometry();
-    QRect emailRect = ui->EmailEdit->geometry();
-    QRect realnameRect = ui->RealnameEdit->geometry();
-    QRect idcardRect = ui->IdcardEdit->geometry();
+    QRect usernameRect = ui->UsernameLabel->geometry();
+    QRect passwordRect = ui->PasswordLabel->geometry();
+    QRect phoneRect = ui->PhoneLabel->geometry();
+    QRect emailRect = ui->EmailLabel->geometry();
+    QRect realnameRect = ui->RealnameLabel->geometry();
+    QRect idcardRect = ui->IdcardLabel->geometry();
 
     // 创建用户名输入框
     m_usernameEdit = new QLineEdit(ui->page_4);
     m_usernameEdit->setGeometry(usernameRect);
-    m_usernameEdit->setText(ui->UsernameEdit->text());
-    m_usernameEdit->setFont(ui->UsernameEdit->font());
+    m_usernameEdit->setText(ui->UsernameLabel->text());
+    m_usernameEdit->setFont(ui->UsernameLabel->font());
     m_usernameEdit->show();
-    ui->UsernameEdit->hide();
+    ui->UsernameLabel->hide();
 
     // 创建密码输入框
     m_passwordEdit = new QLineEdit(ui->page_4);
     m_passwordEdit->setGeometry(passwordRect);
-    m_passwordEdit->setText(ui->PasswordEdit->text());
-    m_passwordEdit->setFont(ui->PasswordEdit->font());
+    m_passwordEdit->setText(ui->PasswordLabel->text());
+    m_passwordEdit->setFont(ui->PasswordLabel->font());
     m_passwordEdit->setEchoMode(QLineEdit::Normal);
     m_passwordEdit->show();
-    ui->PasswordEdit->hide();
+    ui->PasswordLabel->hide();
 
     // 创建手机号输入框
     m_phoneEdit = new QLineEdit(ui->page_4);
     m_phoneEdit->setGeometry(phoneRect);
-    m_phoneEdit->setText(ui->PhoneEdit->text());
-    m_phoneEdit->setFont(ui->PhoneEdit->font());
+    m_phoneEdit->setText(ui->PhoneLabel->text());
+    m_phoneEdit->setFont(ui->PhoneLabel->font());
     m_phoneEdit->show();
-    ui->PhoneEdit->hide();
+    ui->PhoneLabel->hide();
     
     // 创建邮箱输入框
     m_emailEdit = new QLineEdit(ui->page_4);
     m_emailEdit->setGeometry(emailRect);
-    m_emailEdit->setText(ui->EmailEdit->text());
-    m_emailEdit->setFont(ui->EmailEdit->font());
+    m_emailEdit->setText(ui->EmailLabel->text());
+    m_emailEdit->setFont(ui->EmailLabel->font());
     m_emailEdit->show();
-    ui->EmailEdit->hide();
+    ui->EmailLabel->hide();
     
     // 创建真实姓名输入框
     m_realnameEdit = new QLineEdit(ui->page_4);
     m_realnameEdit->setGeometry(realnameRect);
-    m_realnameEdit->setText(ui->RealnameEdit->text());
-    m_realnameEdit->setFont(ui->RealnameEdit->font());
+    m_realnameEdit->setText(ui->RealnameLabel->text());
+    m_realnameEdit->setFont(ui->RealnameLabel->font());
     m_realnameEdit->show();
-    ui->RealnameEdit->hide();
+    ui->RealnameLabel->hide();
     
     // 创建身份证号输入框
     m_idcardEdit = new QLineEdit(ui->page_4);
     m_idcardEdit->setGeometry(idcardRect);
-    m_idcardEdit->setText(ui->IdcardEdit->text());
-    m_idcardEdit->setFont(ui->IdcardEdit->font());
+    m_idcardEdit->setText(ui->IdcardLabel->text());
+    m_idcardEdit->setFont(ui->IdcardLabel->font());
     m_idcardEdit->show();
-    ui->IdcardEdit->hide();
+    ui->IdcardLabel->hide();
 
     // 隐藏原来的 3 个按钮
     ui->editInfoBtn->hide();
     ui->rechargeBtn->hide();
     ui->cancelAccountBtn->hide();
 
-    // 创建并显示保存按钮
+    // 创建并显示保存按钮 (向右平移)
     m_saveBtn = new QPushButton(ui->page_4);
-    m_saveBtn->setGeometry(ui->editInfoBtn->geometry());
+    QRect saveBtnRect = ui->editInfoBtn->geometry();
+    saveBtnRect.moveLeft(saveBtnRect.x() + 105);
+    m_saveBtn->setGeometry(saveBtnRect);
     m_saveBtn->setText("保存");
     m_saveBtn->setFont(ui->editInfoBtn->font());
     m_saveBtn->setStyleSheet(ui->editInfoBtn->styleSheet());
     m_saveBtn->show();
     connect(m_saveBtn, &QPushButton::clicked, this, &UserMainWindow::on_saveBtn_clicked);
 
-    // 创建并显示取消按钮
+    // 创建并显示取消按钮 (向右平移)
     m_cancelBtn = new QPushButton(ui->page_4);
-    m_cancelBtn->setGeometry(ui->rechargeBtn->geometry());
+    QRect cancelBtnRect = ui->rechargeBtn->geometry();
+    cancelBtnRect.moveLeft(cancelBtnRect.x() + 115);
+    m_cancelBtn->setGeometry(cancelBtnRect);
     m_cancelBtn->setText("取消");
     m_cancelBtn->setFont(ui->rechargeBtn->font());
     m_cancelBtn->setStyleSheet(ui->rechargeBtn->styleSheet());
@@ -547,42 +681,42 @@ void UserMainWindow::exitEditMode() {
 
     // 恢复标签显示
     if (m_usernameEdit) {
-        ui->UsernameEdit->show();
+        ui->UsernameLabel->show();
         m_usernameEdit->hide();
         m_usernameEdit->deleteLater();
         m_usernameEdit = nullptr;
     }
 
     if (m_passwordEdit) {
-        ui->PasswordEdit->show();
+        ui->PasswordLabel->show();
         m_passwordEdit->hide();
         m_passwordEdit->deleteLater();
         m_passwordEdit = nullptr;
     }
 
     if (m_phoneEdit) {
-        ui->PhoneEdit->show();
+        ui->PhoneLabel->show();
         m_phoneEdit->hide();
         m_phoneEdit->deleteLater();
         m_phoneEdit = nullptr;
     }
 
     if (m_emailEdit) {
-        ui->EmailEdit->show();
+        ui->EmailLabel->show();
         m_emailEdit->hide();
         m_emailEdit->deleteLater();
         m_emailEdit = nullptr;
     }
 
     if (m_realnameEdit) {
-        ui->RealnameEdit->show();
+        ui->RealnameLabel->show();
         m_realnameEdit->hide();
         m_realnameEdit->deleteLater();
         m_realnameEdit = nullptr;
     }
 
     if (m_idcardEdit) {
-        ui->IdcardEdit->show();
+        ui->IdcardLabel->show();
         m_idcardEdit->hide();
         m_idcardEdit->deleteLater();
         m_idcardEdit = nullptr;
