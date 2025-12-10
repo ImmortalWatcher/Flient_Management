@@ -29,7 +29,10 @@
     </sizepolicy>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: #fbfffe;</string>
+    <string notr="true">QWidget {
+	background-color: #fbfffe;
+	border-radius: 12px;
+}</string>
    </property>
    <widget class="QPushButton" name="bookBtn">
     <property name="enabled">
@@ -127,7 +130,7 @@
         </font>
        </property>
        <property name="text">
-        <string>2026年1月1日10：30</string>
+        <string>2026年1月1日10:30</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignmentFlag::AlignCenter</set>

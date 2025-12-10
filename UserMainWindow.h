@@ -44,7 +44,8 @@ private:
     int m_userId;
     DBOperator m_dbOperator;
     QVBoxLayout *flightLayout;
-    
+    QVBoxLayout *orderLayout; // 订单列表布局
+
     // 编辑模式相关成员变量
     bool m_isEditMode;
     QLineEdit *m_usernameEdit;
@@ -69,5 +70,7 @@ private:
     void enterEditMode();
     void exitEditMode();
     void saveUserInfo();
+    void loadOrders(); // 加载订单列表
+    void clearOrders(); // 清空订单列表
 };
 #endif // USERMAINWINDOW_H

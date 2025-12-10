@@ -38,6 +38,23 @@ create table if not exists flight_info (
     remaining_seats int not null comment '剩余座位 (实时更新)'
 );
 
+-- 订单表
+create table if not exists order_info (
+    order_id int primary key auto_increment comment '订单号',
+    user_id int not null comment '用户 ID',
+    flight_id varchar(20) not null comment '航班号',
+    passenger_name varchar(32) not null comment '乘客姓名',
+    passenger_idcard varchar(18) not null comment '乘客身份证号',
+    departure_city varchar(50) not null comment '出发城市',
+    arrival_city varchar(50) not null comment '到达城市',
+    departure_time datetime not null comment '起飞时间',
+    arrival_time datetime not null comment '到达时间',
+    price decimal(10, 2) not null comment '票价',
+    order_time datetime not null default CURRENT_TIMESTAMP comment '下单时间',
+    foreign key (user_id) references user_info(id) on delete cascade,
+    foreign key (flight_id) references flight_info(flight_id) on delete cascade
+);
+
 -- 测试数据
 insert user_info (username, password, phone, email, realname, idcard) values ('test', '123456', '13800138000', 'test@email.com', '张三', '123456789012345678');
 insert admin_info (username, password) values ('admin', '123456');
