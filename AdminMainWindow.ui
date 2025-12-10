@@ -343,31 +343,58 @@
       <widget class="QSpinBox" name="yearSpin">
        <property name="geometry">
         <rect>
-         <x>150</x>
+         <x>121</x>
          <y>70</y>
-         <width>42</width>
+         <width>71</width>
          <height>25</height>
         </rect>
+       </property>
+       <property name="minimum">
+        <number>2025</number>
+       </property>
+       <property name="maximum">
+        <number>2050</number>
+       </property>
+       <property name="value">
+        <number>2026</number>
        </property>
       </widget>
       <widget class="QSpinBox" name="monthSpin">
        <property name="geometry">
         <rect>
-         <x>240</x>
+         <x>231</x>
          <y>70</y>
-         <width>42</width>
+         <width>51</width>
          <height>25</height>
         </rect>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>12</number>
+       </property>
+       <property name="value">
+        <number>1</number>
        </property>
       </widget>
       <widget class="QSpinBox" name="daySpin">
        <property name="geometry">
         <rect>
-         <x>320</x>
+         <x>311</x>
          <y>70</y>
-         <width>42</width>
+         <width>51</width>
          <height>25</height>
         </rect>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>31</number>
+       </property>
+       <property name="value">
+        <number>1</number>
        </property>
       </widget>
       <widget class="QLineEdit" name="lineEdit">
@@ -397,7 +424,7 @@
         <x>20</x>
         <y>210</y>
         <width>600</width>
-        <height>130</height>
+        <height>281</height>
        </rect>
       </property>
       <property name="font">
@@ -407,16 +434,11 @@
        </font>
       </property>
       <property name="columnCount">
-       <number>10</number>
+       <number>13</number>
       </property>
       <attribute name="horizontalHeaderDefaultSectionSize">
        <number>100</number>
       </attribute>
-      <column>
-       <property name="text">
-        <string>航班ID</string>
-       </property>
-      </column>
       <column>
        <property name="text">
         <string>航班号</string>
@@ -424,17 +446,32 @@
       </column>
       <column>
        <property name="text">
-        <string>出发地</string>
+        <string>航空公司</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>目的地</string>
+        <string>出发城市</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>起飞时间</string>
+        <string>出发机场</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>出发时间</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>到达城市</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>到达机场</string>
        </property>
       </column>
       <column>
@@ -444,30 +481,35 @@
       </column>
       <column>
        <property name="text">
+        <string>价格</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
         <string>总座位数</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>剩余座位</string>
+        <string>剩余座位（实时更新）</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>票价</string>
+        <string>编辑</string>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>操作</string>
+        <string>删除</string>
        </property>
       </column>
      </widget>
      <widget class="QPushButton" name="editBtn">
       <property name="geometry">
        <rect>
-        <x>110</x>
-        <y>450</y>
+        <x>100</x>
+        <y>510</y>
         <width>164</width>
         <height>26</height>
        </rect>
@@ -486,7 +528,7 @@
       <property name="geometry">
        <rect>
         <x>360</x>
-        <y>450</y>
+        <y>510</y>
         <width>164</width>
         <height>26</height>
        </rect>

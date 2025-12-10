@@ -4,11 +4,13 @@
 #include <QDebug>
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include <QString>
 
 class DBOperator {
 private:
     QSqlDatabase dbcon;
     bool openFlag;
+    QString connectionName;
 
 public:
     struct UserInfo {

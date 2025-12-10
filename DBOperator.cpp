@@ -1,12 +1,19 @@
 #include "DBOperator.h"
 
-// 构造函数：初始化数据库连接标志
-DBOperator::DBOperator() : openFlag(false) {}
+// 构造函数：初始化数据库连接标志并设置唯一连接名
+DBOperator::DBOperator() : openFlag(false) {
+    connectionName = QString("conn_%1").arg(reinterpret_cast<quintptr>(this));
+}
 
 // 打开数据库连接
 void DBOperator::DBOpen() {
     if (!openFlag) {
-        dbcon = QSqlDatabase::addDatabase("QODBC");
+        // 为每个实例创建独立连接，避免被其他实例关闭
+        if (QSqlDatabase::contains(connectionName)) {
+            dbcon = QSqlDatabase::database(connectionName);
+        } else {
+            dbcon = QSqlDatabase::addDatabase("QODBC", connectionName);
+        }
         dbcon.setHostName("127.0.0.1");
         dbcon.setPort(3306);
         dbcon.setDatabaseName("flient_managementODBC");
@@ -24,6 +31,7 @@ void DBOperator::DBOpen() {
 void DBOperator::DBClose() {
     openFlag = false;
     dbcon.close();
+    // 不调用 removeDatabase，避免其他实例正在使用同名连接
 }
 
 // 执行 SQL 查询并返回结果

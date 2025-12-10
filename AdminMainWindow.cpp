@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QSqlField>
 #include <QSqlRecord>
+#include <QHBoxLayout>
 
 // 构造函数：初始化管理员主窗口
 AdminMainWindow::AdminMainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::AdminMainWindow) {
@@ -95,18 +96,21 @@ void AdminMainWindow::initDataStatistics() {
 
 // 加载航班数据到表格
 void AdminMainWindow::loadFlightData(const QString &whereClause) {
-    QString sql = "select id, flight_number, departure, destination, departure_time, arrival_time, total_seats, remaining_seats, price from flights";
-
-    // 如果提供了查询条件，则添加到 SQL 语句中
+    QString sql =
+        "select flight_id, airline_company, departure_city, departure_airport, "
+        "departure_time, arrival_city, arrival_airport, arrival_time, price, "
+        "total_seats, remaining_seats from flight_info";
+    // where 必须在 order by 之前
     if (!whereClause.isEmpty()) {
         sql += " where " + whereClause;
     }
+    sql += " order by departure_time";
 
     bool success;
     QSqlQuery query = dbOperator->DBGetData(sql, success);
 
     if (success) {
-        flightModel->setQuery(std::move(query));
+        // 这里直接使用 query 填充表格，避免 setQuery 之后继续访问被移动的对象
         ui->flightTable->setRowCount(0);
 
         // 遍历查询结果，填充表格数据
@@ -114,23 +118,37 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
         while (query.next()) {
             ui->flightTable->insertRow(row);
 
-            // 填充表格单元格数据
-            for (int col = 0; col < 9; ++col) {
-                QTableWidgetItem *item = new QTableWidgetItem(query.value(col).toString());
+            // 按列名读取，避免顺序偏差
+            QStringList values;
+            values << query.value("flight_id").toString()
+                   << query.value("airline_company").toString()
+                   << query.value("departure_city").toString()
+                   << query.value("departure_airport").toString()
+                   << query.value("departure_time").toDateTime().toString("yyyy-MM-dd hh:mm")
+                   << query.value("arrival_city").toString()
+                   << query.value("arrival_airport").toString()
+                   << query.value("arrival_time").toDateTime().toString("yyyy-MM-dd hh:mm")
+                   << query.value("price").toString()
+                   << query.value("total_seats").toString()
+                   << query.value("remaining_seats").toString();
+
+            for (int col = 0; col < values.size(); ++col) {
+                QTableWidgetItem *item = new QTableWidgetItem(values.at(col));
                 ui->flightTable->setItem(row, col, item);
             }
 
-            // 为每行添加编辑和删除按钮
+            // 为每行添加编辑和删除按钮，对应表头的“编辑”“删除”列
             QPushButton *editBtn = new QPushButton("编辑");
             QPushButton *deleteBtn = new QPushButton("删除");
-            connect(editBtn, &QPushButton::clicked, [this, row]() {
-                int flightId = ui->flightTable->item(row, 0)->text().toInt();
+
+            QString flightId = values.at(0);
+
+            connect(editBtn, &QPushButton::clicked, [this, flightId]() {
                 Q_UNUSED(flightId);
             });
-            connect(deleteBtn, &QPushButton::clicked, [this, row]() {
-                int flightId = ui->flightTable->item(row, 0)->text().toInt();
+            connect(deleteBtn, &QPushButton::clicked, [this, flightId]() {
                 if (QMessageBox::question(this, "确认", "确定要删除这条航班记录吗?") == QMessageBox::Yes) {
-                    QString sql = QString("delete from flights where id = %1").arg(flightId);
+                    QString sql = QString("delete from flight_info where flight_id = '%1'").arg(flightId);
                     bool success;
                     dbOperator->DBGetData(sql, success);
                     if (success) {
@@ -141,8 +159,8 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
                 }
             });
 
-            ui->flightTable->setCellWidget(row, 9, editBtn);
-            ui->flightTable->setCellWidget(row, 10, deleteBtn);
+            ui->flightTable->setCellWidget(row, 11, editBtn);
+            ui->flightTable->setCellWidget(row, 12, deleteBtn);
 
             row++;
         }
@@ -305,9 +323,9 @@ void AdminMainWindow::on_deleteBtn_clicked() {
         return;
     }
 
-    int flightId = ui->flightTable->item(row, 0)->text().toInt();
+    QString flightId = ui->flightTable->item(row, 0)->text();
     if (QMessageBox::question(this, "确认", "确定要删除这条航班记录吗?") == QMessageBox::Yes) {
-        QString sql = QString("delete from flights where id = %1").arg(flightId);
+        QString sql = QString("delete from flight_info where flight_id = '%1'").arg(flightId);
         bool success;
         dbOperator->DBGetData(sql, success);
         if (success) {
