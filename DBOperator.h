@@ -1,9 +1,9 @@
 #ifndef DBOPERATOR_H
 #define DBOPERATOR_H
 
+#include <QDebug>
 #include <QSqlDatabase>
 #include <QSqlQuery>
-#include <QDebug>
 
 class DBOperator {
 private:

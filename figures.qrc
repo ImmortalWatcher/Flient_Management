@@ -17,7 +17,10 @@
         <file>source/figures/orderView.png</file>
         <file>source/figures/userManagement.png</file>
         <file>source/figures/dataStatistics.png</file>
-        <file>source/figures/capitalLogo.png</file>
         <file>source/figures/arrow.png</file>
+        <file>source/figures/AirChina.png</file>
+        <file>source/figures/ChinaEasternAirlines.png</file>
+        <file>source/figures/ChinaSouthernAirlines.png</file>
+        <file>source/figures/ShenzhenAirlines.png</file>
     </qresource>
 </RCC>

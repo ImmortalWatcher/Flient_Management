@@ -1,56 +1,45 @@
 #include "DBOperator.h"
 
-DBOperator::DBOperator() {
-    openFlag = false;
-}
+// 构造函数：初始化数据库连接标志
+DBOperator::DBOperator() : openFlag(false) {}
 
+// 打开数据库连接
 void DBOperator::DBOpen() {
-    if(!openFlag) {
+    if (!openFlag) {
         dbcon = QSqlDatabase::addDatabase("QODBC");
         dbcon.setHostName("127.0.0.1");
         dbcon.setPort(3306);
         dbcon.setDatabaseName("flient_managementODBC");
         bool ok = dbcon.open();
-        if(!ok) {
+        if (!ok) {
             qDebug() << "Error, flient_managementODBC 数据库文件打开失败！";
         } else {
-            qDebug() << "Sucess, flient_managementODBC 数据库文件成功打开！";
+            qDebug() << "Success, flient_managementODBC 数据库文件成功打开！";
             openFlag = true;
         }
     }
 }
 
-/*
-void DBOperator::DBOpen() {
-    QString dsn;
-    if(!openFlag) {
-        dbcon = QSqlDatabase::addDatabase("QODBC");
-        dsn = QString("DRIVER={Microsoft Access Driver (*.mdb, *.accdb)}; FIL={MS Access}; DBQ=C:/qtsrc/SQLTest/SQLDB.mdb");
-        dbcon.setDatabaseName(dsn);
-        bool ok = dbcon.open();
-        if(!ok) qDebug() << "错误, SQLDB 数据库文件打开失败！";
-        openFlag = true;
-    }
-}
-*/
-
+// 关闭数据库连接
 void DBOperator::DBClose() {
     openFlag = false;
     dbcon.close();
 }
 
+// 执行 SQL 查询并返回结果
 QSqlQuery DBOperator::DBGetData(QString sqlstr, bool &sucessFlag) {
     QSqlQuery query = QSqlQuery(dbcon);
     sucessFlag = query.exec(sqlstr);
     return query;
 }
 
-// 获取用户完整信息
+// 根据用户 ID 获取用户完整信息
 bool DBOperator::getUserInfo(int userId, UserInfo &userInfo) {
     bool sf = false;
     QString sqlstr = QString("select username, password, phone, email, realname, idcard, avatarid from user_info where id=%1").arg(userId);
     QSqlQuery qs = DBGetData(sqlstr, sf);
 
+    // 如果查询成功，填充用户信息结构体
     if (sf && qs.next()) {
         userInfo.username = qs.value("username").toString();
         userInfo.password = qs.value("password").toString();
@@ -64,10 +53,10 @@ bool DBOperator::getUserInfo(int userId, UserInfo &userInfo) {
     return false;
 }
 
-// 更新用户头像编号
+// 更新用户头像 ID
 bool DBOperator::updateUserAvatarId(int userId, int avatarId) {
     bool sf = false;
-    QString sqlstr = QString("update user_info set avatarid=%1 where id=%2").arg(avatarId).arg(userId);
+    QString sqlstr = QString("UPDATE user_info SET avatarid=%1 where id=%2").arg(avatarId).arg(userId);
     QSqlQuery qs = DBGetData(sqlstr, sf);
     return sf;
 }

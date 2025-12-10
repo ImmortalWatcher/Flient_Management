@@ -1,57 +1,56 @@
 #include "WindowFactory.h"
+
+#include "AdminMainWindow.h"
 #include "LoginDlg.h"
 #include "UserMainWindow.h"
-#include "AdminMainWindow.h"
 
 #include <QApplication>
-#include <QScreen>
 #include <QDebug>
+#include <QScreen>
 
-WindowFactory& WindowFactory::instance() {
+// 获取单例实例
+WindowFactory &WindowFactory::instance() {
     static WindowFactory instance;
     return instance;
 }
 
+// 构造函数：初始化窗口工厂
 WindowFactory::WindowFactory(QObject *parent) : QObject(parent), m_currentMainWindow(nullptr) {}
 
-QMainWindow* WindowFactory::createMainWindow(bool isAdmin, int userId, QWidget *parent) {
-    // 如果已有窗口，先销毁
+// 创建主窗口（用户或管理员）
+QMainWindow *WindowFactory::createMainWindow(bool isAdmin, int userId, QWidget *parent) {
     destroyCurrentWindow();
 
     QMainWindow *window = nullptr;
 
-    if (!isAdmin) { // 普通用户
+    // 根据用户类型创建对应的主窗口
+    if (!isAdmin) {
         window = new UserMainWindow(userId);
         window->setWindowTitle("用户界面");
-        qDebug() << "创建普通用户窗口，用户ID:" << userId;
-    } else {        // 管理员
+    } else {
         window = new AdminMainWindow(parent);
         window->setWindowTitle("管理员界面");
-        qDebug() << "创建管理员窗口";
     }
 
     if (window) {
         m_currentMainWindow = window;
 
-        // 连接注销信号到 switchToLogin
+        // 连接注销信号
         if (!isAdmin) {
-            // 普通用户窗口
-            UserMainWindow *userWindow = qobject_cast<UserMainWindow*>(window);
+            UserMainWindow *userWindow = qobject_cast<UserMainWindow *>(window);
             if (userWindow) {
                 connect(userWindow, &UserMainWindow::logoutRequested, this, &WindowFactory::switchToLogin);
             }
         } else {
-            // 管理员窗口
-            AdminMainWindow *adminWindow = qobject_cast<AdminMainWindow*>(window);
+            AdminMainWindow *adminWindow = qobject_cast<AdminMainWindow *>(window);
             if (adminWindow) {
                 connect(adminWindow, &AdminMainWindow::logoutRequested, this, &WindowFactory::switchToLogin);
             }
         }
 
-        // 连接窗口关闭信号
+        // 窗口销毁时清空指针
         connect(window, &QMainWindow::destroyed, this, [this]() {
             m_currentMainWindow = nullptr;
-            qDebug() << "主窗口已销毁";
         });
 
         emit mainWindowCreated(window);
@@ -60,19 +59,18 @@ QMainWindow* WindowFactory::createMainWindow(bool isAdmin, int userId, QWidget *
     return window;
 }
 
-QDialog* WindowFactory::createLoginWindow(QWidget *parent) {
+// 创建登录窗口
+QDialog *WindowFactory::createLoginWindow(QWidget *parent) {
     LoginDlg *loginDlg = new LoginDlg(parent);
     loginDlg->setWindowTitle("用户登录");
 
-    // 连接登录成功信号
+    // 连接登录成功信号，创建对应的主窗口
     connect(loginDlg, &LoginDlg::loginSuccess, this,
             [this, loginDlg](int userId, const QString &username, bool isAdmin) {
-                qDebug() << "登录成功，用户ID:" << userId << "用户名:" << username << "是否管理员:" << isAdmin;
-
-                // 创建对应的主窗口，传递用户 ID
+                Q_UNUSED(username);
                 QMainWindow *mainWindow = createMainWindow(isAdmin, userId);
                 if (mainWindow) {
-                    // 居中显示窗口
+                    // 居中显示主窗口
                     mainWindow->adjustSize();
                     QScreen *screen = QApplication::primaryScreen();
                     QRect screenGeometry = screen->geometry();
@@ -82,33 +80,27 @@ QDialog* WindowFactory::createLoginWindow(QWidget *parent) {
                     mainWindow->move(x, y);
                     mainWindow->show();
                 }
-
-                // 删除登录窗口
                 loginDlg->deleteLater();
             });
 
-    // 连接登录取消信号
+    // 连接取消登录信号，退出程序
     connect(loginDlg, &LoginDlg::rejected, this, []() {
-        qDebug() << "登录取消，退出程序";
         QApplication::quit();
     });
 
     return loginDlg;
 }
 
+// 切换到登录窗口 (用于注销)
 void WindowFactory::switchToLogin() {
-    // 销毁当前主窗口
     destroyCurrentWindow();
-
-    // 发射注销信号
     emit logoutRequested();
 
-    // 创建并显示登录窗口
     QDialog *loginDlg = createLoginWindow();
     loginDlg->show();
 }
 
-QMainWindow* WindowFactory::currentMainWindow() const {
+QMainWindow *WindowFactory::currentMainWindow() const {
     return m_currentMainWindow;
 }
 

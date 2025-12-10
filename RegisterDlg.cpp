@@ -1,13 +1,14 @@
 #include "RegisterDlg.h"
 #include "ui_RegisterDlg.h"
 
-#include <QSqlQuery>
 #include <QMessageBox>
 #include <QSqlError>
+#include <QSqlQuery>
 
+// 构造函数：初始化注册对话框
 RegDlg::RegDlg(QWidget *parent) : QDialog(parent), ui(new Ui::RegDlg) {
     ui->setupUi(this);
-    // 设计 Tab 导航
+    // 设置 Tab 键顺序
     QWidget::setTabOrder(ui->UsernameEdit, ui->PasswordEdit);
     QWidget::setTabOrder(ui->PasswordEdit, ui->RePasswordEdit);
     QWidget::setTabOrder(ui->RePasswordEdit, ui->PhoneEdit);
@@ -19,11 +20,12 @@ RegDlg::RegDlg(QWidget *parent) : QDialog(parent), ui(new Ui::RegDlg) {
 }
 
 RegDlg::~RegDlg() {
-    delete ui; 
+    delete ui;
 }
 
-// 输入合法性校验
+// 验证用户输入信息的合法性
 bool RegDlg::validateInput(QString &username, QString &password, QString &repassword, QString &phone, QString &email, QString &realname, QString &idcard) {
+    // 获取并去除输入框中的空格
     username = ui->UsernameEdit->text().trimmed();
     password = ui->PasswordEdit->text().trimmed();
     repassword = ui->RePasswordEdit->text();
@@ -32,6 +34,7 @@ bool RegDlg::validateInput(QString &username, QString &password, QString &repass
     realname = ui->RealnameEdit->text().trimmed();
     idcard = ui->IdcardEdit->text().trimmed();
 
+    // 验证各项输入是否合法
     if (username.isEmpty()) {
         QMessageBox::warning(this, "警告", "用户名不能为空");
         return false;
@@ -75,14 +78,16 @@ bool RegDlg::validateInput(QString &username, QString &password, QString &repass
     return true;
 }
 
+// 处理注册按钮点击
 void RegDlg::on_regBtn_clicked() {
     QString username, password, repassword, phone, email, realname, idcard;
 
+    // 验证输入合法性
     if (!validateInput(username, password, repassword, phone, email, realname, idcard)) {
         return;
     }
 
-    // 检查用户名是否已被注册 (同时检查用户表和管理员表)
+    // 检查用户名是否已被注册（用户表）
     bool success = false;
     QString checkSql = QString("select count(1) from user_info where username='%1'").arg(username);
     QSqlQuery checkQuery = dbp.DBGetData(checkSql, success);
@@ -95,7 +100,7 @@ void RegDlg::on_regBtn_clicked() {
         return;
     }
 
-    // 检查管理员表中是否也有同名用户
+    // 检查用户名是否已被注册（管理员表）
     checkSql = QString("select count(1) from admin_info where username='%1'").arg(username);
     checkQuery = dbp.DBGetData(checkSql, success);
     if (!success) {
@@ -143,20 +148,19 @@ void RegDlg::on_regBtn_clicked() {
         return;
     }
 
-    // 构造 SQL 语句并执行插入，设置默认头像为编号 1
-    QString insertSql = QString("insert into user_info(username, password, phone, email, realname, idcard, avatarid) values('%1', '%2', '%3', '%4', '%5', '%6', 1)")
-                        .arg(username, password, phone, email, realname, idcard);
+    // 插入新用户信息到数据库
+    QString insertSql = QString("insert into user_info(username, password, phone, email, realname, idcard, avatarid) values('%1', '%2', '%3', '%4', '%5', '%6', 1)").arg(username, password, phone, email, realname, idcard);
     QSqlQuery insertQuery = dbp.DBGetData(insertSql, success);
     if (!success) {
         QMessageBox::warning(this, "注册失败", insertQuery.lastError().text());
         return;
     }
 
-    // 注册成功, 弹出提示窗口, 并向父类返回状态
     QMessageBox::information(this, "注册成功", "注册成功，请返回登录");
     accept();
 }
 
+// 处理返回按钮点击，取消注册
 void RegDlg::on_backBtn_clicked() {
     reject();
 }

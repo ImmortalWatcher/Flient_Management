@@ -3,8 +3,9 @@
 
 #include <QMainWindow>
 #include <QObject>
+#include <QWidget>
 
-// 前向声明，避免循环包含
+class QDialog;
 class UserMainWindow;
 class AdminMainWindow;
 

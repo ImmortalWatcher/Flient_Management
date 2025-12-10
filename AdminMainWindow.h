@@ -1,9 +1,10 @@
 #ifndef ADMINMAINWINDOW_H
 #define ADMINMAINWINDOW_H
 
+#include <QDate>
 #include <QMainWindow>
 #include <QSqlQueryModel>
-#include <QDate>
+
 #include "DBOperator.h"
 
 namespace Ui { class AdminMainWindow; }

@@ -1,9 +1,9 @@
 #ifndef LOGINDLG_H
 #define LOGINDLG_H
 
-#include "DBOperator.h"
-
 #include <QDialog>
+
+#include "DBOperator.h"
 
 namespace Ui { class LoginDlg; }
 

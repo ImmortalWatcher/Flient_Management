@@ -1771,7 +1771,7 @@ border: none; /* 移除边框 */</string>
        </property>
        <property name="geometry">
         <rect>
-         <x>160</x>
+         <x>80</x>
          <y>110</y>
          <width>120</width>
          <height>30</height>
@@ -1793,6 +1793,42 @@ border: none; /* 移除边框 */</string>
        </property>
        <property name="text">
         <string>查询</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="resetBtn">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>230</x>
+         <y>110</y>
+         <width>120</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>华文琥珀</family>
+         <pointsize>15</pointsize>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    background-color: #156080;
+    color: white;
+    border: 1px solid #ababab;
+    border-radius: 12px;
+}</string>
+       </property>
+       <property name="text">
+        <string>重置</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>16</width>
+         <height>16</height>
+        </size>
        </property>
       </widget>
      </widget>

@@ -1,15 +1,16 @@
 #include "LoginDlg.h"
 #include "ui_LoginDlg.h"
+
 #include "RegisterDlg.h"
 
-#include <QSqlQuery>
 #include <QMessageBox>
 #include <QSqlError>
+#include <QSqlQuery>
 
-// 同时打开和关闭数据库
+// 构造函数：初始化登录对话框
 LoginDlg::LoginDlg(QWidget *parent) : QDialog(parent), ui(new Ui::LoginDlg) {
     ui->setupUi(this);
-    // 设计 Tab 导航
+    // 设置 Tab 键顺序
     QWidget::setTabOrder(ui->UsernameEdit, ui->PasswordEdit);
     QWidget::setTabOrder(ui->PasswordEdit, ui->loginBtn);
     QWidget::setTabOrder(ui->loginBtn, ui->regBtn);
@@ -21,51 +22,45 @@ LoginDlg::~LoginDlg() {
     delete ui;
 }
 
-// 实现清空输入的函数 (内部可访问私有 ui)
+// 清空输入框
 void LoginDlg::clearInput() {
-    ui->UsernameEdit->clear();  // 清空用户名框
-    ui->PasswordEdit->clear();  // 清空密码框
+    ui->UsernameEdit->clear();
+    ui->PasswordEdit->clear();
 }
 
+// 处理登录按钮点击
 void LoginDlg::on_loginBtn_clicked() {
-    // qDebug() <<__FUNCTION__;
-    auto username = ui->UsernameEdit->text();
-    auto password = ui->PasswordEdit->text();
+    QString username = ui->UsernameEdit->text();
+    QString password = ui->PasswordEdit->text();
 
-    // 空值校验
-    if (username.isEmpty()||password.isEmpty()) {
+    // 验证输入是否为空
+    if (username.isEmpty() || password.isEmpty()) {
         QMessageBox::warning(this, "警告", "用户名或密码不能为空！");
         return;
     }
 
     // 先查询用户表
     bool sf = false;
-    QString sqlstr = QString("select * from user_info where username='%1' and password='%2'").arg(username, password);
-    // qDebug() << "执行的 SQL 语句:" << sqlstr;
+    QString sqlstr = QString("select * from user_info where username='%1' AND password='%2'").arg(username, password);
     QSqlQuery qs = dbp.DBGetData(sqlstr, sf);
 
-    // query.bindValue(0, username);
-    // query.bindValue(1, password);
-
-    // 检查查询是否执行成功
     if (!sf) {
         QMessageBox::warning(this, "登录失败", qs.lastError().text());
         return;
     }
 
-    // 验证用户名密码是否匹配
     bool isAdmin = false;
     int userId = 0;
     QString dbUsername;
 
-    // 如果用户在用户表中找到
+    // 如果用户在用户表中找到，则为普通用户
     if (qs.next()) {
         userId = qs.value("id").toInt();
         dbUsername = qs.value("username").toString();
-        isAdmin = false;   // 普通用户
+        isAdmin = false;
     } else {
         // 如果用户表中没找到，查询管理员表
-        sqlstr = QString("select * from admin_info where username='%1' and password='%2'").arg(username, password);
+        sqlstr = QString("select * from admin_info where username='%1' AND password='%2'").arg(username, password);
         qs = dbp.DBGetData(sqlstr, sf);
 
         if (!sf) {
@@ -76,21 +71,19 @@ void LoginDlg::on_loginBtn_clicked() {
         if (qs.next()) {
             userId = qs.value("id").toInt();
             dbUsername = qs.value("username").toString();
-            isAdmin = true; // 管理员
+            isAdmin = true;
         } else {
             QMessageBox::warning(this, "登录失败", "用户名或密码错误，请重新输入！");
             return;
         }
     }
 
-    this->hide(); // 隐藏登录框
-
-    // 发射信号，传递用户 ID、用户名和是否为管理员
+    this->hide();
     emit loginSuccess(userId, dbUsername, isAdmin);
-
-    QDialog::accept(); // 通知 main.cpp 登录成功
+    QDialog::accept();
 }
 
+// 处理注册按钮点击，打开注册对话框
 void LoginDlg::on_regBtn_clicked() {
     RegDlg regDialog(this);
     regDialog.setGeometry(this->geometry());
