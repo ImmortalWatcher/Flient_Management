@@ -3,6 +3,7 @@
 
 #include "FlightItemWidget.h"
 
+#include <QComboBox>
 #include <QDateTime>
 #include <QDialog>
 #include <QEvent>
@@ -12,6 +13,7 @@
 #include <QMouseEvent>
 #include <QSqlError>
 #include <QVBoxLayout>
+#include <QVector>
 
 // 构造函数：初始化用户主窗口
 UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent), ui(new Ui::UserMainWindow), m_userId(userId) {
@@ -55,6 +57,11 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent
     orderLayout->setAlignment(Qt::AlignTop);
 
     loadAllFlights();
+
+    // 如果默认停留在 “我的订单” 页，初始也要加载一次订单
+    if (ui->stackedWidget->currentIndex() == 1) {
+        loadOrders();
+    }
 }
 
 UserMainWindow::~UserMainWindow() {
@@ -257,7 +264,7 @@ void UserMainWindow::loadAllFlights() {
     clearFlightItems();
 
     bool sf = false;
-    QString sqlstr = "select * from flight_info ORDER BY departure_time";
+    QString sqlstr = "select * from flight_info order by departure_time";
     QSqlQuery query = m_dbOperator.DBGetData(sqlstr, sf);
     if (!sf) {
         QMessageBox::critical(this, "加载失败", "数据库错误：" + query.lastError().text());
@@ -351,7 +358,7 @@ void UserMainWindow::on_searchBtn_clicked() {
 
     // 执行搜索查询
     bool sf = false;
-    QString sqlstr = QString("select * from flight_info where departure_city='%1' AND arrival_city='%2' AND DATE(departure_time)='%3' ORDER BY departure_time").arg(departure, destination, takeoffDate);
+    QString sqlstr = QString("select * from flight_info where departure_city='%1' and arrival_city='%2' and DATE(departure_time)='%3' order by departure_time").arg(departure, destination, takeoffDate);
     QSqlQuery query = m_dbOperator.DBGetData(sqlstr, sf);
     if (!sf) {
         QMessageBox::critical(this, "查询失败", "数据库错误：" + query.lastError().text());
@@ -384,7 +391,7 @@ void UserMainWindow::on_searchBtn_clicked() {
 
         itemWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         itemWidget->setFixedWidth(600);
-        itemWidget->setFixedHeight(229);
+        itemWidget->setFixedHeight(180);
         itemWidget->show();
 
         connect(itemWidget, &FlightItemWidget::bookClicked, this, &UserMainWindow::on_book_clicked);
@@ -415,80 +422,72 @@ void UserMainWindow::on_searchBtn_clicked() {
 void UserMainWindow::on_book_clicked(const QString &flightNo) {
     // 查询航班详细信息
     bool success = false;
-    QString sqlstr = QString("SELECT * FROM flight_info WHERE flight_id='%1'").arg(flightNo);
+    QString sqlstr = QString("select * from flight_info where flight_id='%1'").arg(flightNo);
     QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
-    
+
     if (!success || !query.next()) {
         QMessageBox::warning(this, "错误", "获取航班信息失败！");
         return;
     }
-    
+
     // 获取航班信息
     QString departureAirport = query.value("departure_airport").toString();
     QString arrivalAirport = query.value("arrival_airport").toString();
+    QString departureCity = query.value("departure_city").toString();
+    QString arrivalCity = query.value("arrival_city").toString();
     QDateTime departureTime = query.value("departure_time").toDateTime();
     QDateTime arrivalTime = query.value("arrival_time").toDateTime();
     double price = query.value("price").toDouble();
-    
+
     // 格式化时间
-    QString takeoffTime = QString("%1年%2月%3日 %4:%5")
-                          .arg(departureTime.date().year())
-                          .arg(departureTime.date().month())
-                          .arg(departureTime.date().day())
-                          .arg(departureTime.time().hour(), 2, 10, QChar('0'))
-                          .arg(departureTime.time().minute(), 2, 10, QChar('0'));
-    
-    QString arriveTime = QString("%1年%2月%3日 %4:%5")
-                         .arg(arrivalTime.date().year())
-                         .arg(arrivalTime.date().month())
-                         .arg(arrivalTime.date().day())
-                         .arg(arrivalTime.time().hour(), 2, 10, QChar('0'))
-                         .arg(arrivalTime.time().minute(), 2, 10, QChar('0'));
-    
+    QString takeoffTime = QString("%1年%2月%3日 %4:%5").arg(departureTime.date().year()).arg(departureTime.date().month()).arg(departureTime.date().day()).arg(departureTime.time().hour(), 2, 10, QChar('0')).arg(departureTime.time().minute(), 2, 10, QChar('0'));
+
+    QString arriveTime = QString("%1年%2月%3日 %4:%5").arg(arrivalTime.date().year()).arg(arrivalTime.date().month()).arg(arrivalTime.date().day()).arg(arrivalTime.time().hour(), 2, 10, QChar('0')).arg(arrivalTime.time().minute(), 2, 10, QChar('0'));
+
     // 创建预订对话框
     QDialog *bookDialog = new QDialog(this);
     bookDialog->setWindowTitle("预订航班");
     bookDialog->setModal(true);
     bookDialog->resize(450, 400);
-    
+
     QVBoxLayout *mainLayout = new QVBoxLayout(bookDialog);
-    
+
     // 添加标题
     QLabel *titleLabel = new QLabel("航班预订信息", bookDialog);
     titleLabel->setStyleSheet("font-size: 18px; font-weight: bold; padding: 10px;");
     mainLayout->addWidget(titleLabel);
-    
+
     // 显示航班信息
     QLabel *flightNoLabel = new QLabel(QString("航班号：%1").arg(flightNo), bookDialog);
     flightNoLabel->setStyleSheet("font-size: 14px; padding: 5px;");
     mainLayout->addWidget(flightNoLabel);
-    
+
     QLabel *departureLabel = new QLabel(QString("出发地：%1").arg(departureAirport), bookDialog);
     departureLabel->setStyleSheet("font-size: 14px; padding: 5px;");
     mainLayout->addWidget(departureLabel);
-    
+
     QLabel *arrivalLabel = new QLabel(QString("目的地：%1").arg(arrivalAirport), bookDialog);
     arrivalLabel->setStyleSheet("font-size: 14px; padding: 5px;");
     mainLayout->addWidget(arrivalLabel);
-    
+
     QLabel *takeoffLabel = new QLabel(QString("起飞时间：%1").arg(takeoffTime), bookDialog);
     takeoffLabel->setStyleSheet("font-size: 14px; padding: 5px;");
     mainLayout->addWidget(takeoffLabel);
-    
+
     QLabel *arriveLabel = new QLabel(QString("到达时间：%1").arg(arriveTime), bookDialog);
     arriveLabel->setStyleSheet("font-size: 14px; padding: 5px;");
     mainLayout->addWidget(arriveLabel);
-    
+
     QLabel *priceLabel = new QLabel(QString("票价：%1 元").arg(QString::number(price, 'f', 2)), bookDialog);
     priceLabel->setStyleSheet("font-size: 14px; padding: 5px; color: #d9534f; font-weight: bold;");
     mainLayout->addWidget(priceLabel);
-    
+
     // 分隔线
     QFrame *line = new QFrame(bookDialog);
     line->setFrameShape(QFrame::HLine);
     line->setFrameShadow(QFrame::Sunken);
     mainLayout->addWidget(line);
-    
+
     // 获取用户信息
     DBOperator::UserInfo userInfo;
     if (!m_dbOperator.getUserInfo(m_userId, userInfo)) {
@@ -496,26 +495,26 @@ void UserMainWindow::on_book_clicked(const QString &flightNo) {
         delete bookDialog;
         return;
     }
-    
-    // 显示乘客信息（使用用户信息）
+
+    // 显示乘客信息 (使用用户信息)
     QLabel *passengerTitle = new QLabel("乘客信息", bookDialog);
     passengerTitle->setStyleSheet("font-size: 16px; font-weight: bold; padding: 10px 5px;");
     mainLayout->addWidget(passengerTitle);
-    
+
     QLabel *nameLabel = new QLabel(QString("乘客姓名：%1").arg(userInfo.realname), bookDialog);
     nameLabel->setStyleSheet("font-size: 14px; padding: 5px;");
     mainLayout->addWidget(nameLabel);
-    
+
     QLabel *idcardLabel = new QLabel(QString("身份证号：%1").arg(userInfo.idcard), bookDialog);
     idcardLabel->setStyleSheet("font-size: 14px; padding: 5px;");
     mainLayout->addWidget(idcardLabel);
-    
+
     mainLayout->addStretch();
-    
+
     // 按钮布局
     QHBoxLayout *buttonLayout = new QHBoxLayout();
     buttonLayout->addStretch();
-    
+
     QPushButton *confirmBtn = new QPushButton("确认订票", bookDialog);
     confirmBtn->setStyleSheet("QPushButton {"
                              "    background-color: #156080;"
@@ -528,7 +527,7 @@ void UserMainWindow::on_book_clicked(const QString &flightNo) {
                              "    background-color: #1a7a9f;"
                              "}");
     buttonLayout->addWidget(confirmBtn);
-    
+
     QPushButton *cancelBtn = new QPushButton("取消", bookDialog);
     cancelBtn->setStyleSheet("QPushButton {"
                             "    background-color: #999;"
@@ -542,75 +541,66 @@ void UserMainWindow::on_book_clicked(const QString &flightNo) {
                             "}");
     buttonLayout->addWidget(cancelBtn);
     mainLayout->addLayout(buttonLayout);
-    
+
     // 连接确认按钮
     connect(confirmBtn, &QPushButton::clicked, bookDialog, [=]() {
         // 直接使用用户信息
         QString passengerName = userInfo.realname;
         QString passengerIdcard = userInfo.idcard;
-        
+
         if (userInfo.balance < price) {
             QMessageBox::warning(bookDialog, "余额不足", QString("账户余额不足！\n当前余额：%1 元\n需要支付：%2 元").arg(QString::number(userInfo.balance, 'f', 2), QString::number(price, 'f', 2)));
             return;
         }
-        
+
         // 检查剩余座位
         if (query.value("remaining_seats").toInt() <= 0) {
             QMessageBox::warning(bookDialog, "预订失败", "该航班已无剩余座位！");
             return;
         }
-        
+
         // 扣除余额
         double newBalance = userInfo.balance - price;
         bool updateSuccess = false;
-        QString updateSql = QString("UPDATE user_info SET balance=%1 WHERE id=%2").arg(newBalance).arg(m_userId);
+        QString updateSql = QString("update user_info set balance=%1 where id=%2").arg(newBalance).arg(m_userId);
         QSqlQuery updateQuery = m_dbOperator.DBGetData(updateSql, updateSuccess);
-        
+
         if (!updateSuccess) {
             QMessageBox::warning(bookDialog, "预订失败", "更新余额失败：" + updateQuery.lastError().text());
             return;
         }
-        
+
         // 创建订单
-        QString insertSql = QString("INSERT INTO order_info (user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price) "
-                                   "VALUES (%1, '%2', '%3', '%4', '%5', '%6', '%7', '%8', %9)")
-                           .arg(m_userId)
-                           .arg(flightNo)
-                           .arg(passengerName)
-                           .arg(passengerIdcard)
-                           .arg(departureAirport)
-                           .arg(arrivalAirport)
-                           .arg(departureTime.toString("yyyy-MM-dd hh:mm:ss"))
-                           .arg(arrivalTime.toString("yyyy-MM-dd hh:mm:ss"))
-                           .arg(price);
-        
+        // 订单内保存城市维度，便于后续改签同城航线匹配
+        QString insertSql = QString("insert into order_info (user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price) values (%1, '%2', '%3', '%4', '%5', '%6', '%7', '%8', %9)").arg(m_userId).arg(flightNo).arg(passengerName).arg(passengerIdcard).arg(departureCity).arg(arrivalCity).arg(departureTime.toString("yyyy-MM-dd hh:mm:ss")).arg(arrivalTime.toString("yyyy-MM-dd hh:mm:ss")).arg(price);
+
         bool insertSuccess = false;
         QSqlQuery insertQuery = m_dbOperator.DBGetData(insertSql, insertSuccess);
-        
+
         if (!insertSuccess) {
             // 如果订单创建失败，回滚余额
-            QString rollbackSql = QString("UPDATE user_info SET balance=%1 WHERE id=%2").arg(userInfo.balance).arg(m_userId);
+            QString rollbackSql = QString("update user_info set balance=%1 where id=%2").arg(userInfo.balance).arg(m_userId);
             m_dbOperator.DBGetData(rollbackSql, updateSuccess);
             QMessageBox::warning(bookDialog, "预订失败", "创建订单失败：" + insertQuery.lastError().text());
             return;
         }
-        
+
         // 更新航班剩余座位
         int remainingSeats = query.value("remaining_seats").toInt() - 1;
-        QString seatSql = QString("UPDATE flight_info SET remaining_seats=%1 WHERE flight_id='%2'").arg(remainingSeats).arg(flightNo);
+        QString seatSql = QString("update flight_info set remaining_seats=%1 where flight_id='%2'").arg(remainingSeats).arg(flightNo);
         m_dbOperator.DBGetData(seatSql, updateSuccess);
-        
+
         // 刷新用户信息和订单列表
         loadUserInfo();
         loadOrders();
-        
+
         QMessageBox::information(bookDialog, "预订成功", QString("预订成功！\n订单已创建，余额已扣除 %1 元\n当前余额：%2 元").arg(QString::number(price, 'f', 2), QString::number(newBalance, 'f', 2)));
         bookDialog->accept();
     });
-    
+
     // 连接取消按钮
     connect(cancelBtn, &QPushButton::clicked, bookDialog, &QDialog::reject);
-    
+
     bookDialog->exec();
     delete bookDialog;
 }
@@ -654,7 +644,7 @@ void UserMainWindow::on_cancelAccountBtn_clicked() {
 
     // 从数据库中删除用户信息
     bool success = false;
-    QString sqlstr = QString("DELETE FROM user_info WHERE id=%1").arg(m_userId);
+    QString sqlstr = QString("delete from user_info where id=%1").arg(m_userId);
     QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
 
     if (!success) {
@@ -760,7 +750,7 @@ void UserMainWindow::on_rechargeBtn_clicked() {
 
         // 更新数据库中的余额
         bool success = false;
-        QString sqlstr = QString("UPDATE user_info SET balance=%1 WHERE id=%2").arg(newBalance).arg(m_userId);
+    QString sqlstr = QString("update user_info set balance=%1 where id=%2").arg(newBalance).arg(m_userId);
         QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
         
         if (!success) {
@@ -797,7 +787,7 @@ void UserMainWindow::loadOrders() {
 
     // 查询当前用户的所有订单
     bool success = false;
-    QString sqlstr = QString("SELECT * FROM order_info WHERE user_id=%1 ORDER BY order_time DESC").arg(m_userId);
+    QString sqlstr = QString("select * from order_info where user_id=%1 order by order_time desc").arg(m_userId);
     QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
 
     if (!success) {
@@ -835,7 +825,7 @@ void UserMainWindow::loadOrders() {
                                   "    border-radius: 8px;"
                                   "    padding: 10px;"
                                   "}");
-        orderFrame->setFixedHeight(280);
+        orderFrame->setFixedHeight(320);
 
         QVBoxLayout *orderFrameLayout = new QVBoxLayout(orderFrame);
         orderFrameLayout->setContentsMargins(15, 15, 15, 15);
@@ -876,6 +866,45 @@ void UserMainWindow::loadOrders() {
 
         orderFrameLayout->addLayout(bottomLayout);
 
+        // 操作按钮
+        QHBoxLayout *actionLayout = new QHBoxLayout();
+        actionLayout->addStretch();
+
+        QPushButton *cancelPayBtn = new QPushButton("取消支付", orderFrame);
+        cancelPayBtn->setStyleSheet("QPushButton {"
+                                    "    background-color: #d9534f;"
+                                    "    color: white;"
+                                    "    border-radius: 5px;"
+                                    "    padding: 6px 20px;"
+                                    "    font-size: 13px;"
+                                    "}"
+                                    "QPushButton:hover {"
+                                    "    background-color: #c9302c;"
+                                    "}");
+        actionLayout->addWidget(cancelPayBtn);
+
+        QPushButton *rescheduleBtn = new QPushButton("改签", orderFrame);
+        rescheduleBtn->setStyleSheet("QPushButton {"
+                                     "    background-color: #156080;"
+                                     "    color: white;"
+                                     "    border-radius: 5px;"
+                                     "    padding: 6px 20px;"
+                                     "    font-size: 13px;"
+                                     "}"
+                                     "QPushButton:hover {"
+                                     "    background-color: #1a7a9f;"
+                                     "}");
+        actionLayout->addWidget(rescheduleBtn);
+
+        orderFrameLayout->addLayout(actionLayout);
+
+        connect(cancelPayBtn, &QPushButton::clicked, this, [=]() {
+            handleCancelOrder(orderId, flightId, price);
+        });
+        connect(rescheduleBtn, &QPushButton::clicked, this, [=]() {
+            handleReschedule(orderId, flightId, price, departureCity, arrivalCity);
+        });
+
         orderLayout->addWidget(orderFrame);
     }
     
@@ -887,6 +916,202 @@ void UserMainWindow::loadOrders() {
     }
     
     orderLayout->addStretch();
+}
+
+// 取消已支付订单：退还余额并释放座位
+void UserMainWindow::handleCancelOrder(int orderId, const QString &flightId, double price) {
+    int ret = QMessageBox::question(this, "确认取消", "确认取消该订单并退还支付金额吗？", QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if (ret != QMessageBox::Yes) {
+        return;
+    }
+
+    // 退还余额
+    bool success = false;
+    QString refundSql = QString("update user_info set balance=balance+%1 where id=%2").arg(price).arg(m_userId);
+    QSqlQuery refundQuery = m_dbOperator.DBGetData(refundSql, success);
+    if (!success) {
+        QMessageBox::warning(this, "取消失败", "退还余额失败：" + refundQuery.lastError().text());
+        return;
+    }
+
+    // 释放座位
+    QString seatSql = QString("update flight_info set remaining_seats=remaining_seats+1 where flight_id='%1'").arg(flightId);
+    QSqlQuery seatQuery = m_dbOperator.DBGetData(seatSql, success);
+    if (!success) {
+        QMessageBox::warning(this, "取消失败", "更新座位失败：" + seatQuery.lastError().text());
+        return;
+    }
+
+    // 删除订单
+    QString deleteSql = QString("delete from order_info where order_id=%1").arg(orderId);
+    QSqlQuery deleteQuery = m_dbOperator.DBGetData(deleteSql, success);
+    if (!success) {
+        QMessageBox::warning(this, "取消失败", "删除订单失败：" + deleteQuery.lastError().text());
+        return;
+    }
+
+    loadUserInfo();
+    loadOrders();
+    QMessageBox::information(this, "取消成功", "订单已取消，支付金额已退回账户余额。");
+}
+
+// 改签订单：选择新航班后差额结算并更新订单
+void UserMainWindow::handleReschedule(int orderId, const QString &oldFlightId, double oldPrice, const QString &departureCity, const QString &arrivalCity) {
+    // 查询可用航班
+    bool success = false;
+    // 同城改签：要求出发城市和到达城市一致
+    QString sqlstr = QString("select flight_id, departure_airport, arrival_airport, departure_time, arrival_time, price, remaining_seats, airline_company from flight_info where departure_city='%1' and arrival_city='%2' and remaining_seats>0 and flight_id!='%3' order by departure_time").arg(departureCity, arrivalCity, oldFlightId);
+    QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
+    if (!success) {
+        QMessageBox::warning(this, "加载失败", "查询可改签航班失败：" + query.lastError().text());
+        return;
+    }
+
+    struct FlightOption {
+        QString flightId;
+        QString depAirport;
+        QString arrAirport;
+        QDateTime depTime;
+        QDateTime arrTime;
+        double price;
+        int remaining;
+        QString airline;
+    };
+    QVector<FlightOption> options;
+
+    while (query.next()) {
+        FlightOption opt;
+        opt.flightId = query.value("flight_id").toString();
+        opt.depAirport = query.value("departure_airport").toString();
+        opt.arrAirport = query.value("arrival_airport").toString();
+        opt.depTime = query.value("departure_time").toDateTime();
+        opt.arrTime = query.value("arrival_time").toDateTime();
+        opt.price = query.value("price").toDouble();
+        opt.remaining = query.value("remaining_seats").toInt();
+        opt.airline = query.value("airline_company").toString();
+        options.append(opt);
+    }
+
+    if (options.isEmpty()) {
+        QMessageBox::information(this, "无可改签航班", "当前航线暂无可改签的航班。");
+        return;
+    }
+
+    QDialog *dialog = new QDialog(this);
+    dialog->setWindowTitle("选择改签航班");
+    dialog->setModal(true);
+    dialog->resize(520, 220);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(dialog);
+    QLabel *tip = new QLabel("请选择要改签的航班：", dialog);
+    tip->setStyleSheet("font-size: 14px; font-weight: bold; padding: 5px 0;");
+    mainLayout->addWidget(tip);
+
+    QComboBox *combo = new QComboBox(dialog);
+    for (const auto &opt : options) {
+        QString depTimeStr = QString("%1-%2-%3 %4:%5").arg(opt.depTime.date().year()).arg(opt.depTime.date().month(), 2, 10, QChar('0')).arg(opt.depTime.date().day(), 2, 10, QChar('0')).arg(opt.depTime.time().hour(), 2, 10, QChar('0')).arg(opt.depTime.time().minute(), 2, 10, QChar('0'));
+        QString arrTimeStr = QString("%1-%2-%3 %4:%5").arg(opt.arrTime.date().year()).arg(opt.arrTime.date().month(), 2, 10, QChar('0')).arg(opt.arrTime.date().day(), 2, 10, QChar('0')).arg(opt.arrTime.time().hour(), 2, 10, QChar('0')).arg(opt.arrTime.time().minute(), 2, 10, QChar('0'));
+        QString text = QString("%1 | %2 → %3 | 起飞 %4 | 票价 %5 元 | 剩余 %6").arg(opt.flightId, opt.depAirport, opt.arrAirport, depTimeStr).arg(QString::number(opt.price, 'f', 2)).arg(opt.remaining);
+        combo->addItem(text);
+    }
+    mainLayout->addWidget(combo);
+
+    QLabel *balanceTip = new QLabel(QString("当前订单票价：%1 元").arg(QString::number(oldPrice, 'f', 2)), dialog);
+    balanceTip->setStyleSheet("font-size: 12px; color: #666; padding: 5px 0;");
+    mainLayout->addWidget(balanceTip);
+
+    QHBoxLayout *btnLayout = new QHBoxLayout();
+    btnLayout->addStretch();
+    QPushButton *okBtn = new QPushButton("确认改签", dialog);
+    okBtn->setStyleSheet("QPushButton {"
+                         "    background-color: #156080;"
+                         "    color: white;"
+                         "    border-radius: 5px;"
+                         "    padding: 8px 24px;"
+                         "    font-size: 13px;"
+                         "}"
+                         "QPushButton:hover {"
+                         "    background-color: #1a7a9f;"
+                         "}");
+    QPushButton *cancelBtn = new QPushButton("取消", dialog);
+    cancelBtn->setStyleSheet("QPushButton {"
+                             "    background-color: #999;"
+                             "    color: white;"
+                             "    border-radius: 5px;"
+                             "    padding: 8px 24px;"
+                             "    font-size: 13px;"
+                             "}"
+                             "QPushButton:hover {"
+                             "    background-color: #777;"
+                             "}");
+    btnLayout->addWidget(okBtn);
+    btnLayout->addWidget(cancelBtn);
+    mainLayout->addLayout(btnLayout);
+
+    connect(cancelBtn, &QPushButton::clicked, dialog, &QDialog::reject);
+    connect(okBtn, &QPushButton::clicked, dialog, [=]() {
+        int idx = combo->currentIndex();
+        if (idx < 0 || idx >= options.size()) {
+            QMessageBox::warning(dialog, "改签失败", "请选择改签航班。");
+            return;
+        }
+
+        FlightOption opt = options.at(idx);
+
+        DBOperator::UserInfo userInfo;
+        if (!m_dbOperator.getUserInfo(m_userId, userInfo)) {
+            QMessageBox::warning(dialog, "改签失败", "获取用户信息失败。");
+            return;
+        }
+
+        double available = userInfo.balance + oldPrice;
+        if (available < opt.price) {
+            QMessageBox::warning(dialog, "余额不足", QString("改签后需支付 %1 元，当前余额不足。").arg(QString::number(opt.price, 'f', 2)));
+            return;
+        }
+
+        // 更新余额（退旧购新）
+        double newBalance = available - opt.price;
+        bool updateOk = false;
+        QString balanceSql = QString("update user_info set balance=%1 where id=%2").arg(newBalance).arg(m_userId);
+        QSqlQuery balanceQuery = m_dbOperator.DBGetData(balanceSql, updateOk);
+        if (!updateOk) {
+            QMessageBox::warning(dialog, "改签失败", "更新余额失败：" + balanceQuery.lastError().text());
+            return;
+        }
+
+        // 释放旧航班座位
+        QString releaseSql = QString("update flight_info set remaining_seats=remaining_seats+1 where flight_id='%1'").arg(oldFlightId);
+        QSqlQuery releaseQuery = m_dbOperator.DBGetData(releaseSql, updateOk);
+        if (!updateOk || releaseQuery.numRowsAffected() == 0) {
+            QMessageBox::warning(dialog, "改签失败", "释放旧航班座位失败：" + releaseQuery.lastError().text());
+            return;
+        }
+
+        // 占用新航班座位
+        QString takeSql = QString("update flight_info set remaining_seats=remaining_seats-1 where flight_id='%1' and remaining_seats>0").arg(opt.flightId);
+        QSqlQuery takeQuery = m_dbOperator.DBGetData(takeSql, updateOk);
+        if (!updateOk || takeQuery.numRowsAffected() == 0) {
+            QMessageBox::warning(dialog, "改签失败", "占用新航班座位失败：" + takeQuery.lastError().text());
+            return;
+        }
+
+        // 更新订单信息
+        QString updateOrderSql = QString("update order_info set flight_id='%1', departure_city='%2', arrival_city='%3', departure_time='%4', arrival_time='%5', price=%6, order_time=now() where order_id=%7").arg(opt.flightId).arg(departureCity).arg(arrivalCity).arg(opt.depTime.toString("yyyy-MM-dd hh:mm:ss")).arg(opt.arrTime.toString("yyyy-MM-dd hh:mm:ss")).arg(opt.price).arg(orderId);
+        QSqlQuery updateOrderQuery = m_dbOperator.DBGetData(updateOrderSql, updateOk);
+        if (!updateOk) {
+            QMessageBox::warning(dialog, "改签失败", "更新订单失败：" + updateOrderQuery.lastError().text());
+            return;
+        }
+
+        loadUserInfo();
+        loadOrders();
+        QMessageBox::information(dialog, "改签成功", "改签成功！余额已自动结算。");
+        dialog->accept();
+    });
+
+    dialog->exec();
+    dialog->deleteLater();
 }
 
 // 进入编辑模式：将标签转换为可编辑的输入框，隐藏原按钮，显示保存和取消按钮
@@ -932,7 +1157,7 @@ void UserMainWindow::enterEditMode() {
     m_phoneEdit->setFont(ui->PhoneLabel->font());
     m_phoneEdit->show();
     ui->PhoneLabel->hide();
-    
+
     // 创建邮箱输入框
     m_emailEdit = new QLineEdit(ui->page_4);
     m_emailEdit->setGeometry(emailRect);
@@ -940,7 +1165,7 @@ void UserMainWindow::enterEditMode() {
     m_emailEdit->setFont(ui->EmailLabel->font());
     m_emailEdit->show();
     ui->EmailLabel->hide();
-    
+
     // 创建真实姓名输入框
     m_realnameEdit = new QLineEdit(ui->page_4);
     m_realnameEdit->setGeometry(realnameRect);
@@ -948,7 +1173,7 @@ void UserMainWindow::enterEditMode() {
     m_realnameEdit->setFont(ui->RealnameLabel->font());
     m_realnameEdit->show();
     ui->RealnameLabel->hide();
-    
+
     // 创建身份证号输入框
     m_idcardEdit = new QLineEdit(ui->page_4);
     m_idcardEdit->setGeometry(idcardRect);
@@ -1119,7 +1344,7 @@ void UserMainWindow::saveUserInfo() {
 
     // 检查用户名是否已被其他用户使用 (排除当前用户)
     bool success = false;
-    QString checkSql = QString("select count(1) from user_info where username='%1' AND id!=%2").arg(username).arg(m_userId);
+    QString checkSql = QString("select count(1) from user_info where username='%1' and id!=%2").arg(username).arg(m_userId);
     QSqlQuery checkQuery = m_dbOperator.DBGetData(checkSql, success);
     if (!success) {
         QMessageBox::warning(this, "更新失败", checkQuery.lastError().text());
@@ -1143,7 +1368,7 @@ void UserMainWindow::saveUserInfo() {
     }
 
     // 检查手机号是否已被其他用户使用 (排除当前用户)
-    checkSql = QString("select count(1) from user_info where phone='%1' AND id!=%2").arg(phone).arg(m_userId);
+    checkSql = QString("select count(1) from user_info where phone='%1' and id!=%2").arg(phone).arg(m_userId);
     checkQuery = m_dbOperator.DBGetData(checkSql, success);
     if (!success) {
         QMessageBox::warning(this, "更新失败", checkQuery.lastError().text());
@@ -1155,7 +1380,7 @@ void UserMainWindow::saveUserInfo() {
     }
 
     // 检查邮箱是否已被其他用户使用 (排除当前用户)
-    checkSql = QString("select count(1) from user_info where email='%1' AND id!=%2").arg(email).arg(m_userId);
+    checkSql = QString("select count(1) from user_info where email='%1' and id!=%2").arg(email).arg(m_userId);
     checkQuery = m_dbOperator.DBGetData(checkSql, success);
     if (!success) {
         QMessageBox::warning(this, "更新失败", checkQuery.lastError().text());
@@ -1167,7 +1392,7 @@ void UserMainWindow::saveUserInfo() {
     }
     
     // 检查身份证号是否已被其他用户使用 (排除当前用户)
-    checkSql = QString("select count(1) from user_info where idcard='%1' AND id!=%2").arg(idcard).arg(m_userId);
+    checkSql = QString("select count(1) from user_info where idcard='%1' and id!=%2").arg(idcard).arg(m_userId);
     checkQuery = m_dbOperator.DBGetData(checkSql, success);
     if (!success) {
         QMessageBox::warning(this, "更新失败", checkQuery.lastError().text());
@@ -1179,7 +1404,7 @@ void UserMainWindow::saveUserInfo() {
     }
 
     // 构建更新 SQL 语句
-    QString sqlstr = QString("UPDATE user_info SET username='%1', password='%2', phone='%3', email='%4', realname='%5', idcard='%6' WHERE id=%7").arg(username).arg(password).arg(phone).arg(email).arg(realname).arg(idcard).arg(m_userId);
+    QString sqlstr = QString("update user_info set username='%1', password='%2', phone='%3', email='%4', realname='%5', idcard='%6' where id=%7").arg(username).arg(password).arg(phone).arg(email).arg(realname).arg(idcard).arg(m_userId);
 
     // 执行更新
     QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);

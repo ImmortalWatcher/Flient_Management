@@ -36,7 +36,7 @@ public:
     QDialog* createLoginWindow(QWidget *parent = nullptr);
 
     /**
-     * @brief 切换到登录窗口（用于注销）
+     * @brief 切换到登录窗口 (用于注销)
      */
     void switchToLogin();
 

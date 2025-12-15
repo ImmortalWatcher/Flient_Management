@@ -21,7 +21,7 @@ FlightItemWidget::FlightItemWidget(const QString &flightNo, const QString &takeo
     ui->priceLabel->setText(price);
     ui->remainingLabel->setText(remaining);
 
-    // 根据航空公司名称设置对应的logo
+    // 根据航空公司名称设置对应的 logo
     QString logoPath;
     if (airlineCompany == "中国国航") {
         logoPath = ":/img/source/figures/AirChina.png";
@@ -32,7 +32,6 @@ FlightItemWidget::FlightItemWidget(const QString &flightNo, const QString &takeo
     } else if (airlineCompany == "深圳航空") {
         logoPath = ":/img/source/figures/ShenzhenAirlines.png";
     } else {
-        // 默认使用中国国航 logo
         logoPath = ":/img/source/figures/AirChina.png";
     }
     ui->airlineLogoLabel->setPixmap(QPixmap(logoPath));

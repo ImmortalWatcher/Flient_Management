@@ -70,7 +70,9 @@ private:
     void enterEditMode();
     void exitEditMode();
     void saveUserInfo();
-    void loadOrders(); // 加载订单列表
-    void clearOrders(); // 清空订单列表
+    void loadOrders();
+    void clearOrders();
+    void handleCancelOrder(int orderId, const QString& flightId, double price);
+    void handleReschedule(int orderId, const QString& oldFlightId, double oldPrice, const QString& departureCity, const QString& arrivalCity);
 };
 #endif // USERMAINWINDOW_H

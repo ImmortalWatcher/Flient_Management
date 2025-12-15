@@ -41,7 +41,7 @@ create table if not exists flight_info (
 -- 订单表
 create table if not exists order_info (
     order_id int primary key auto_increment comment '订单号',
-    user_id int not null comment '用户 ID',
+    user_id int not null comment '用户ID',
     flight_id varchar(20) not null comment '航班号',
     passenger_name varchar(32) not null comment '乘客姓名',
     passenger_idcard varchar(18) not null comment '乘客身份证号',
@@ -60,9 +60,12 @@ insert user_info (username, password, phone, email, realname, idcard) values ('t
 insert admin_info (username, password) values ('admin', '123456');
 
 insert into flight_info values ('国航CA8394', '中国国航', '北京', '北京大兴机场', '2026-01-01 10:30:00', '广州', '广州白云机场', '2026-01-01 15:00:00', 455, 80, 33);
-insert into flight_info values ('东航MU5101', '东方航空', '北京', '北京首都机场', '2026-01-01 08:00:00', '上海', '上海浦东机场', '2026-01-01 10:15:00', 135, 85, 45);
 insert into flight_info values ('南航CZ3102', '中国南方航空', '广州', '广州白云机场', '2026-01-01 09:20:00', '北京', '北京大兴机场', '2026-01-01 12:50:00', 410, 78, 28);
 insert into flight_info values ('深航ZH9404', '深圳航空', '深圳', '深圳宝安机场', '2026-01-01 13:10:00', '成都', '成都天府机场', '2026-01-01 16:30:00', 620, 90, 37);
 insert into flight_info values ('国航CA1406', '中国国航', '成都', '成都双流机场', '2026-01-01 15:30:00', '北京', '北京首都机场', '2026-01-01 18:45:00', 615, 86, 22);
 insert into flight_info values ('东航MU2307', '东方航空', '上海', '上海虹桥机场', '2026-01-01 17:15:00', '广州', '广州白云机场', '2026-01-01 19:30:00', 135, 79, 41);
 insert into flight_info values ('深航ZH1610', '深圳航空', '北京', '北京大兴机场', '2026-01-01 19:00:00', '深圳', '深圳宝安机场', '2026-01-01 22:25:00', 625, 89, 15);
+
+-- 改签测试 (满足出发城市和到达城市相同)
+insert into flight_info values ('东航MU5101', '东方航空', '北京', '北京首都机场', '2026-01-01 08:00:00', '上海', '上海浦东机场', '2026-01-01 10:15:00', 135, 85, 45);
+insert into flight_info values ('东航MU5103', '东方航空', '北京', '北京大兴机场', '2026-01-01 11:30:00', '上海', '上海虹桥机场', '2026-01-01 13:45:00', 158, 88, 60);

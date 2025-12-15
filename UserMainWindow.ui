@@ -262,7 +262,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="page_1">
      <widget class="QFrame" name="flightsearch">
@@ -1882,7 +1882,7 @@ border: none; /* 移除边框 */</string>
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>30</y>
+        <y>28</y>
         <width>630</width>
         <height>500</height>
        </rect>
