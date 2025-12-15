@@ -1,11 +1,17 @@
 #include "AdminMainWindow.h"
 #include "ui_AdminMainWindow.h"
 
+#include <QDate>
 #include <QDebug>
-#include <QMessageBox>
-#include <QSqlField>
-#include <QSqlRecord>
 #include <QHBoxLayout>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QSqlField>
+#include <QSqlQuery>
+#include <QSqlQueryModel>
+#include <QSqlRecord>
+#include <QTableWidget>
+#include <QTableWidgetItem>
 
 // 构造函数：初始化管理员主窗口
 AdminMainWindow::AdminMainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::AdminMainWindow) {
@@ -50,8 +56,8 @@ void AdminMainWindow::initFlightManagement() {
 void AdminMainWindow::initOrderView() {
     orderModel = new QSqlQueryModel(this);
     // 设置订单表格的列数和表头
-    ui->tableWidget->setColumnCount(7);
-    ui->tableWidget->setHorizontalHeaderLabels(
+    ui->tableWidget_1->setColumnCount(7);
+    ui->tableWidget_1->setHorizontalHeaderLabels(
         QStringList() << "订单号" << "用户名" << "航班号" << "出发地" << "目的地" << "起飞时间" << "票价");
 }
 
@@ -69,27 +75,27 @@ void AdminMainWindow::initDataStatistics() {
     // 初始化日期选择下拉框 (年份、月份、日期)
     int currentYear = QDate::currentDate().year();
     for (int i = currentYear - 10; i <= currentYear; i++) {
+        ui->comboBox_3->addItem(QString::number(i));
+        ui->comboBox_6->addItem(QString::number(i));
+    }
+
+    for (int i = 1; i <= 12; i++) {
         ui->comboBox_4->addItem(QString::number(i));
         ui->comboBox_7->addItem(QString::number(i));
     }
 
-    for (int i = 1; i <= 12; i++) {
+    for (int i = 1; i <= 31; i++) {
         ui->comboBox_5->addItem(QString::number(i));
         ui->comboBox_8->addItem(QString::number(i));
     }
 
-    for (int i = 1; i <= 31; i++) {
-        ui->comboBox_6->addItem(QString::number(i));
-        ui->comboBox_9->addItem(QString::number(i));
-    }
-
     // 设置默认日期为当前日期
-    ui->comboBox_4->setCurrentText(QString::number(currentYear));
-    ui->comboBox_7->setCurrentText(QString::number(currentYear));
-    ui->comboBox_5->setCurrentText(QString::number(QDate::currentDate().month()));
-    ui->comboBox_8->setCurrentText(QString::number(QDate::currentDate().month()));
-    ui->comboBox_6->setCurrentText(QString::number(QDate::currentDate().day()));
-    ui->comboBox_9->setCurrentText(QString::number(QDate::currentDate().day()));
+    ui->comboBox_3->setCurrentText(QString::number(currentYear));
+    ui->comboBox_6->setCurrentText(QString::number(currentYear));
+    ui->comboBox_4->setCurrentText(QString::number(QDate::currentDate().month()));
+    ui->comboBox_7->setCurrentText(QString::number(QDate::currentDate().month()));
+    ui->comboBox_5->setCurrentText(QString::number(QDate::currentDate().day()));
+    ui->comboBox_8->setCurrentText(QString::number(QDate::currentDate().day()));
 
     updateStatistics();
 }
@@ -137,7 +143,7 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
                 ui->flightTable->setItem(row, col, item);
             }
 
-            // 为每行添加编辑和删除按钮，对应表头的“编辑”“删除”列
+            // 为每行添加编辑和删除按钮，对应表头的 “编辑” “删除” 列
             QPushButton *editBtn = new QPushButton("编辑");
             QPushButton *deleteBtn = new QPushButton("删除");
 
@@ -183,16 +189,16 @@ void AdminMainWindow::loadOrderData(const QString &status) {
     QSqlQuery query = dbOperator->DBGetData(sql, success);
 
     if (success) {
-        ui->tableWidget->setRowCount(0);
+        ui->tableWidget_1->setRowCount(0);
 
         // 填充订单数据到表格
         int row = 0;
         while (query.next()) {
-            ui->tableWidget->insertRow(row);
+            ui->tableWidget_1->insertRow(row);
 
-            for (int col = 0; col < 7; ++col) {
+            for (int col = 0; col < 7; col++) {
                 QTableWidgetItem *item = new QTableWidgetItem(query.value(col).toString());
-                ui->tableWidget->setItem(row, col, item);
+                ui->tableWidget_1->setItem(row, col, item);
             }
 
             row++;
@@ -216,7 +222,7 @@ void AdminMainWindow::loadUserData() {
         while (query.next()) {
             ui->tableWidget_2->insertRow(row);
 
-            for (int col = 0; col < 5; ++col) {
+            for (int col = 0; col < 5; col++) {
                 QTableWidgetItem *item = new QTableWidgetItem(query.value(col).toString());
                 ui->tableWidget_2->setItem(row, col, item);
             }
@@ -237,28 +243,28 @@ void AdminMainWindow::updateStatistics() {
     QString flightSql = "select count(*) from flights";
     query = dbOperator->DBGetData(flightSql, success);
     if (success && query.next()) {
-        ui->lineEdit_3->setText(query.value(0).toString());
+        ui->lineEdit_1->setText(query.value(0).toString());
     }
 
     // 统计总订单数
     QString orderSql = "select count(*) from orders";
     query = dbOperator->DBGetData(orderSql, success);
     if (success && query.next()) {
-        ui->lineEdit_4->setText(query.value(0).toString());
+        ui->lineEdit_2->setText(query.value(0).toString());
     }
 
     // 统计总用户数
     QString userSql = "select count(*) from users";
     query = dbOperator->DBGetData(userSql, success);
     if (success && query.next()) {
-        ui->lineEdit_5->setText(query.value(0).toString());
+        ui->lineEdit_3->setText(query.value(0).toString());
     }
 
     // 统计已支付订单总金额
     QString amountSql = "select sum(amount) from orders where status = '已支付'";
     query = dbOperator->DBGetData(amountSql, success);
     if (success && query.next()) {
-        ui->lineEdit_6->setText(query.value(0).toString() + " 元");
+        ui->lineEdit_4->setText(query.value(0).toString() + " 元");
     }
 }
 
@@ -299,7 +305,7 @@ void AdminMainWindow::on_comboBox_currentIndexChanged(int index) {
         this->close();
     } else if (index == 1) {
         QMessageBox::information(this, "提示", "修改密码功能待实现");
-        ui->comboBox_2->setCurrentIndex(0);
+        ui->comboBox_1->setCurrentIndex(0);
     }
 }
 
@@ -338,31 +344,31 @@ void AdminMainWindow::on_deleteBtn_clicked() {
 }
 
 // 根据订单状态过滤订单列表
-void AdminMainWindow::on_comboBox_2_currentIndexChanged(int index) {
+void AdminMainWindow::on_comboBox_1_currentIndexChanged(int index) {
     Q_UNUSED(index);
-    QString status = ui->comboBox_2->currentText();
+    QString status = ui->comboBox_1->currentText();
     loadOrderData(status);
 }
 
 // 处理用户操作下拉框选择变化 (查看或删除用户)
-void AdminMainWindow::on_comboBox_3_currentIndexChanged(int index) {
+void AdminMainWindow::on_comboBox_2_currentIndexChanged(int index) {
     Q_UNUSED(index);
-    QString operation = ui->comboBox_3->currentText();
+    QString operation = ui->comboBox_2->currentText();
     if (operation == "查看") {
         int row = ui->tableWidget_2->currentRow();
         if (row < 0) {
             QMessageBox::warning(this, "提示", "请先选择要查看的用户");
-            ui->comboBox_3->setCurrentIndex(0);
+            ui->comboBox_2->setCurrentIndex(0);
             return;
         }
         QString username = ui->tableWidget_2->item(row, 0)->text();
         QMessageBox::information(this, "用户信息", QString("查看用户 %1 的详细信息功能待实现").arg(username));
-        ui->comboBox_3->setCurrentIndex(0);
+        ui->comboBox_2->setCurrentIndex(0);
     } else if (operation == "删除") {
         int row = ui->tableWidget_2->currentRow();
         if (row < 0) {
             QMessageBox::warning(this, "提示", "请先选择要删除的用户");
-            ui->comboBox_3->setCurrentIndex(0);
+            ui->comboBox_2->setCurrentIndex(0);
             return;
         }
         QString username = ui->tableWidget_2->item(row, 0)->text();
@@ -377,6 +383,6 @@ void AdminMainWindow::on_comboBox_3_currentIndexChanged(int index) {
                 QMessageBox::warning(this, "错误", "删除失败");
             }
         }
-        ui->comboBox_3->setCurrentIndex(0);
+        ui->comboBox_2->setCurrentIndex(0);
     }
 }

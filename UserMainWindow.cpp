@@ -7,11 +7,14 @@
 #include <QDateTime>
 #include <QDialog>
 #include <QEvent>
+#include <QFrame>
 #include <QGridLayout>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QSqlError>
+#include <QSqlQuery>
 #include <QVBoxLayout>
 #include <QVector>
 
@@ -40,15 +43,15 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent
     loadAvatar();
 
     // 初始化航班列表布局
-    flightLayout = new QVBoxLayout(ui->scrollAreaWidgetContents);
-    ui->scrollAreaWidgetContents->setLayout(flightLayout);
+    flightLayout = new QVBoxLayout(ui->scrollAreaWidgetContents_1);
+    ui->scrollAreaWidgetContents_1->setLayout(flightLayout);
     flightLayout->setContentsMargins(10, 5, 10, 5);
     flightLayout->setAlignment(Qt::AlignTop);
 
-    ui->scrollAreaWidgetContents->setMinimumSize(0, 0);
-    ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    ui->scrollAreaWidgetContents_1->setMinimumSize(0, 0);
+    ui->scrollAreaWidgetContents_1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     ui->scrollArea_1->setWidgetResizable(false);
-    ui->scrollAreaWidgetContents->show();
+    ui->scrollAreaWidgetContents_1->show();
 
     // 初始化订单列表布局
     orderLayout = new QVBoxLayout(ui->scrollAreaWidgetContents_2);
@@ -285,8 +288,8 @@ void UserMainWindow::loadAllFlights() {
     // 设置滚动区域内容宽度
     int viewportWidth = ui->scrollArea_1->viewport()->width();
     int contentWidth = qMax(600, viewportWidth - 20);
-    ui->scrollAreaWidgetContents->setMinimumWidth(contentWidth);
-    ui->scrollAreaWidgetContents->resize(contentWidth, ui->scrollAreaWidgetContents->height());
+    ui->scrollAreaWidgetContents_1->setMinimumWidth(contentWidth);
+    ui->scrollAreaWidgetContents_1->resize(contentWidth, ui->scrollAreaWidgetContents_1->height());
 
     // 遍历查询结果，创建航班条目
     int count = 0;
@@ -294,13 +297,11 @@ void UserMainWindow::loadAllFlights() {
         count++;
         QString flightNo = query.value("flight_id").toString();
 
-        // 格式化起飞时间
+        // 格式化起飞和到达时间
         QDateTime takeoffDateTime = query.value("departure_time").toDateTime();
-        QString takeoffTime = QString("%1年%2月%3日%4:%5").arg(takeoffDateTime.date().year()).arg(takeoffDateTime.date().month()).arg(takeoffDateTime.date().day()).arg(takeoffDateTime.time().hour(), 2, 10, QChar('0')).arg(takeoffDateTime.time().minute(), 2, 10, QChar('0'));
-
-        // 格式化到达时间
+        QString takeoffTime = formatDateTime(takeoffDateTime);
         QDateTime arriveDateTime = query.value("arrival_time").toDateTime();
-        QString arriveTime = QString("%1年%2月%3日%4:%5").arg(arriveDateTime.date().year()).arg(arriveDateTime.date().month()).arg(arriveDateTime.date().day()).arg(arriveDateTime.time().hour(), 2, 10, QChar('0')).arg(arriveDateTime.time().minute(), 2, 10, QChar('0'));
+        QString arriveTime = formatDateTime(arriveDateTime);
 
         QString dep = query.value("departure_airport").toString();
         QString dest = query.value("arrival_airport").toString();
@@ -309,7 +310,7 @@ void UserMainWindow::loadAllFlights() {
         QString airlineCompany = query.value("airline_company").toString();
 
         // 创建航班条目组件并添加到布局
-        FlightItemWidget *itemWidget = new FlightItemWidget(flightNo, takeoffTime, arriveTime, dep, dest, price, remaining, airlineCompany, ui->scrollAreaWidgetContents);
+        FlightItemWidget *itemWidget = new FlightItemWidget(flightNo, takeoffTime, arriveTime, dep, dest, price, remaining, airlineCompany, ui->scrollAreaWidgetContents_1);
 
         itemWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         itemWidget->setFixedWidth(600);
@@ -332,10 +333,10 @@ void UserMainWindow::loadAllFlights() {
     flightLayout->update();
     flightLayout->activate();
 
-    ui->scrollAreaWidgetContents->updateGeometry();
+    ui->scrollAreaWidgetContents_1->updateGeometry();
 
-    ui->scrollAreaWidgetContents->adjustSize();
-    ui->scrollAreaWidgetContents->update();
+    ui->scrollAreaWidgetContents_1->adjustSize();
+    ui->scrollAreaWidgetContents_1->update();
     ui->scrollArea_1->update();
     ui->scrollArea_1->viewport()->update();
 }
@@ -378,19 +379,19 @@ void UserMainWindow::on_searchBtn_clicked() {
 
     int viewportWidth = ui->scrollArea_1->viewport()->width();
     int contentWidth = qMax(600, viewportWidth - 20);
-    ui->scrollAreaWidgetContents->setMinimumWidth(contentWidth);
-    ui->scrollAreaWidgetContents->resize(contentWidth, ui->scrollAreaWidgetContents->height());
+    ui->scrollAreaWidgetContents_1->setMinimumWidth(contentWidth);
+    ui->scrollAreaWidgetContents_1->resize(contentWidth, ui->scrollAreaWidgetContents_1->height());
 
     int count = 0;
     while (query.next()) {
         count++;
         QString flightNo = query.value("flight_id").toString();
 
+        // 格式化起飞和到达时间
         QDateTime takeoffDateTime = query.value("departure_time").toDateTime();
-        QString takeoffTime = QString("%1年%2月%3日%4:%5").arg(takeoffDateTime.date().year()).arg(takeoffDateTime.date().month()).arg(takeoffDateTime.date().day()).arg(takeoffDateTime.time().hour(), 2, 10, QChar('0')).arg(takeoffDateTime.time().minute(), 2, 10, QChar('0'));
-
+        QString takeoffTime = formatDateTime(takeoffDateTime);
         QDateTime arriveDateTime = query.value("arrival_time").toDateTime();
-        QString arriveTime = QString("%1年%2月%3日%4:%5").arg(arriveDateTime.date().year()).arg(arriveDateTime.date().month()).arg(arriveDateTime.date().day()).arg(arriveDateTime.time().hour(), 2, 10, QChar('0')).arg(arriveDateTime.time().minute(), 2, 10, QChar('0'));
+        QString arriveTime = formatDateTime(arriveDateTime);
 
         QString dep = query.value("departure_airport").toString();
         QString dest = query.value("arrival_airport").toString();
@@ -398,7 +399,7 @@ void UserMainWindow::on_searchBtn_clicked() {
         QString remaining = QString("%1/%2").arg(query.value("remaining_seats").toString(), query.value("total_seats").toString());
         QString airlineCompany = query.value("airline_company").toString();
 
-        FlightItemWidget *itemWidget = new FlightItemWidget(flightNo, takeoffTime, arriveTime, dep, dest, price, remaining, airlineCompany, ui->scrollAreaWidgetContents);
+        FlightItemWidget *itemWidget = new FlightItemWidget(flightNo, takeoffTime, arriveTime, dep, dest, price, remaining, airlineCompany, ui->scrollAreaWidgetContents_1);
 
         itemWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         itemWidget->setFixedWidth(600);
@@ -421,10 +422,10 @@ void UserMainWindow::on_searchBtn_clicked() {
     flightLayout->update();
     flightLayout->activate();
 
-    ui->scrollAreaWidgetContents->updateGeometry();
+    ui->scrollAreaWidgetContents_1->updateGeometry();
 
-    ui->scrollAreaWidgetContents->adjustSize();
-    ui->scrollAreaWidgetContents->update();
+    ui->scrollAreaWidgetContents_1->adjustSize();
+    ui->scrollAreaWidgetContents_1->update();
     ui->scrollArea_1->update();
     ui->scrollArea_1->viewport()->update();
 }
@@ -451,9 +452,8 @@ void UserMainWindow::on_book_clicked(const QString &flightNo) {
     double price = query.value("price").toDouble();
 
     // 格式化时间
-    QString takeoffTime = QString("%1年%2月%3日 %4:%5").arg(departureTime.date().year()).arg(departureTime.date().month()).arg(departureTime.date().day()).arg(departureTime.time().hour(), 2, 10, QChar('0')).arg(departureTime.time().minute(), 2, 10, QChar('0'));
-
-    QString arriveTime = QString("%1年%2月%3日 %4:%5").arg(arrivalTime.date().year()).arg(arrivalTime.date().month()).arg(arrivalTime.date().day()).arg(arrivalTime.time().hour(), 2, 10, QChar('0')).arg(arrivalTime.time().minute(), 2, 10, QChar('0'));
+    QString takeoffTime = formatDateTime(departureTime);
+    QString arriveTime = formatDateTime(arrivalTime);
 
     // 创建预订对话框
     QDialog *bookDialog = new QDialog(this);
@@ -842,9 +842,8 @@ void UserMainWindow::loadOrders() {
         QString orderNo = QString("%1%2%3%4%5%6%7").arg(orderTime.date().year(), 4, 10, QChar('0')).arg(orderTime.date().month(), 2, 10, QChar('0')).arg(orderTime.date().day(), 2, 10, QChar('0')).arg(orderTime.time().hour(), 2, 10, QChar('0')).arg(orderTime.time().minute(), 2, 10, QChar('0')).arg(orderTime.time().second(), 2, 10, QChar('0')).arg(orderId, 3, 10, QChar('0'));
 
         // 格式化时间
-        QString takeoffTime = QString("%1年%2月%3日 %4:%5").arg(departureTime.date().year()).arg(departureTime.date().month()).arg(departureTime.date().day()).arg(departureTime.time().hour(), 2, 10, QChar('0')).arg(departureTime.time().minute(), 2, 10, QChar('0'));
-
-        QString arriveTime = QString("%1年%2月%3日 %4:%5").arg(arrivalTime.date().year()).arg(arrivalTime.date().month()).arg(arrivalTime.date().day()).arg(arrivalTime.time().hour(), 2, 10, QChar('0')).arg(arrivalTime.time().minute(), 2, 10, QChar('0'));
+        QString takeoffTime = formatDateTime(departureTime);
+        QString arriveTime = formatDateTime(arrivalTime);
 
         // 创建订单显示组件
         QFrame *orderFrame = new QFrame(ui->scrollAreaWidgetContents_2);
@@ -888,7 +887,7 @@ void UserMainWindow::loadOrders() {
 
         bottomLayout->addStretch();
 
-        QString orderTimeStr = QString("%1年%2月%3日 %4:%5").arg(orderTime.date().year()).arg(orderTime.date().month()).arg(orderTime.date().day()).arg(orderTime.time().hour(), 2, 10, QChar('0')).arg(orderTime.time().minute(), 2, 10, QChar('0'));
+        QString orderTimeStr = formatDateTime(orderTime);
         QLabel *orderTimeLabel = new QLabel(QString("下单时间：%1").arg(orderTimeStr), orderFrame);
         orderTimeLabel->setStyleSheet("font-size: 13px; color: #999;");
         bottomLayout->addWidget(orderTimeLabel);
@@ -984,8 +983,9 @@ void UserMainWindow::loadFavorites() {
         int remaining = query.value("remaining_seats").toInt();
         QDateTime favTime = query.value("create_time").toDateTime();
 
-        QString depStr = QString("%1-%2-%3 %4:%5").arg(depTime.date().year()).arg(depTime.date().month(), 2, 10, QChar('0')).arg(depTime.date().day(), 2, 10, QChar('0')).arg(depTime.time().hour(), 2, 10, QChar('0')).arg(depTime.time().minute(), 2, 10, QChar('0'));
-        QString arrStr = QString("%1-%2-%3 %4:%5").arg(arrTime.date().year()).arg(arrTime.date().month(), 2, 10, QChar('0')).arg(arrTime.date().day(), 2, 10, QChar('0')).arg(arrTime.time().hour(), 2, 10, QChar('0')).arg(arrTime.time().minute(), 2, 10, QChar('0'));
+        // 格式化起飞和到达时间
+        QString depStr = formatDateTime(depTime);
+        QString arrStr = formatDateTime(arrTime);
         QString favTimeStr = favTime.isValid() ? favTime.toString("yyyy-MM-dd hh:mm") : "";
 
         QFrame *favFrame = new QFrame(ui->scrollAreaWidgetContents_3);
@@ -1583,4 +1583,14 @@ void UserMainWindow::saveUserInfo() {
     // 更新成功，重新加载用户信息
     loadUserInfo();
     QMessageBox::information(this, "成功", "个人信息已更新！");
+}
+
+// 格式化日期时间为中文格式：年月日 时:分
+QString UserMainWindow::formatDateTime(const QDateTime& dateTime) {
+    return QString("%1年%2月%3日 %4:%5")
+        .arg(dateTime.date().year())
+        .arg(dateTime.date().month())
+        .arg(dateTime.date().day())
+        .arg(dateTime.time().hour(), 2, 10, QChar('0'))
+        .arg(dateTime.time().minute(), 2, 10, QChar('0'));
 }

@@ -14,12 +14,13 @@ public:
     explicit LoginDlg(QWidget *parent = nullptr);
     ~LoginDlg();
 
-    void clearInput(); // 声明清空输入的函数
+    // 工具函数
+    void clearInput();
 
-signals: // 添加这个信号声明
+signals:
     void loginSuccess(int userId, const QString &username, bool isAdmin);
 
-protected slots:
+private slots:
     void on_loginBtn_clicked();
     void on_regBtn_clicked();
     void on_exitBtn_clicked();

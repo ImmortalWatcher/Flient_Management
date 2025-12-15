@@ -24,13 +24,19 @@ public:
         int avatarId;
     };
 
+    // 构造函数和连接管理
     DBOperator();
     void DBOpen();
     void DBClose();
 
+    // 数据库操作
     QSqlQuery DBGetData(QString sqlstr, bool &sucessFlag);
+
+    // 用户信息相关
     bool getUserInfo(int userId, UserInfo &userInfo);
     bool updateUserAvatarId(int userId, int avatarId);
+
+    // 收藏相关
     bool addFavorite(int userId, const QString& flightId);
     bool removeFavorite(int userId, const QString& flightId);
     bool isFavorite(int userId, const QString& flightId);

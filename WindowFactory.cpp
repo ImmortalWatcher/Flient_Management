@@ -5,7 +5,8 @@
 #include "UserMainWindow.h"
 
 #include <QApplication>
-#include <QDebug>
+#include <QDialog>
+#include <QMainWindow>
 #include <QScreen>
 
 // 获取单例实例

@@ -20,19 +20,27 @@ signals:
     void logoutRequested();
 
 private slots:
+    // 页面切换相关
     void on_flightManagementBtn_clicked();
     void on_orderViewBtn_clicked();
     void on_userManagementBtn_clicked();
     void on_dataStatisticsBtn_clicked();
     void on_backBtn_clicked();
-    void on_comboBox_currentIndexChanged(int index);
+
+    // 航班管理相关
     void on_editBtn_clicked();
     void on_deleteBtn_clicked();
+
+    // 下拉框选择相关
+    void on_comboBox_currentIndexChanged(int index);
+    void on_comboBox_1_currentIndexChanged(int index);
     void on_comboBox_2_currentIndexChanged(int index);
-    void on_comboBox_3_currentIndexChanged(int index);
 
 private:
+    // UI 相关
     Ui::AdminMainWindow *ui;
+
+    // 数据相关
     DBOperator *dbOperator;
     QSqlQueryModel *flightModel;
     QSqlQueryModel *orderModel;

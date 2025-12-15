@@ -42,7 +42,7 @@ void LoginDlg::on_loginBtn_clicked() {
 
     // 先查询用户表
     bool sf = false;
-    QString sqlstr = QString("select * from user_info where username='%1' AND password='%2'").arg(username, password);
+    QString sqlstr = QString("select * from user_info where username='%1' and password='%2'").arg(username, password);
     QSqlQuery qs = dbp.DBGetData(sqlstr, sf);
 
     if (!sf) {
@@ -61,7 +61,7 @@ void LoginDlg::on_loginBtn_clicked() {
         isAdmin = false;
     } else {
         // 如果用户表中没找到，查询管理员表
-        sqlstr = QString("select * from admin_info where username='%1' AND password='%2'").arg(username, password);
+        sqlstr = QString("select * from admin_info where username='%1' and password='%2'").arg(username, password);
         qs = dbp.DBGetData(sqlstr, sf);
 
         if (!sf) {

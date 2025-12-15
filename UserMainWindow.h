@@ -1,10 +1,10 @@
 #ifndef USERMAINWINDOW_H
 #define USERMAINWINDOW_H
 
-#include <QMainWindow>
-#include <QVBoxLayout>
 #include <QLineEdit>
+#include <QMainWindow>
 #include <QPushButton>
+#include <QVBoxLayout>
 
 #include "DBOperator.h"
 
@@ -23,16 +23,20 @@ signals:
     void logoutRequested();
 
 private slots:
+    // 页面切换相关
     void on_flightQueryBtn_clicked();
     void on_myOrdersBtn_clicked();
     void on_myFavoritesBtn_clicked();
     void on_personalCenterBtn_clicked();
     void on_backBtn_clicked();
 
+    // 航班查询相关
     void on_searchBtn_clicked();
     void on_resetBtn_clicked();
     void on_book_clicked(const QString& flightNo);
     void on_collect_clicked(const QString& flightNo);
+
+    // 个人中心相关
     void on_editInfoBtn_clicked();
     void on_saveBtn_clicked();
     void on_cancelBtn_clicked();
@@ -40,12 +44,17 @@ private slots:
     void on_rechargeBtn_clicked();
 
 private:
+    // UI 相关
     Ui::UserMainWindow *ui;
+
+    // 基础数据
     int m_userId;
     DBOperator m_dbOperator;
+
+    // 布局相关
     QVBoxLayout *flightLayout;
-    QVBoxLayout *orderLayout; // 订单列表布局
-    QVBoxLayout *favoritesLayout; // 收藏列表布局
+    QVBoxLayout *orderLayout;
+    QVBoxLayout *favoritesLayout;
 
     // 编辑模式相关成员变量
     bool m_isEditMode;
@@ -57,8 +66,6 @@ private:
     QLineEdit *m_idcardEdit;
     QPushButton *m_saveBtn;
     QPushButton *m_cancelBtn;
-
-    // 保存原始数据，用于取消时恢复
     DBOperator::UserInfo m_originalUserInfo;
 
     // 事件处理
@@ -87,5 +94,8 @@ private:
     void clearFavorites();
     void loadFavorites();
     void handleUnfavorite(const QString& flightId);
+
+    // 工具函数
+    QString formatDateTime(const QDateTime& dateTime);
 };
 #endif // USERMAINWINDOW_H
