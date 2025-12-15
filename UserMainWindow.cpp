@@ -56,11 +56,21 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent
     orderLayout->setContentsMargins(10, 5, 10, 5);
     orderLayout->setAlignment(Qt::AlignTop);
 
+    // 初始化收藏列表布局
+    favoritesLayout = new QVBoxLayout(ui->scrollAreaWidgetContents_3);
+    ui->scrollAreaWidgetContents_3->setLayout(favoritesLayout);
+    favoritesLayout->setContentsMargins(10, 5, 10, 5);
+    favoritesLayout->setAlignment(Qt::AlignTop);
+
     loadAllFlights();
 
     // 如果默认停留在 “我的订单” 页，初始也要加载一次订单
     if (ui->stackedWidget->currentIndex() == 1) {
         loadOrders();
+    }
+    // 如果默认停留在 “我的收藏” 页，初始也要加载一次收藏
+    if (ui->stackedWidget->currentIndex() == 2) {
+        loadFavorites();
     }
 }
 
@@ -87,6 +97,7 @@ void UserMainWindow::on_myOrdersBtn_clicked() {
 // 切换到我的收藏页面
 void UserMainWindow::on_myFavoritesBtn_clicked() {
     ui->stackedWidget->setCurrentIndex(2);
+    loadFavorites();
 }
 
 // 切换到个人中心页面
@@ -607,7 +618,25 @@ void UserMainWindow::on_book_clicked(const QString &flightNo) {
 
 // 处理航班收藏按钮点击
 void UserMainWindow::on_collect_clicked(const QString &flightNo) {
-    QMessageBox::information(this, "收藏成功", "已收藏航班：" + flightNo);
+    if (m_userId <= 0) {
+        QMessageBox::warning(this, "收藏失败", "请先登录后再收藏航班");
+        return;
+    }
+
+    if (m_dbOperator.isFavorite(m_userId, flightNo)) {
+        QMessageBox::information(this, "提示", "该航班已在收藏夹");
+        return;
+    }
+
+    if (m_dbOperator.addFavorite(m_userId, flightNo)) {
+        QMessageBox::information(this, "收藏成功", "已收藏航班：" + flightNo);
+        // 如果当前在收藏页，立即刷新
+        if (ui->stackedWidget->currentIndex() == 2) {
+            loadFavorites();
+        }
+    } else {
+        QMessageBox::warning(this, "收藏失败", "数据库错误，收藏未成功");
+    }
 }
 
 // 处理编辑个人信息按钮点击，进入编辑模式
@@ -918,6 +947,143 @@ void UserMainWindow::loadOrders() {
     orderLayout->addStretch();
 }
 
+// 清空收藏列表
+void UserMainWindow::clearFavorites() {
+    while (QLayoutItem *item = favoritesLayout->takeAt(0)) {
+        if (QWidget *widget = item->widget()) {
+            widget->deleteLater();
+        }
+        delete item;
+    }
+}
+
+// 加载收藏列表
+void UserMainWindow::loadFavorites() {
+    clearFavorites();
+
+    bool success = false;
+    QString sqlstr = QString("select f.flight_id, f.departure_city, f.arrival_city, f.departure_airport, f.arrival_airport, f.departure_time, f.arrival_time, f.price, f.remaining_seats, f.airline_company, fav.create_time from favorite_info fav join flight_info f on f.flight_id = fav.flight_id where fav.user_id=%1 order by fav.create_time desc").arg(m_userId);
+    QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
+
+    if (!success) {
+        QMessageBox::warning(this, "加载失败", "数据库错误：" + query.lastError().text());
+        return;
+    }
+
+    int count = 0;
+    while (query.next()) {
+        count++;
+        QString flightId = query.value("flight_id").toString();
+        QString depCity = query.value("departure_city").toString();
+        QString arrCity = query.value("arrival_city").toString();
+        QString depAirport = query.value("departure_airport").toString();
+        QString arrAirport = query.value("arrival_airport").toString();
+        QDateTime depTime = query.value("departure_time").toDateTime();
+        QDateTime arrTime = query.value("arrival_time").toDateTime();
+        double price = query.value("price").toDouble();
+        int remaining = query.value("remaining_seats").toInt();
+        QDateTime favTime = query.value("create_time").toDateTime();
+
+        QString depStr = QString("%1-%2-%3 %4:%5").arg(depTime.date().year()).arg(depTime.date().month(), 2, 10, QChar('0')).arg(depTime.date().day(), 2, 10, QChar('0')).arg(depTime.time().hour(), 2, 10, QChar('0')).arg(depTime.time().minute(), 2, 10, QChar('0'));
+        QString arrStr = QString("%1-%2-%3 %4:%5").arg(arrTime.date().year()).arg(arrTime.date().month(), 2, 10, QChar('0')).arg(arrTime.date().day(), 2, 10, QChar('0')).arg(arrTime.time().hour(), 2, 10, QChar('0')).arg(arrTime.time().minute(), 2, 10, QChar('0'));
+        QString favTimeStr = favTime.isValid() ? favTime.toString("yyyy-MM-dd hh:mm") : "";
+
+        QFrame *favFrame = new QFrame(ui->scrollAreaWidgetContents_3);
+        favFrame->setStyleSheet("QFrame {"
+                                "    background-color: #f5f5f5;"
+                                "    border: 1px solid #ddd;"
+                                "    border-radius: 8px;"
+                                "    padding: 10px;"
+                                "}");
+        favFrame->setFixedHeight(320);
+
+        QVBoxLayout *favLayout = new QVBoxLayout(favFrame);
+        favLayout->setContentsMargins(15, 15, 15, 15);
+        favLayout->setSpacing(8);
+
+        QLabel *flightLabel = new QLabel(QString("航班号：%1 | %2 → %3").arg(flightId, depCity, arrCity), favFrame);
+        flightLabel->setStyleSheet("font-size: 14px; font-weight: bold; color: #156080;");
+        favLayout->addWidget(flightLabel);
+
+        QLabel *airportLabel = new QLabel(QString("机场：%1 → %2").arg(depAirport, arrAirport), favFrame);
+        airportLabel->setStyleSheet("font-size: 13px;");
+        favLayout->addWidget(airportLabel);
+
+        QLabel *timeLabel = new QLabel(QString("起飞：%1 | 到达：%2").arg(depStr, arrStr), favFrame);
+        timeLabel->setStyleSheet("font-size: 13px;");
+        favLayout->addWidget(timeLabel);
+
+        QLabel *priceLabel = new QLabel(QString("票价：%1 元 | 剩余座位：%2").arg(QString::number(price, 'f', 2)).arg(remaining), favFrame);
+        priceLabel->setStyleSheet("font-size: 13px; color: #d9534f; font-weight: bold;");
+        favLayout->addWidget(priceLabel);
+
+        if (!favTimeStr.isEmpty()) {
+            QLabel *favTimeLabel = new QLabel(QString("收藏时间：%1").arg(favTimeStr), favFrame);
+            favTimeLabel->setStyleSheet("font-size: 12px; color: #777;");
+            favLayout->addWidget(favTimeLabel);
+        }
+
+        QHBoxLayout *btnLayout = new QHBoxLayout();
+        btnLayout->addStretch();
+
+        QPushButton *payBtn = new QPushButton("去支付", favFrame);
+        payBtn->setStyleSheet("QPushButton {"
+                              "    background-color: #156080;"
+                              "    color: white;"
+                              "    border-radius: 5px;"
+                              "    padding: 6px 20px;"
+                              "    font-size: 13px;"
+                              "}"
+                              "QPushButton:hover {"
+                              "    background-color: #1a7a9f;"
+                              "}");
+        btnLayout->addWidget(payBtn);
+
+        QPushButton *cancelFavBtn = new QPushButton("取消收藏", favFrame);
+        cancelFavBtn->setStyleSheet("QPushButton {"
+                                    "    background-color: #d9534f;"
+                                    "    color: white;"
+                                    "    border-radius: 5px;"
+                                    "    padding: 6px 20px;"
+                                    "    font-size: 13px;"
+                                    "}"
+                                    "QPushButton:hover {"
+                                    "    background-color: #c9302c;"
+                                    "}");
+        btnLayout->addWidget(cancelFavBtn);
+
+        favLayout->addLayout(btnLayout);
+
+        connect(payBtn, &QPushButton::clicked, this, [=]() {
+            on_book_clicked(flightId);
+        });
+        connect(cancelFavBtn, &QPushButton::clicked, this, [=]() {
+            handleUnfavorite(flightId);
+        });
+
+        favoritesLayout->addWidget(favFrame);
+    }
+
+    if (count == 0) {
+        QLabel *noFavLabel = new QLabel("暂无收藏", ui->scrollAreaWidgetContents_3);
+        noFavLabel->setStyleSheet("font-size: 16px; color: #999; padding: 50px;");
+        noFavLabel->setAlignment(Qt::AlignCenter);
+        favoritesLayout->addWidget(noFavLabel);
+    }
+
+    favoritesLayout->addStretch();
+}
+
+// 取消收藏
+void UserMainWindow::handleUnfavorite(const QString &flightId) {
+    if (m_dbOperator.removeFavorite(m_userId, flightId)) {
+        QMessageBox::information(this, "已取消收藏", "已取消收藏航班：" + flightId);
+        loadFavorites();
+    } else {
+        QMessageBox::warning(this, "操作失败", "取消收藏失败，请重试");
+    }
+}
+
 // 取消已支付订单：退还余额并释放座位
 void UserMainWindow::handleCancelOrder(int orderId, const QString &flightId, double price) {
     int ret = QMessageBox::question(this, "确认取消", "确认取消该订单并退还支付金额吗？", QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
@@ -1070,7 +1236,7 @@ void UserMainWindow::handleReschedule(int orderId, const QString &oldFlightId, d
             return;
         }
 
-        // 更新余额（退旧购新）
+        // 更新余额 (退旧购新)
         double newBalance = available - opt.price;
         bool updateOk = false;
         QString balanceSql = QString("update user_info set balance=%1 where id=%2").arg(newBalance).arg(m_userId);

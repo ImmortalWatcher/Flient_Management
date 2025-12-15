@@ -171,8 +171,8 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
 
 // 加载订单数据到表格
 void AdminMainWindow::loadOrderData(const QString &status) {
-    // 使用 joim 查询关联订单、用户和航班信息
-    QString sql = "select o.id, u.username, f.flight_number, f.departure, f.destination, f.departure_time, f.price from orders o join users u on o.user_id = u.id join flights f ON o.flight_id = f.id";
+    // 使用 join 查询关联订单、用户和航班信息
+    QString sql = "select o.id, u.username, f.flight_number, f.departure, f.destination, f.departure_time, f.price from orders o join users u on o.user_id = u.id join flights f on o.flight_id = f.id";
 
     // 如果指定了订单状态，则添加状态过滤条件
     if (!status.isEmpty() && status != "状态") {
@@ -255,7 +255,7 @@ void AdminMainWindow::updateStatistics() {
     }
 
     // 统计已支付订单总金额
-    QString amountSql = "select SUM(amount) from orders where status = '已支付'";
+    QString amountSql = "select sum(amount) from orders where status = '已支付'";
     query = dbOperator->DBGetData(amountSql, success);
     if (success && query.next()) {
         ui->lineEdit_6->setText(query.value(0).toString() + " 元");

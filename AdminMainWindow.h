@@ -38,10 +38,13 @@ private:
     QSqlQueryModel *orderModel;
     QSqlQueryModel *userModel;
 
+    // 初始化相关
     void initFlightManagement();
     void initOrderView();
     void initUserManagement();
     void initDataStatistics();
+
+    // 数据加载相关
     void loadFlightData(const QString &whereClause = "");
     void loadOrderData(const QString &status = "");
     void loadUserData();

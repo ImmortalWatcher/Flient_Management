@@ -55,6 +55,17 @@ create table if not exists order_info (
     foreign key (flight_id) references flight_info(flight_id) on delete cascade
 );
 
+-- 收藏表
+create table if not exists favorite_info (
+    fav_id int primary key auto_increment comment '收藏ID',
+    user_id int not null comment '用户ID',
+    flight_id varchar(20) not null comment '航班号',
+    create_time datetime not null default CURRENT_TIMESTAMP comment '收藏时间',
+    unique key uniq_user_flight (user_id, flight_id),
+    foreign key (user_id) references user_info(id) on delete cascade,
+    foreign key (flight_id) references flight_info(flight_id) on delete cascade
+);
+
 -- 测试数据
 insert user_info (username, password, phone, email, realname, idcard) values ('test', '123456', '13800138000', 'test@email.com', '张三', '123456789012345678');
 insert admin_info (username, password) values ('admin', '123456');

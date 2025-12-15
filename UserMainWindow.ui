@@ -262,7 +262,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>3</number>
     </property>
     <widget class="QWidget" name="page_1">
      <widget class="QFrame" name="flightsearch">
@@ -1924,24 +1924,49 @@ border: none; /* 移除边框 */</string>
      </widget>
     </widget>
     <widget class="QWidget" name="page_3">
-     <widget class="QLabel" name="label_3">
+     <widget class="QScrollArea" name="scrollArea_3">
       <property name="geometry">
        <rect>
-        <x>290</x>
-        <y>80</y>
-        <width>80</width>
-        <height>50</height>
+        <x>10</x>
+        <y>28</y>
+        <width>630</width>
+        <height>500</height>
        </rect>
       </property>
-      <property name="font">
-       <font>
-        <family>华文楷体</family>
-        <pointsize>18</pointsize>
-       </font>
+      <property name="frameShape">
+       <enum>QFrame::Shape::Panel</enum>
       </property>
-      <property name="text">
-       <string>Page 3</string>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
       </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents_3">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>611</width>
+         <height>600</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>600</height>
+        </size>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QWidget" name="page_4">

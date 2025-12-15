@@ -31,6 +31,9 @@ public:
     QSqlQuery DBGetData(QString sqlstr, bool &sucessFlag);
     bool getUserInfo(int userId, UserInfo &userInfo);
     bool updateUserAvatarId(int userId, int avatarId);
+    bool addFavorite(int userId, const QString& flightId);
+    bool removeFavorite(int userId, const QString& flightId);
+    bool isFavorite(int userId, const QString& flightId);
 };
 
 #endif // DBOPERATOR_H

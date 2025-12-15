@@ -45,6 +45,7 @@ private:
     DBOperator m_dbOperator;
     QVBoxLayout *flightLayout;
     QVBoxLayout *orderLayout; // 订单列表布局
+    QVBoxLayout *favoritesLayout; // 收藏列表布局
 
     // 编辑模式相关成员变量
     bool m_isEditMode;
@@ -60,19 +61,31 @@ private:
     // 保存原始数据，用于取消时恢复
     DBOperator::UserInfo m_originalUserInfo;
 
-    void loadAvatar();
-    void showAvatarselectionDialog();
-    void setAvatar(int avatarId);
-    void loadUserInfo();
+    // 事件处理
     bool eventFilter(QObject *obj, QEvent *event) override;
-    void clearFlightItems();
-    void loadAllFlights();
+
+    // 用户信息相关
+    void loadAvatar();
+    void setAvatar(int avatarId);
+    void showAvatarselectionDialog();
+    void loadUserInfo();
     void enterEditMode();
     void exitEditMode();
     void saveUserInfo();
-    void loadOrders();
+
+    // 航班相关
+    void clearFlightItems();
+    void loadAllFlights();
+
+    // 订单相关
     void clearOrders();
+    void loadOrders();
     void handleCancelOrder(int orderId, const QString& flightId, double price);
     void handleReschedule(int orderId, const QString& oldFlightId, double oldPrice, const QString& departureCity, const QString& arrivalCity);
+
+    // 收藏相关
+    void clearFavorites();
+    void loadFavorites();
+    void handleUnfavorite(const QString& flightId);
 };
 #endif // USERMAINWINDOW_H

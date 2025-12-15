@@ -64,7 +64,37 @@ bool DBOperator::getUserInfo(int userId, UserInfo &userInfo) {
 // 更新用户头像 ID
 bool DBOperator::updateUserAvatarId(int userId, int avatarId) {
     bool sf = false;
-    QString sqlstr = QString("UPDATE user_info SET avatarid=%1 where id=%2").arg(avatarId).arg(userId);
+    QString sqlstr = QString("update user_info set avatarid=%1 where id=%2").arg(avatarId).arg(userId);
     QSqlQuery qs = DBGetData(sqlstr, sf);
     return sf;
+}
+
+// 添加收藏
+bool DBOperator::addFavorite(int userId, const QString &flightId) {
+    bool sf = false;
+    QString sqlstr = QString("insert into favorite_info (user_id, flight_id) values (%1, '%2')").arg(userId).arg(flightId);
+    DBGetData(sqlstr, sf);
+    return sf;
+}
+
+// 取消收藏
+bool DBOperator::removeFavorite(int userId, const QString &flightId) {
+    bool sf = false;
+    QString sqlstr = QString("delete from favorite_info where user_id=%1 and flight_id='%2'").arg(userId).arg(flightId);
+    DBGetData(sqlstr, sf);
+    return sf;
+}
+
+// 判断是否已收藏
+bool DBOperator::isFavorite(int userId, const QString &flightId) {
+    bool sf = false;
+    QString sqlstr = QString("select count(1) from favorite_info where user_id=%1 and flight_id='%2'").arg(userId).arg(flightId);
+    QSqlQuery qs = DBGetData(sqlstr, sf);
+    if (!sf) {
+        return false;
+    }
+    if (qs.next()) {
+        return qs.value(0).toInt() > 0;
+    }
+    return false;
 }
