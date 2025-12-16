@@ -33,8 +33,8 @@ private slots:
 
     // 下拉框选择相关
     void on_comboBox_currentIndexChanged(int index);
-    void on_comboBox_1_currentIndexChanged(int index);
-    void on_comboBox_2_currentIndexChanged(int index);
+    void on_cbOrderStatus_currentIndexChanged(int index);
+    void on_cbUserOperation_currentIndexChanged(int index);
 
 private:
     // UI 相关

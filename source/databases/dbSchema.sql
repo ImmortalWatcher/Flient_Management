@@ -57,7 +57,7 @@ create table if not exists order_info (
 
 -- 收藏表
 create table if not exists favorite_info (
-    fav_id int primary key auto_increment comment '收藏ID',
+    fav_id int primary key auto_increment comment '收藏 ID',
     user_id int not null comment '用户ID',
     flight_id varchar(20) not null comment '航班号',
     create_time datetime not null default CURRENT_TIMESTAMP comment '收藏时间',

@@ -545,7 +545,7 @@
      </widget>
     </widget>
     <widget class="QWidget" name="page_2">
-     <widget class="QTableWidget" name="tableWidget_1">
+     <widget class="QTableWidget" name="twOrderList">
       <property name="geometry">
        <rect>
         <x>40</x>
@@ -610,7 +610,7 @@
        </property>
       </column>
      </widget>
-     <widget class="QComboBox" name="comboBox_1">
+     <widget class="QComboBox" name="cbOrderStatus">
       <property name="geometry">
        <rect>
         <x>550</x>
@@ -643,7 +643,7 @@
      </widget>
     </widget>
     <widget class="QWidget" name="page_3">
-     <widget class="QTableWidget" name="tableWidget_2">
+     <widget class="QTableWidget" name="twUserList">
       <property name="geometry">
        <rect>
         <x>40</x>
@@ -688,7 +688,7 @@
        </property>
       </column>
      </widget>
-     <widget class="QComboBox" name="comboBox_2">
+     <widget class="QComboBox" name="cbUserOperation">
       <property name="geometry">
        <rect>
         <x>550</x>
@@ -749,7 +749,7 @@
         <string>时间筛选：</string>
        </property>
       </widget>
-      <widget class="QComboBox" name="comboBox_3">
+      <widget class="QComboBox" name="cbStartYear">
        <property name="geometry">
         <rect>
          <x>140</x>
@@ -759,7 +759,7 @@
         </rect>
        </property>
       </widget>
-      <widget class="QLabel" name="label_1">
+      <widget class="QLabel" name="startYearLabel">
        <property name="geometry">
         <rect>
          <x>220</x>
@@ -778,7 +778,7 @@
         <string>年</string>
        </property>
       </widget>
-      <widget class="QComboBox" name="comboBox_4">
+      <widget class="QComboBox" name="cbStartMonth">
        <property name="geometry">
         <rect>
          <x>250</x>
@@ -788,7 +788,7 @@
         </rect>
        </property>
       </widget>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="startMonthLabel">
        <property name="geometry">
         <rect>
          <x>330</x>
@@ -807,7 +807,7 @@
         <string>月</string>
        </property>
       </widget>
-      <widget class="QComboBox" name="comboBox_5">
+      <widget class="QComboBox" name="cbStartDay">
        <property name="geometry">
         <rect>
          <x>360</x>
@@ -817,7 +817,7 @@
         </rect>
        </property>
       </widget>
-      <widget class="QLabel" name="label_3">
+      <widget class="QLabel" name="startDayLabel">
        <property name="geometry">
         <rect>
          <x>440</x>
@@ -836,7 +836,7 @@
         <string>日</string>
        </property>
       </widget>
-      <widget class="QLabel" name="label_4">
+      <widget class="QLabel" name="dateToLabel_2">
        <property name="geometry">
         <rect>
          <x>280</x>
@@ -855,7 +855,7 @@
         <string>至</string>
        </property>
       </widget>
-      <widget class="QComboBox" name="comboBox_6">
+      <widget class="QComboBox" name="cbEndYear">
        <property name="geometry">
         <rect>
          <x>140</x>
@@ -865,7 +865,7 @@
         </rect>
        </property>
       </widget>
-      <widget class="QLabel" name="label_5">
+      <widget class="QLabel" name="endYearLabel">
        <property name="geometry">
         <rect>
          <x>220</x>
@@ -884,7 +884,7 @@
         <string>年</string>
        </property>
       </widget>
-      <widget class="QComboBox" name="comboBox_7">
+      <widget class="QComboBox" name="cbEndMonth">
        <property name="geometry">
         <rect>
          <x>250</x>
@@ -894,7 +894,7 @@
         </rect>
        </property>
       </widget>
-      <widget class="QLabel" name="label_6">
+      <widget class="QLabel" name="endMonthLabel">
        <property name="geometry">
         <rect>
          <x>330</x>
@@ -913,7 +913,7 @@
         <string>月</string>
        </property>
       </widget>
-      <widget class="QComboBox" name="comboBox_8">
+      <widget class="QComboBox" name="cbEndDay">
        <property name="geometry">
         <rect>
          <x>360</x>
@@ -923,7 +923,7 @@
         </rect>
        </property>
       </widget>
-      <widget class="QLabel" name="label_7">
+      <widget class="QLabel" name="endDayLabel">
        <property name="geometry">
         <rect>
          <x>440</x>
@@ -974,7 +974,7 @@
       <property name="frameShadow">
        <enum>QFrame::Shadow::Raised</enum>
       </property>
-      <widget class="QLabel" name="label_8">
+      <widget class="QLabel" name="lbTotalFlightsTitle">
        <property name="geometry">
         <rect>
          <x>40</x>
@@ -993,7 +993,7 @@
         <string>总航班数：</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_1">
+      <widget class="QLineEdit" name="leTotalFlights">
        <property name="geometry">
         <rect>
          <x>50</x>
@@ -1022,7 +1022,7 @@
       <property name="frameShadow">
        <enum>QFrame::Shadow::Raised</enum>
       </property>
-      <widget class="QLabel" name="label_9">
+      <widget class="QLabel" name="lbTotalOrdersTitle">
        <property name="geometry">
         <rect>
          <x>40</x>
@@ -1041,7 +1041,7 @@
         <string>总订单数：</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_2">
+      <widget class="QLineEdit" name="leTotalOrders">
        <property name="geometry">
         <rect>
          <x>50</x>
@@ -1070,7 +1070,7 @@
       <property name="frameShadow">
        <enum>QFrame::Shadow::Raised</enum>
       </property>
-      <widget class="QLabel" name="label_10">
+      <widget class="QLabel" name="lbTotalUsersTitle">
        <property name="geometry">
         <rect>
          <x>40</x>
@@ -1089,7 +1089,7 @@
         <string>总用户数：</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_3">
+      <widget class="QLineEdit" name="leTotalUsers">
        <property name="geometry">
         <rect>
          <x>50</x>
@@ -1118,7 +1118,7 @@
       <property name="frameShadow">
        <enum>QFrame::Shadow::Raised</enum>
       </property>
-      <widget class="QLabel" name="label_11">
+      <widget class="QLabel" name="lbTotalAmountTitle">
        <property name="geometry">
         <rect>
          <x>40</x>
@@ -1137,7 +1137,7 @@
         <string>订单总金额：</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_4">
+      <widget class="QLineEdit" name="leTotalAmount">
        <property name="geometry">
         <rect>
          <x>50</x>
