@@ -422,3 +422,45 @@ void AdminMainWindow::on_deleteUserBtn_clicked() {
         QMessageBox::warning(this, "删除失败", "删除用户失败：" + query.lastError().text());
     }
 }
+
+void AdminMainWindow::on_findBtn_clicked()
+{
+    // 1. 获取筛选条件（去除首尾空格，避免无效匹配）
+    QString departureCity = ui->departureLineEdit->text().trimmed();  // 出发地输入框（请根据实际UI控件名修改）
+    QString arrivalCity = ui->destinationLineEdit->text().trimmed(); // 目的地输入框（请根据实际UI控件名修改）
+    int year = ui->yearSpin->value();
+    int month = ui->monthSpin->value();
+    int day = ui->daySpin->value();
+
+    // 2. 构建筛选条件（空条件不参与过滤）
+    QStringList conditions;
+
+    // 出发地条件
+    if (!departureCity.isEmpty()) {
+        conditions.append(QString("departure_city = '%1'").arg(departureCity));
+    }
+
+    // 目的地条件
+    if (!arrivalCity.isEmpty()) {
+        conditions.append(QString("arrival_city = '%1'").arg(arrivalCity));
+    }
+
+    // 日期条件（验证日期合法性，避免2月30日等无效日期）
+    QDate selectedDate(year, month, day);
+    if (selectedDate.isValid()) {
+        QString dateStr = selectedDate.toString("yyyy-MM-dd");
+        // 筛选出发时间的日期部分等于所选日期（兼容MySQL/SQLite的DATE函数）
+        conditions.append(QString("DATE(departure_time) = '%1'").arg(dateStr));
+    }
+
+    // 3. 拼接WHERE子句（多条件用AND连接）
+    QString whereClause = conditions.join(" AND ");
+
+    // 4. 加载筛选后的航班数据（内部会自动清空表格并重新填充）
+    loadFlightData(whereClause);
+
+    // 5. 无匹配数据时给出友好提示
+    if (ui->flightTable->rowCount() == 0) {
+        QMessageBox::information(this, "查询结果", "未找到符合筛选条件的航班信息！");
+    }
+}

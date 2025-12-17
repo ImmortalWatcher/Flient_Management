@@ -38,6 +38,8 @@ private slots:
     // 用户管理相关
     void on_deleteUserBtn_clicked();
 
+    void on_findBtn_clicked();
+
 private:
     // UI 相关
     Ui::AdminMainWindow *ui;
