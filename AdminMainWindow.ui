@@ -258,7 +258,7 @@
     <property name="font">
      <font>
       <family>华文楷体</family>
-      <pointsize>10</pointsize>
+      <pointsize>12</pointsize>
       <bold>true</bold>
      </font>
     </property>
@@ -733,12 +733,15 @@
       <property name="font">
        <font>
         <family>华文楷体</family>
-        <pointsize>14</pointsize>
+        <pointsize>11</pointsize>
         <bold>false</bold>
        </font>
       </property>
       <attribute name="horizontalHeaderMinimumSectionSize">
-       <number>30</number>
+       <number>0</number>
+      </attribute>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>100</number>
       </attribute>
       <attribute name="verticalHeaderMinimumSectionSize">
        <number>30</number>
@@ -749,7 +752,7 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>10</pointsize>
+         <pointsize>11</pointsize>
          <bold>true</bold>
         </font>
        </property>
@@ -760,7 +763,7 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>10</pointsize>
+         <pointsize>11</pointsize>
          <bold>true</bold>
         </font>
        </property>
@@ -771,7 +774,7 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>10</pointsize>
+         <pointsize>11</pointsize>
          <bold>true</bold>
         </font>
        </property>
@@ -782,7 +785,7 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>10</pointsize>
+         <pointsize>11</pointsize>
          <bold>true</bold>
         </font>
        </property>
@@ -793,7 +796,7 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>10</pointsize>
+         <pointsize>11</pointsize>
          <bold>true</bold>
         </font>
        </property>
@@ -804,24 +807,24 @@
        </property>
        <property name="font">
         <font>
-         <pointsize>10</pointsize>
+         <pointsize>11</pointsize>
          <bold>true</bold>
         </font>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>账户余额</string>
+        <string>账户余额 (元)</string>
        </property>
        <property name="font">
         <font>
-         <pointsize>10</pointsize>
+         <pointsize>11</pointsize>
          <bold>true</bold>
         </font>
        </property>
       </column>
      </widget>
-     <widget class="QComboBox" name="cbUserOperation">
+     <widget class="QPushButton" name="deleteUserBtn">
       <property name="geometry">
        <rect>
         <x>545</x>
@@ -837,21 +840,9 @@
         <bold>true</bold>
        </font>
       </property>
-      <item>
-       <property name="text">
-        <string>操作</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>查看</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>删除</string>
-       </property>
-      </item>
+      <property name="text">
+       <string>删除</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="page_4">
