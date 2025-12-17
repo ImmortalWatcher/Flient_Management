@@ -4,6 +4,7 @@
 #include <QDate>
 #include <QDebug>
 #include <QHBoxLayout>
+#include <QHeaderView>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QSqlField>
@@ -179,8 +180,7 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
 // 加载订单数据到表格
 void AdminMainWindow::loadOrderData(const QString &status) {
     // 使用 join 查询关联订单、用户和航班信息
-    QString sql = "select order_id,user_id,flight_id,passenger_name,passenger_idcard,departure_city,"
-                  "departure_time,arrival_city,arrival_time,price,order_time from order_info";
+    QString sql = "select order_id, user_id, flight_id, passenger_name, passenger_idcard, departure_city, departure_time, arrival_city, arrival_time, price, order_time from order_info";
     // 如果指定了订单状态，则添加状态过滤条件
     if (!status.isEmpty() && status != "状态") {
         sql += " where o.status = '" + status + "'";
@@ -204,6 +204,9 @@ void AdminMainWindow::loadOrderData(const QString &status) {
 
             row++;
         }
+
+        // 根据内容自动调整列宽
+        ui->twUserList->resizeColumnsToContents();
     } else {
         QMessageBox::warning(this, "错误", "加载订单数据失败");
     }
@@ -225,11 +228,25 @@ void AdminMainWindow::loadUserData() {
 
             for (int col = 0; col < 7; col++) {
                 QTableWidgetItem *item = new QTableWidgetItem(query.value(col).toString());
+                // 设置单元格文本居中对齐
+                item->setTextAlignment(Qt::AlignCenter);
                 ui->twUserList->setItem(row, col, item);
             }
 
             row++;
         }
+
+        // 设置表头文本居中对齐
+        QHeaderView *header = ui->twUserList->horizontalHeader();
+        if (header) {
+            header->setDefaultAlignment(Qt::AlignCenter);
+        }
+
+        // 根据内容自动调整列宽
+        ui->twUserList->resizeColumnsToContents();
+        
+        // 设置列宽调整模式：根据内容调整，但保留最小宽度
+        ui->twUserList->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     } else {
         QMessageBox::warning(this, "错误", "加载用户数据失败");
     }

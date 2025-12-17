@@ -17,9 +17,11 @@ RegDlg::RegDlg(QWidget *parent) : QDialog(parent), ui(new Ui::RegDlg) {
     QWidget::setTabOrder(ui->RealnameEdit, ui->IdcardEdit);
     QWidget::setTabOrder(ui->IdcardEdit, ui->regBtn);
     QWidget::setTabOrder(ui->regBtn, ui->backBtn);
+    dbp.DBOpen();
 }
 
 RegDlg::~RegDlg() {
+    dbp.DBClose();
     delete ui;
 }
 
