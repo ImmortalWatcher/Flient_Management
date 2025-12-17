@@ -263,7 +263,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="page_1">
      <widget class="QFrame" name="frameFilter">
@@ -272,7 +272,7 @@
         <x>110</x>
         <y>40</y>
         <width>410</width>
-        <height>130</height>
+        <height>141</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -416,6 +416,19 @@
          <width>85</width>
          <height>25</height>
         </rect>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton">
+       <property name="geometry">
+        <rect>
+         <x>150</x>
+         <y>110</y>
+         <width>93</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>查询</string>
        </property>
       </widget>
      </widget>
