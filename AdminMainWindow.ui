@@ -258,7 +258,8 @@
     <property name="font">
      <font>
       <family>华文楷体</family>
-      <pointsize>18</pointsize>
+      <pointsize>12</pointsize>
+      <bold>true</bold>
      </font>
     </property>
     <property name="currentIndex">
@@ -417,6 +418,7 @@
         </rect>
        </property>
       </widget>
+<<<<<<< HEAD
       <widget class="QLabel" name="departureLabel_3">
        <property name="geometry">
         <rect>
@@ -1094,6 +1096,19 @@
        </property>
        <property name="text">
         <string>查  询</string>
+=======
+      <widget class="QPushButton" name="pushButton">
+       <property name="geometry">
+        <rect>
+         <x>150</x>
+         <y>110</y>
+         <width>93</width>
+         <height>28</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>查询</string>
+>>>>>>> 4c35694312028380dd8c0178e9a3f36e99558662
        </property>
       </widget>
      </widget>
@@ -1110,6 +1125,7 @@
        <font>
         <family>华文楷体</family>
         <pointsize>12</pointsize>
+        <bold>true</bold>
        </font>
       </property>
       <property name="columnCount">
@@ -1197,6 +1213,7 @@
        <font>
         <family>华文楷体</family>
         <pointsize>12</pointsize>
+        <bold>true</bold>
        </font>
       </property>
       <property name="text">
@@ -1216,6 +1233,7 @@
        <font>
         <family>华文楷体</family>
         <pointsize>12</pointsize>
+        <bold>true</bold>
        </font>
       </property>
       <property name="text">
@@ -1229,63 +1247,136 @@
        <rect>
         <x>40</x>
         <y>30</y>
-        <width>491</width>
-        <height>291</height>
+        <width>490</width>
+        <height>290</height>
        </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>华文楷体</family>
+        <pointsize>10</pointsize>
+        <bold>true</bold>
+       </font>
       </property>
       <column>
        <property name="text">
         <string>订单号</string>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>true</bold>
+        </font>
        </property>
       </column>
       <column>
        <property name="text">
         <string>用户名</string>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
       </column>
       <column>
        <property name="text">
         <string>航班号</string>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>true</bold>
+        </font>
        </property>
       </column>
       <column>
        <property name="text">
         <string>乘客姓名</string>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
       </column>
       <column>
        <property name="text">
         <string>乘客身份证号</string>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>true</bold>
+        </font>
        </property>
       </column>
       <column>
        <property name="text">
         <string>出发地</string>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
       </column>
       <column>
        <property name="text">
         <string>起飞时间</string>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>true</bold>
+        </font>
        </property>
       </column>
       <column>
        <property name="text">
         <string>目的地</string>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
       </column>
       <column>
        <property name="text">
         <string>到达时间</string>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>true</bold>
+        </font>
        </property>
       </column>
       <column>
        <property name="text">
         <string>票价</string>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
       </column>
       <column>
        <property name="text">
         <string>下单时间</string>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>true</bold>
+        </font>
        </property>
       </column>
      </widget>
@@ -1302,6 +1393,7 @@
        <font>
         <family>华文楷体</family>
         <pointsize>12</pointsize>
+        <bold>true</bold>
        </font>
       </property>
       <item>
@@ -1325,53 +1417,111 @@
      <widget class="QTableWidget" name="twUserList">
       <property name="geometry">
        <rect>
-        <x>40</x>
+        <x>20</x>
         <y>30</y>
-        <width>491</width>
-        <height>192</height>
+        <width>610</width>
+        <height>260</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <family>华文楷体</family>
+        <pointsize>11</pointsize>
+        <bold>false</bold>
+       </font>
+      </property>
+      <attribute name="horizontalHeaderMinimumSectionSize">
+       <number>0</number>
+      </attribute>
+      <attribute name="horizontalHeaderDefaultSectionSize">
+       <number>100</number>
+      </attribute>
+      <attribute name="verticalHeaderMinimumSectionSize">
+       <number>30</number>
+      </attribute>
       <column>
        <property name="text">
         <string>用户名</string>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <bold>true</bold>
+        </font>
        </property>
       </column>
       <column>
        <property name="text">
         <string>密码</string>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
       </column>
       <column>
        <property name="text">
         <string>手机号</string>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <bold>true</bold>
+        </font>
        </property>
       </column>
       <column>
        <property name="text">
         <string>邮箱</string>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
       </column>
       <column>
        <property name="text">
         <string>真实姓名</string>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <bold>true</bold>
+        </font>
        </property>
       </column>
       <column>
        <property name="text">
         <string>身份证号</string>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
       </column>
       <column>
        <property name="text">
-        <string>账户余额</string>
+        <string>账户余额 (元)</string>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <bold>true</bold>
+        </font>
        </property>
       </column>
      </widget>
-     <widget class="QComboBox" name="cbUserOperation">
+     <widget class="QPushButton" name="deleteUserBtn">
       <property name="geometry">
        <rect>
-        <x>550</x>
-        <y>30</y>
+        <x>545</x>
+        <y>310</y>
         <width>83</width>
         <height>25</height>
        </rect>
@@ -1380,23 +1530,12 @@
        <font>
         <family>华文楷体</family>
         <pointsize>12</pointsize>
+        <bold>true</bold>
        </font>
       </property>
-      <item>
-       <property name="text">
-        <string>操作</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>查看</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>删除</string>
-       </property>
-      </item>
+      <property name="text">
+       <string>删除</string>
+      </property>
      </widget>
     </widget>
     <widget class="QWidget" name="page_4">
@@ -1422,6 +1561,7 @@
         <font>
          <family>华文楷体</family>
          <pointsize>14</pointsize>
+         <bold>true</bold>
         </font>
        </property>
        <property name="text">
@@ -1451,6 +1591,7 @@
         <font>
          <family>华文楷体</family>
          <pointsize>14</pointsize>
+         <bold>true</bold>
         </font>
        </property>
        <property name="text">
@@ -1480,6 +1621,7 @@
         <font>
          <family>华文楷体</family>
          <pointsize>14</pointsize>
+         <bold>true</bold>
         </font>
        </property>
        <property name="text">
@@ -1509,6 +1651,7 @@
         <font>
          <family>华文楷体</family>
          <pointsize>14</pointsize>
+         <bold>true</bold>
         </font>
        </property>
        <property name="text">
@@ -1528,6 +1671,7 @@
         <font>
          <family>华文楷体</family>
          <pointsize>14</pointsize>
+         <bold>true</bold>
         </font>
        </property>
        <property name="text">
@@ -1557,6 +1701,7 @@
         <font>
          <family>华文楷体</family>
          <pointsize>14</pointsize>
+         <bold>true</bold>
         </font>
        </property>
        <property name="text">
@@ -1586,6 +1731,7 @@
         <font>
          <family>华文楷体</family>
          <pointsize>14</pointsize>
+         <bold>true</bold>
         </font>
        </property>
        <property name="text">
@@ -1615,6 +1761,7 @@
         <font>
          <family>华文楷体</family>
          <pointsize>14</pointsize>
+         <bold>true</bold>
         </font>
        </property>
        <property name="text">

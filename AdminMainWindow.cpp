@@ -1,11 +1,14 @@
 #include "AdminMainWindow.h"
 #include "ui_AdminMainWindow.h"
 
+#include <QAbstractItemView>
 #include <QDate>
 #include <QDebug>
 #include <QHBoxLayout>
+#include <QHeaderView>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QSqlError>
 #include <QSqlField>
 #include <QSqlQuery>
 #include <QSqlQueryModel>
@@ -56,19 +59,40 @@ void AdminMainWindow::initFlightManagement() {
 // 初始化订单查看模块
 void AdminMainWindow::initOrderView() {
     orderModel = new QSqlQueryModel(this);
-    // 设置订单表格的列数和表头
-    //ui->twUserList->setColumnCount(7);
-    //ui->twUserList->setHorizontalHeaderLabels(
-        //QStringList() << "订单号" << "用户名" << "航班号" << "出发地" << "目的地" << "起飞时间" << "票价");
     loadOrderData();
 }
 
 // 初始化用户管理模块
 void AdminMainWindow::initUserManagement() {
     userModel = new QSqlQueryModel(this);
-    // 设置用户表格的列数和表头
-    //ui->twUserList->setColumnCount(5);
-    //ui->twUserList->setHorizontalHeaderLabels(QStringList() << "用户名" << "性别" << "手机号" << "邮箱" << "账户余额");
+    
+    // 设置表格选择行为：整行选择
+    ui->twUserList->setSelectionBehavior(QAbstractItemView::SelectRows);
+    // 设置选择模式：单选
+    ui->twUserList->setSelectionMode(QAbstractItemView::SingleSelection);
+    
+    // 设置选中行的样式：添加阴影效果和背景高亮
+    ui->twUserList->setStyleSheet(
+        "QTableWidget::item:selected {"
+        "    background-color: #90caf9;"
+        "    color: #000000;"
+        "    border: 1px solid #42a5f5;"
+        "}"
+        "QTableWidget::item:selected:active {"
+        "    background-color: #64b5f6;"
+        "    color: #000000;"
+        "    border: 1px solid #2196f3;"
+        "}"
+        "QTableWidget {"
+        "    gridline-color: #e0e0e0;"
+        "    selection-background-color: #90caf9;"
+        "    selection-color: #000000;"
+        "}"
+        "QTableWidget::item {"
+        "    padding: 2px;"
+        "}"
+    );
+
     loadUserData();
 }
 
@@ -180,8 +204,7 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
 // 加载订单数据到表格
 void AdminMainWindow::loadOrderData(const QString &status) {
     // 使用 join 查询关联订单、用户和航班信息
-    QString sql = "select order_id,user_id,flight_id,passenger_name,passenger_idcard,departure_city,"
-                  "departure_time,arrival_city,arrival_time,price,order_time from order_info";
+    QString sql = "select order_id, user_id, flight_id, passenger_name, passenger_idcard, departure_city, departure_time, arrival_city, arrival_time, price, order_time from order_info";
     // 如果指定了订单状态，则添加状态过滤条件
     if (!status.isEmpty() && status != "状态") {
         sql += " where o.status = '" + status + "'";
@@ -205,6 +228,9 @@ void AdminMainWindow::loadOrderData(const QString &status) {
 
             row++;
         }
+
+        // 根据内容自动调整列宽
+        ui->twUserList->resizeColumnsToContents();
     } else {
         QMessageBox::warning(this, "错误", "加载订单数据失败");
     }
@@ -226,11 +252,25 @@ void AdminMainWindow::loadUserData() {
 
             for (int col = 0; col < 7; col++) {
                 QTableWidgetItem *item = new QTableWidgetItem(query.value(col).toString());
+                // 设置单元格文本居中对齐
+                item->setTextAlignment(Qt::AlignCenter);
                 ui->twUserList->setItem(row, col, item);
             }
 
             row++;
         }
+
+        // 设置表头文本居中对齐
+        QHeaderView *header = ui->twUserList->horizontalHeader();
+        if (header) {
+            header->setDefaultAlignment(Qt::AlignCenter);
+        }
+
+        // 根据内容自动调整列宽
+        ui->twUserList->resizeColumnsToContents();
+        
+        // 设置列宽调整模式：根据内容调整，但保留最小宽度
+        ui->twUserList->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     } else {
         QMessageBox::warning(this, "错误", "加载用户数据失败");
     }
@@ -307,7 +347,6 @@ void AdminMainWindow::on_comboBox_currentIndexChanged(int index) {
         this->close();
     } else if (index == 1) {
         QMessageBox::information(this, "提示", "修改密码功能待实现");
-        ui->cbUserOperation->setCurrentIndex(0);
     }
 }
 
@@ -348,44 +387,40 @@ void AdminMainWindow::on_deleteBtn_clicked() {
 // 根据订单状态过滤订单列表
 void AdminMainWindow::on_cbOrderStatus_currentIndexChanged(int index) {
     Q_UNUSED(index);
-    QString status = ui->cbUserOperation->currentText();
+    QString status = ui->cbOrderStatus->currentText();
     loadOrderData(status);
 }
 
-// 处理用户操作下拉框选择变化 (查看或删除用户)
-void AdminMainWindow::on_cbUserOperation_currentIndexChanged(int index) {
-    Q_UNUSED(index);
-    QString operation = ui->cbUserOperation->currentText();
-    if (operation == "查看") {
-        int row = ui->twUserList->currentRow();
-        if (row < 0) {
-            QMessageBox::warning(this, "提示", "请先选择要查看的用户");
-            ui->cbUserOperation->setCurrentIndex(0);
-            return;
-        }
-        QString username = ui->twUserList->item(row, 0)->text();
-        QMessageBox::information(this, "用户信息", QString("查看用户 %1 的详细信息功能待实现").arg(username));
-        ui->cbUserOperation->setCurrentIndex(0);
-    } else if (operation == "删除") {
-        int row = ui->twUserList->currentRow();
-        if (row < 0) {
-            QMessageBox::warning(this, "提示", "请先选择要删除的用户");
-            ui->cbUserOperation->setCurrentIndex(0);
-            return;
-        }
-        QString username = ui->twUserList->item(row, 0)->text();
-        if (QMessageBox::question(this, "确认", QString("确定要删除用户 %1 吗?").arg(username)) == QMessageBox::Yes) {
-            QString sql = QString("delete from users where username = '%1'").arg(username);
-            bool success;
-            dbOperator->DBGetData(sql, success);
-            if (success) {
-                loadUserData();
-                QMessageBox::information(this, "成功", "用户删除成功");
-            } else {
-                QMessageBox::warning(this, "错误", "删除失败");
-            }
-        }
-        ui->cbUserOperation->setCurrentIndex(0);
+// 处理删除用户按钮点击
+void AdminMainWindow::on_deleteUserBtn_clicked() {
+    // 检查是否选中了用户
+    int row = ui->twUserList->currentRow();
+    if (row < 0) {
+        QMessageBox::warning(this, "提示", "请先选择要删除的用户");
+        return;
+    }
+
+    // 获取选中行的用户名
+    QString username = ui->twUserList->item(row, 0)->text();
+
+    // 显示确认对话框
+    int ret = QMessageBox::question(this, "确认删除", QString("确定要删除用户 %1 吗？\n此操作不可恢复！").arg(username), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    if (ret != QMessageBox::Yes) {
+        return;
+    }
+
+    // 执行删除操作
+    QString sql = QString("delete from user_info where username = '%1'").arg(username);
+    bool success;
+    QSqlQuery query = dbOperator->DBGetData(sql, success);
+
+    if (success) {
+        // 删除成功，刷新用户列表
+        loadUserData();
+        QMessageBox::information(this, "删除成功", QString("用户 %1 已成功删除").arg(username));
+    } else {
+        // 删除失败，显示错误信息
+        QMessageBox::warning(this, "删除失败", "删除用户失败：" + query.lastError().text());
     }
 }
 
