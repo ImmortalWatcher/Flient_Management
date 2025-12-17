@@ -36,6 +36,8 @@ private slots:
     void on_cbOrderStatus_currentIndexChanged(int index);
     void on_cbUserOperation_currentIndexChanged(int index);
 
+    void on_findBtn_clicked();
+
 private:
     // UI 相关
     Ui::AdminMainWindow *ui;

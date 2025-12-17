@@ -12,6 +12,7 @@
 #include <QSqlRecord>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+#include <QSqlError>
 
 // 构造函数：初始化管理员主窗口
 AdminMainWindow::AdminMainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::AdminMainWindow) {
@@ -385,5 +386,47 @@ void AdminMainWindow::on_cbUserOperation_currentIndexChanged(int index) {
             }
         }
         ui->cbUserOperation->setCurrentIndex(0);
+    }
+}
+
+void AdminMainWindow::on_findBtn_clicked()
+{
+    // 1. 获取筛选条件（与UI控件命名、现有代码变量风格对齐）
+    QString departureCity = ui->departureLEdit->text().trimmed();  // 出发地
+    QString arrivalCity = ui->destinationLEdit->text().trimmed();  // 目的地
+    int year = ui->yearSpin->value();                             // 年
+    int month = ui->monthSpin->value();                           // 月
+    int day = ui->daySpin->value();                               // 日
+
+    // 2. 校验日期合法性（避免无效日期如2月30日）
+    QDate queryDate = QDate(year, month, day);
+    if (!queryDate.isValid()) {
+        QMessageBox::warning(this, "提示", "请选择合法的日期！");
+        return;
+    }
+    QString dateStr = queryDate.toString("yyyy-MM-dd"); // 标准化日期格式
+
+    // 3. 拼接查询条件（与loadFlightData的字段名、SQL风格对齐）
+    QStringList whereConditions;
+    // 出发地条件（非空时添加）
+    if (!departureCity.isEmpty()) {
+        whereConditions.append(QString("departure_city = '%1'").arg(departureCity));
+    }
+    // 目的地条件（非空时添加）
+    if (!arrivalCity.isEmpty()) {
+        whereConditions.append(QString("arrival_city = '%1'").arg(arrivalCity));
+    }
+    // 出发日期条件（筛选日期部分）
+    whereConditions.append(QString("DATE(departure_time) = '%1'").arg(dateStr));
+
+    // 4. 拼接完整WHERE子句
+    QString whereClause = whereConditions.join(" AND ");
+
+    // 5. 复用loadFlightData逻辑加载数据（自动处理表格填充、按钮添加、错误提示）
+    loadFlightData(whereClause);
+
+    // 6. 无数据时补充提示（可选，增强用户体验）
+    if (ui->flightTable->rowCount() == 0) {
+        QMessageBox::information(this, "提示", "未查询到符合条件的航班信息！");
     }
 }
