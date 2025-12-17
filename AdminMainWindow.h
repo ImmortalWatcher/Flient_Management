@@ -34,6 +34,12 @@ private slots:
     // 下拉框选择相关
     void on_comboBox_currentIndexChanged(int index);
     void on_cbOrderStatus_currentIndexChanged(int index);
+<<<<<<< HEAD
+=======
+
+    // 用户管理相关
+    void on_deleteUserBtn_clicked();
+>>>>>>> 071b27bb87bdfd7eab9ffd7126becacdd108f84a
 
     // 用户管理相关
     void on_deleteUserBtn_clicked();
