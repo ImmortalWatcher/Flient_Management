@@ -34,9 +34,9 @@ private slots:
     // 下拉框选择相关
     void on_comboBox_currentIndexChanged(int index);
     void on_cbOrderStatus_currentIndexChanged(int index);
-    void on_cbUserOperation_currentIndexChanged(int index);
 
-    void on_findBtn_clicked();
+    // 用户管理相关
+    void on_deleteUserBtn_clicked();
 
 private:
     // UI 相关
