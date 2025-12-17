@@ -262,7 +262,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="page_1">
      <widget class="QFrame" name="frameFilter">
@@ -551,7 +551,7 @@
         <x>40</x>
         <y>30</y>
         <width>491</width>
-        <height>192</height>
+        <height>291</height>
        </rect>
       </property>
       <column>

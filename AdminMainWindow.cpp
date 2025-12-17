@@ -56,17 +56,18 @@ void AdminMainWindow::initFlightManagement() {
 void AdminMainWindow::initOrderView() {
     orderModel = new QSqlQueryModel(this);
     // 设置订单表格的列数和表头
-    ui->twUserList->setColumnCount(7);
-    ui->twUserList->setHorizontalHeaderLabels(
-        QStringList() << "订单号" << "用户名" << "航班号" << "出发地" << "目的地" << "起飞时间" << "票价");
+    //ui->twUserList->setColumnCount(7);
+    //ui->twUserList->setHorizontalHeaderLabels(
+        //QStringList() << "订单号" << "用户名" << "航班号" << "出发地" << "目的地" << "起飞时间" << "票价");
+    loadOrderData();
 }
 
 // 初始化用户管理模块
 void AdminMainWindow::initUserManagement() {
     userModel = new QSqlQueryModel(this);
     // 设置用户表格的列数和表头
-    ui->twUserList->setColumnCount(5);
-    ui->twUserList->setHorizontalHeaderLabels(QStringList() << "用户名" << "性别" << "手机号" << "邮箱" << "账户余额");
+    //ui->twUserList->setColumnCount(5);
+    //ui->twUserList->setHorizontalHeaderLabels(QStringList() << "用户名" << "性别" << "手机号" << "邮箱" << "账户余额");
     loadUserData();
 }
 
@@ -178,8 +179,8 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
 // 加载订单数据到表格
 void AdminMainWindow::loadOrderData(const QString &status) {
     // 使用 join 查询关联订单、用户和航班信息
-    QString sql = "select o.id, u.username, f.flight_number, f.departure, f.destination, f.departure_time, f.price from orders o join users u on o.user_id = u.id join flights f on o.flight_id = f.id";
-
+    QString sql = "select order_id,user_id,flight_id,passenger_name,passenger_idcard,departure_city,"
+                  "departure_time,arrival_city,arrival_time,price,order_time from order_info";
     // 如果指定了订单状态，则添加状态过滤条件
     if (!status.isEmpty() && status != "状态") {
         sql += " where o.status = '" + status + "'";
@@ -196,9 +197,9 @@ void AdminMainWindow::loadOrderData(const QString &status) {
         while (query.next()) {
             ui->twUserList->insertRow(row);
 
-            for (int col = 0; col < 7; col++) {
+            for (int col = 0; col < 11; col++) {
                 QTableWidgetItem *item = new QTableWidgetItem(query.value(col).toString());
-                ui->twUserList->setItem(row, col, item);
+                ui->twOrderList->setItem(row, col, item);
             }
 
             row++;
@@ -210,7 +211,7 @@ void AdminMainWindow::loadOrderData(const QString &status) {
 
 // 加载用户数据到表格
 void AdminMainWindow::loadUserData() {
-    QString sql = "select username, gender, phone, email, balance from users";
+    QString sql = "select username, password, phone, email,realname,idcard, balance from user_info";
     bool success;
     QSqlQuery query = dbOperator->DBGetData(sql, success);
 
@@ -222,7 +223,7 @@ void AdminMainWindow::loadUserData() {
         while (query.next()) {
             ui->twUserList->insertRow(row);
 
-            for (int col = 0; col < 5; col++) {
+            for (int col = 0; col < 7; col++) {
                 QTableWidgetItem *item = new QTableWidgetItem(query.value(col).toString());
                 ui->twUserList->setItem(row, col, item);
             }
