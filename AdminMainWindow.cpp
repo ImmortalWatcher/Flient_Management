@@ -64,20 +64,12 @@ void AdminMainWindow::initOrderView() {
 // 初始化用户管理模块
 void AdminMainWindow::initUserManagement() {
     userModel = new QSqlQueryModel(this);
-<<<<<<< HEAD
-
-=======
     
->>>>>>> 071b27bb87bdfd7eab9ffd7126becacdd108f84a
     // 设置表格选择行为：整行选择
     ui->twUserList->setSelectionBehavior(QAbstractItemView::SelectRows);
     // 设置选择模式：单选
     ui->twUserList->setSelectionMode(QAbstractItemView::SingleSelection);
-<<<<<<< HEAD
-
-=======
     
->>>>>>> 071b27bb87bdfd7eab9ffd7126becacdd108f84a
     // 设置选中行的样式：添加阴影效果和背景高亮
     ui->twUserList->setStyleSheet(
         "QTableWidget::item:selected {"
@@ -98,11 +90,7 @@ void AdminMainWindow::initUserManagement() {
         "QTableWidget::item {"
         "    padding: 2px;"
         "}"
-<<<<<<< HEAD
-        );
-=======
     );
->>>>>>> 071b27bb87bdfd7eab9ffd7126becacdd108f84a
 
     loadUserData();
 }
@@ -279,11 +267,7 @@ void AdminMainWindow::loadUserData() {
 
         // 根据内容自动调整列宽
         ui->twUserList->resizeColumnsToContents();
-<<<<<<< HEAD
-
-=======
         
->>>>>>> 071b27bb87bdfd7eab9ffd7126becacdd108f84a
         // 设置列宽调整模式：根据内容调整，但保留最小宽度
         ui->twUserList->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     } else {
@@ -412,49 +396,6 @@ void AdminMainWindow::on_deleteUserBtn_clicked() {
     int row = ui->twUserList->currentRow();
     if (row < 0) {
         QMessageBox::warning(this, "提示", "请先选择要删除的用户");
-<<<<<<< HEAD
-=======
-        return;
-    }
-
-    // 获取选中行的用户名
-    QString username = ui->twUserList->item(row, 0)->text();
-
-    // 显示确认对话框
-    int ret = QMessageBox::question(this, "确认删除", QString("确定要删除用户 %1 吗？\n此操作不可恢复！").arg(username), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-    if (ret != QMessageBox::Yes) {
-        return;
-    }
-
-    // 执行删除操作
-    QString sql = QString("delete from user_info where username = '%1'").arg(username);
-    bool success;
-    QSqlQuery query = dbOperator->DBGetData(sql, success);
-
-    if (success) {
-        // 删除成功，刷新用户列表
-        loadUserData();
-        QMessageBox::information(this, "删除成功", QString("用户 %1 已成功删除").arg(username));
-    } else {
-        // 删除失败，显示错误信息
-        QMessageBox::warning(this, "删除失败", "删除用户失败：" + query.lastError().text());
-    }
-}
-
-void AdminMainWindow::on_findBtn_clicked()
-{
-    // 1. 获取筛选条件（与UI控件命名、现有代码变量风格对齐）
-    QString departureCity = ui->departureLEdit->text().trimmed();  // 出发地
-    QString arrivalCity = ui->destinationLEdit->text().trimmed();  // 目的地
-    int year = ui->yearSpin->value();                             // 年
-    int month = ui->monthSpin->value();                           // 月
-    int day = ui->daySpin->value();                               // 日
-
-    // 2. 校验日期合法性（避免无效日期如2月30日）
-    QDate queryDate = QDate(year, month, day);
-    if (!queryDate.isValid()) {
-        QMessageBox::warning(this, "提示", "请选择合法的日期！");
->>>>>>> 071b27bb87bdfd7eab9ffd7126becacdd108f84a
         return;
     }
 
