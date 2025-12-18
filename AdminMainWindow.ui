@@ -699,6 +699,17 @@
         </font>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>状态</string>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
+      </column>
      </widget>
      <widget class="QComboBox" name="cbOrderStatus">
       <property name="geometry">

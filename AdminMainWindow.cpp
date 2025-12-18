@@ -104,6 +104,57 @@ void AdminMainWindow::initFlightManagement() {
 // 初始化订单查看模块
 void AdminMainWindow::initOrderView() {
     orderModel = new QSqlQueryModel(this);
+
+    // ========== 新增：初始化订单表格（twOrderList） ==========
+    // 1. 表格选择行为（整行选中）
+    ui->twOrderList->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->twOrderList->setSelectionMode(QAbstractItemView::SingleSelection);
+    // 2. 表格样式（和用户表格统一）
+    ui->twOrderList->setStyleSheet(
+        "QTableWidget::item:selected {"
+        "    background-color: #90caf9;"
+        "    color: #000000;"
+        "    border: 1px solid #42a5f5;"
+        "}"
+        "QTableWidget::item:selected:active {"
+        "    background-color: #64b5f6;"
+        "    color: #000000;"
+        "    border: 1px solid #2196f3;"
+        "}"
+        "QTableWidget {"
+        "    gridline-color: #e0e0e0;"
+        "    selection-background-color: #90caf9;"
+        "    selection-color: #000000;"
+        "}"
+        "QTableWidget::item {"
+        "    padding: 2px;"
+        "}"
+        "QHeaderView::section {"
+        "    text-align: center;"
+        "}"
+        );
+    // 3. 设置表头和列数（匹配订单表字段）
+    ui->twOrderList->setColumnCount(12); // 12个核心字段（无操作列）
+    QStringList orderHeaders = {
+        "订单号", "用户ID", "航班号", "乘客姓名", "身份证号",
+        "出发城市", "起飞时间", "到达城市", "到达时间", "票价",
+        "下单时间", "订单状态"
+    };
+    ui->twOrderList->setHorizontalHeaderLabels(orderHeaders);
+    // 4. 表头居中+列宽自适应
+    QHeaderView *orderHeader = ui->twOrderList->horizontalHeader();
+    if (orderHeader) {
+        orderHeader->setDefaultAlignment(Qt::AlignCenter);
+        orderHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
+    }
+
+    // ========== 新增：初始化订单状态筛选下拉框 ==========
+    ui->cbOrderStatus->clear();
+    ui->cbOrderStatus->addItem("全部订单"); // 替换原有“状态”，更友好
+    ui->cbOrderStatus->addItem("已支付");
+    ui->cbOrderStatus->addItem("已取消");
+
+    // 加载订单数据
     loadOrderData();
 }
 
@@ -250,38 +301,52 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
     }
 }
 
-// 加载订单数据到表格
+// 加载订单数据到 twOrderList 表格
 void AdminMainWindow::loadOrderData(const QString &status) {
-    // 使用 join 查询关联订单、用户和航班信息
-    QString sql = "select order_id, user_id, flight_id, passenger_name, passenger_idcard, departure_city, departure_time, arrival_city, arrival_time, price, order_time from order_info";
-    // 如果指定了订单状态，则添加状态过滤条件
-    if (!status.isEmpty() && status != "状态") {
-        sql += " where o.status = '" + status + "'";
+    // 1. 构造SQL：查询订单表所有字段（匹配表头顺序）
+    QString sql = "select "
+                  "order_id, user_id, flight_id, passenger_name, passenger_idcard, "
+                  "departure_city, departure_time, arrival_city, arrival_time, price, "
+                  "order_time, order_status "
+                  "from order_info";
+
+    // 2. 按状态筛选（处理“全部订单”/“已支付”/“已取消”）
+    QString filterStatus = status.trimmed();
+    if (!filterStatus.isEmpty() && filterStatus != "全部订单") {
+        // 转义单引号，避免SQL语法错误
+        sql += " where order_status = '" + filterStatus.replace("'", "''") + "'";
     }
 
+    // 3. 执行SQL查询
     bool success;
     QSqlQuery query = dbOperator->DBGetData(sql, success);
 
     if (success) {
-        ui->twUserList->setRowCount(0);
+        // 4. 清空表格（关键：清空twOrderList而非twUserList）
+        ui->twOrderList->setRowCount(0);
 
-        // 填充订单数据到表格
+        // 5. 遍历结果填充表格
         int row = 0;
         while (query.next()) {
-            ui->twUserList->insertRow(row);
+            ui->twOrderList->insertRow(row);
 
-            for (int col = 0; col < 11; col++) {
+            // 遍历12个字段，填充到对应列
+            for (int col = 0; col < 12; col++) {
                 QTableWidgetItem *item = new QTableWidgetItem(query.value(col).toString());
+                // 单元格文本居中（和用户表格统一）
+                item->setTextAlignment(Qt::AlignCenter);
                 ui->twOrderList->setItem(row, col, item);
             }
 
             row++;
         }
 
-        // 根据内容自动调整列宽
-        ui->twUserList->resizeColumnsToContents();
+        // 6. 列宽自适应
+        ui->twOrderList->resizeColumnsToContents();
     } else {
-        QMessageBox::warning(this, "错误", "加载订单数据失败");
+        // 7. 错误提示（包含具体错误信息）
+        QMessageBox::warning(this, "错误",
+                             QString("加载订单数据失败：%1").arg(query.lastError().text()));
     }
 }
 
@@ -438,7 +503,9 @@ void AdminMainWindow::on_deleteBtn_clicked() {
 // 根据订单状态过滤订单列表
 void AdminMainWindow::on_cbOrderStatus_currentIndexChanged(int index) {
     Q_UNUSED(index);
+    // 获取选中的状态（如“全部订单”/“已支付”/“已取消”）
     QString status = ui->cbOrderStatus->currentText();
+    // 刷新订单数据
     loadOrderData(status);
 }
 
