@@ -7,6 +7,16 @@
 
 #include "DBOperator.h"
 
+class QDialog;
+class QLineEdit;
+class QDateTimeEdit;
+class QDoubleSpinBox;
+class QSpinBox;
+class QLabel;
+class QVBoxLayout;
+class QGridLayout;
+class QHBoxLayout;
+
 namespace Ui { class AdminMainWindow; }
 
 class AdminMainWindow : public QMainWindow {
@@ -40,6 +50,8 @@ private slots:
 
     void on_findBtn_clicked();
 
+    void onEditFlight(const QString &flightId); // 新增：编辑航班的核心槽函数
+
 private:
     // UI 相关
     Ui::AdminMainWindow *ui;
@@ -61,6 +73,10 @@ private:
     void loadOrderData(const QString &status = "");
     void loadUserData();
     void updateStatistics();
+
+    // 新增：航班编辑对话框相关
+    QDialog *createFlightEditDialog(const QString &flightId); // 创建编辑对话框的函数
+    bool saveFlightEditData(const QString &flightId, const QMap<QString, QVariant> &editData); // 保存编辑数据的函数
 };
 
 #endif // ADMINMAINWINDOW_H

@@ -15,6 +15,17 @@
 #include <QSqlRecord>
 #include <QTableWidget>
 #include <QTableWidgetItem>
+// 新增：编辑对话框需要的头文件
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QDateTimeEdit>
+#include <QDoubleSpinBox>
+#include <QSpinBox>
+#include <QLabel>
+#include <QMap>
 
 // 构造函数：初始化管理员主窗口
 AdminMainWindow::AdminMainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::AdminMainWindow) {
@@ -51,6 +62,41 @@ void AdminMainWindow::initFlightManagement() {
     ui->yearSpin->setValue(currentDate.year());
     ui->monthSpin->setValue(currentDate.month());
     ui->daySpin->setValue(currentDate.day());
+
+    //  设置航班表格选中高亮配置
+    ui->flightTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->flightTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->flightTable->setStyleSheet(
+        "QTableWidget::item:selected {"
+        "    background-color: #90caf9;"
+        "    color: #000000;"
+        "    border: 1px solid #42a5f5;"
+        "}"
+        "QTableWidget::item:selected:active {"
+        "    background-color: #64b5f6;"
+        "    color: #000000;"
+        "    border: 1px solid #2196f3;"
+        "}"
+        "QTableWidget {"
+        "    gridline-color: #e0e0e0;"
+        "    selection-background-color: #90caf9;"
+        "    selection-color: #000000;"
+        "}"
+        "QTableWidget::item {"
+        "    padding: 2px;"
+        "}"
+        // 表头居中（可选，和用户表格保持一致）
+        "QHeaderView::section {"
+        "    text-align: center;"
+        "}"
+        );
+    // 表头文本居中对齐（可选）
+    QHeaderView *flightHeader = ui->flightTable->horizontalHeader();
+    if (flightHeader) {
+        flightHeader->setDefaultAlignment(Qt::AlignCenter);
+    }
+    // 列宽自适应内容（可选）
+    ui->flightTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     loadFlightData();
 }
@@ -174,9 +220,13 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
 
             QString flightId = values.at(0);
 
-            connect(editBtn, &QPushButton::clicked, [this, flightId]() {
-                Q_UNUSED(flightId);
+            // connect(editBtn, &QPushButton::clicked, [this, flightId]() {
+            //     Q_UNUSED(flightId);
+            // });
+            connect(editBtn, &QPushButton::clicked, this, [this, flightId]() {
+                onEditFlight(flightId); // 调用编辑航班的槽函数
             });
+
             connect(deleteBtn, &QPushButton::clicked, [this, flightId]() {
                 if (QMessageBox::question(this, "确认", "确定要删除这条航班记录吗?") == QMessageBox::Yes) {
                     QString sql = QString("delete from flight_info where flight_id = '%1'").arg(flightId);
@@ -349,7 +399,7 @@ void AdminMainWindow::on_comboBox_currentIndexChanged(int index) {
     }
 }
 
-// 编辑选中的航班
+// 编辑选中的航班（顶部编辑按钮）
 void AdminMainWindow::on_editBtn_clicked() {
     int row = ui->flightTable->currentRow();
     if (row < 0) {
@@ -357,8 +407,10 @@ void AdminMainWindow::on_editBtn_clicked() {
         return;
     }
 
-    int flightId = ui->flightTable->item(row, 0)->text().toInt();
-    QMessageBox::information(this, "提示", QString("编辑航班 ID: %1 的功能待实现").arg(flightId));
+    // 获取选中行的航班ID
+    QString flightId = ui->flightTable->item(row, 0)->text();
+    // 调用编辑函数
+    onEditFlight(flightId);
 }
 
 // 删除选中的航班
@@ -462,5 +514,215 @@ void AdminMainWindow::on_findBtn_clicked()
     // 5. 无匹配数据时给出友好提示
     if (ui->flightTable->rowCount() == 0) {
         QMessageBox::information(this, "查询结果", "未找到符合筛选条件的航班信息！");
+    }
+}
+
+// 创建航班编辑对话框
+QDialog *AdminMainWindow::createFlightEditDialog(const QString &flightId) {
+    // 1. 创建模态对话框
+    QDialog *dialog = new QDialog(this);
+    dialog->setWindowTitle("编辑航班信息");
+    dialog->setModal(true); // 模态：阻塞父窗口操作
+    dialog->setFixedSize(600, 450); // 固定窗口大小，避免变形
+
+    // 2. 创建主布局
+    QVBoxLayout *mainLayout = new QVBoxLayout(dialog);
+    QGridLayout *formLayout = new QGridLayout(); // 表单布局：标签+输入框
+    mainLayout->addLayout(formLayout);
+
+    // 3. 初始化输入控件（按航班字段逐一创建）
+    // 3.1 航班号（不可编辑，仅展示）
+    QLabel *lblFlightId = new QLabel("航班号：");
+    QLineEdit *leFlightId = new QLineEdit();
+    leFlightId->setReadOnly(true); // 航班号是主键，禁止修改
+    formLayout->addWidget(lblFlightId, 0, 0);
+    formLayout->addWidget(leFlightId, 0, 1);
+
+    // 3.2 航空公司
+    QLabel *lblAirline = new QLabel("航空公司：");
+    QLineEdit *leAirline = new QLineEdit();
+    formLayout->addWidget(lblAirline, 1, 0);
+    formLayout->addWidget(leAirline, 1, 1);
+
+    // 3.3 出发城市
+    QLabel *lblDepartCity = new QLabel("出发城市：");
+    QLineEdit *leDepartCity = new QLineEdit();
+    formLayout->addWidget(lblDepartCity, 2, 0);
+    formLayout->addWidget(leDepartCity, 2, 1);
+
+    // 3.4 出发机场
+    QLabel *lblDepartAirport = new QLabel("出发机场：");
+    QLineEdit *leDepartAirport = new QLineEdit();
+    formLayout->addWidget(lblDepartAirport, 3, 0);
+    formLayout->addWidget(leDepartAirport, 3, 1);
+
+    // 3.5 出发时间
+    QLabel *lblDepartTime = new QLabel("出发时间：");
+    QDateTimeEdit *dtEditDepart = new QDateTimeEdit();
+    dtEditDepart->setDisplayFormat("yyyy-MM-dd hh:mm");
+    dtEditDepart->setCalendarPopup(true); // 弹出日历选择
+    formLayout->addWidget(lblDepartTime, 4, 0);
+    formLayout->addWidget(dtEditDepart, 4, 1);
+
+    // 3.6 到达城市
+    QLabel *lblArriveCity = new QLabel("到达城市：");
+    QLineEdit *leArriveCity = new QLineEdit();
+    formLayout->addWidget(lblArriveCity, 5, 0);
+    formLayout->addWidget(leArriveCity, 5, 1);
+
+    // 3.7 到达机场
+    QLabel *lblArriveAirport = new QLabel("到达机场：");
+    QLineEdit *leArriveAirport = new QLineEdit();
+    formLayout->addWidget(lblArriveAirport, 6, 0);
+    formLayout->addWidget(leArriveAirport, 6, 1);
+
+    // 3.8 到达时间
+    QLabel *lblArriveTime = new QLabel("到达时间：");
+    QDateTimeEdit *dtEditArrive = new QDateTimeEdit();
+    dtEditArrive->setDisplayFormat("yyyy-MM-dd hh:mm");
+    dtEditArrive->setCalendarPopup(true);
+    formLayout->addWidget(lblArriveTime, 7, 0);
+    formLayout->addWidget(dtEditArrive, 7, 1);
+
+    // 3.9 价格
+    QLabel *lblPrice = new QLabel("价格（元）：");
+    QDoubleSpinBox *dsbPrice = new QDoubleSpinBox();
+    dsbPrice->setRange(0.0, 99999.99); // 价格范围限制
+    dsbPrice->setDecimals(2); // 保留2位小数
+    formLayout->addWidget(lblPrice, 8, 0);
+    formLayout->addWidget(dsbPrice, 8, 1);
+
+    // 3.10 总座位数
+    QLabel *lblTotalSeats = new QLabel("总座位数：");
+    QSpinBox *sbTotalSeats = new QSpinBox();
+    sbTotalSeats->setRange(1, 999); // 至少1个座位
+    formLayout->addWidget(lblTotalSeats, 9, 0);
+    formLayout->addWidget(sbTotalSeats, 9, 1);
+
+    // 3.11 剩余座位数
+    QLabel *lblRemainSeats = new QLabel("剩余座位数：");
+    QSpinBox *sbRemainSeats = new QSpinBox();
+    sbRemainSeats->setRange(0, 999); // 可以为0
+    formLayout->addWidget(lblRemainSeats, 10, 0);
+    formLayout->addWidget(sbRemainSeats, 10, 1);
+
+    // 4. 加载该航班的原始数据到输入框
+    QString sql = QString("select * from flight_info where flight_id = '%1'").arg(flightId);
+    bool success;
+    QSqlQuery query = dbOperator->DBGetData(sql, success);
+    if (success && query.next()) {
+        leFlightId->setText(query.value("flight_id").toString());
+        leAirline->setText(query.value("airline_company").toString());
+        leDepartCity->setText(query.value("departure_city").toString());
+        leDepartAirport->setText(query.value("departure_airport").toString());
+        dtEditDepart->setDateTime(query.value("departure_time").toDateTime());
+        leArriveCity->setText(query.value("arrival_city").toString());
+        leArriveAirport->setText(query.value("arrival_airport").toString());
+        dtEditArrive->setDateTime(query.value("arrival_time").toDateTime());
+        dsbPrice->setValue(query.value("price").toDouble());
+        sbTotalSeats->setValue(query.value("total_seats").toInt());
+        sbRemainSeats->setValue(query.value("remaining_seats").toInt());
+    } else {
+        QMessageBox::warning(dialog, "错误", "加载航班数据失败！");
+        dialog->close();
+        return nullptr;
+    }
+
+    // 5. 创建按钮布局（保存+取消）
+    QHBoxLayout *btnLayout = new QHBoxLayout();
+    QPushButton *btnSave = new QPushButton("保存");
+    QPushButton *btnCancel = new QPushButton("取消");
+    btnLayout->addStretch(); // 按钮右对齐
+    btnLayout->addWidget(btnSave);
+    btnLayout->addWidget(btnCancel);
+    mainLayout->addLayout(btnLayout);
+
+    // 6. 绑定按钮事件
+    // 保存按钮：收集输入数据并保存
+    connect(btnSave, &QPushButton::clicked, this, [=]() {
+        // 收集编辑后的数据
+        QMap<QString, QVariant> editData;
+        editData["airline_company"] = leAirline->text().trimmed();
+        editData["departure_city"] = leDepartCity->text().trimmed();
+        editData["departure_airport"] = leDepartAirport->text().trimmed();
+        editData["departure_time"] = dtEditDepart->dateTime().toString("yyyy-MM-dd hh:mm:ss");
+        editData["arrival_city"] = leArriveCity->text().trimmed();
+        editData["arrival_airport"] = leArriveAirport->text().trimmed();
+        editData["arrival_time"] = dtEditArrive->dateTime().toString("yyyy-MM-dd hh:mm:ss");
+        editData["price"] = dsbPrice->value();
+        editData["total_seats"] = sbTotalSeats->value();
+        editData["remaining_seats"] = sbRemainSeats->value();
+
+        // 数据校验
+        if (editData["airline_company"].toString().isEmpty() ||
+            editData["departure_city"].toString().isEmpty() ||
+            editData["arrival_city"].toString().isEmpty()) {
+            QMessageBox::warning(dialog, "提示", "航空公司、出发城市、到达城市不能为空！");
+            return;
+        }
+        if (editData["remaining_seats"].toInt() > editData["total_seats"].toInt()) {
+            QMessageBox::warning(dialog, "提示", "剩余座位数不能超过总座位数！");
+            return;
+        }
+
+        // 保存数据
+        if (saveFlightEditData(flightId, editData)) {
+            QMessageBox::information(dialog, "成功", "航班信息修改成功！");
+            dialog->accept(); // 关闭对话框并标记为“确认”
+            loadFlightData(); // 刷新航班表格
+        } else {
+            QMessageBox::warning(dialog, "错误", "修改航班信息失败！");
+        }
+    });
+
+    // 取消按钮：关闭对话框，不保存
+    connect(btnCancel, &QPushButton::clicked, dialog, &QDialog::reject);
+
+    return dialog;
+}
+
+// 保存编辑后的航班数据到数据库
+bool AdminMainWindow::saveFlightEditData(const QString &flightId, const QMap<QString, QVariant> &editData) {
+    // 拼接UPDATE SQL（转义单引号，避免SQL语法错误）
+    QString sql = QString(
+                      "UPDATE flight_info SET "
+                      "airline_company = '%1', "
+                      "departure_city = '%2', "
+                      "departure_airport = '%3', "
+                      "departure_time = '%4', "
+                      "arrival_city = '%5', "
+                      "arrival_airport = '%6', "
+                      "arrival_time = '%7', "
+                      "price = %8, "
+                      "total_seats = %9, "
+                      "remaining_seats = %10 "
+                      "WHERE flight_id = '%11'"
+                      ).arg(
+                          editData["airline_company"].toString().replace("'", "''"), // 转义单引号
+                          editData["departure_city"].toString().replace("'", "''"),
+                          editData["departure_airport"].toString().replace("'", "''"),
+                          editData["departure_time"].toString(),
+                          editData["arrival_city"].toString().replace("'", "''"),
+                          editData["arrival_airport"].toString().replace("'", "''"),
+                          editData["arrival_time"].toString(),
+                          QString::number(editData["price"].toDouble()),
+                          QString::number(editData["total_seats"].toInt()),
+                          QString::number(editData["remaining_seats"].toInt()),
+                          flightId
+                          );
+
+    // 执行SQL并返回结果
+    bool success;
+    dbOperator->DBGetData(sql, success);
+    return success;
+}
+
+// 编辑航班的核心槽函数（接收航班ID，弹出编辑对话框）
+void AdminMainWindow::onEditFlight(const QString &flightId) {
+    // 创建并显示编辑对话框
+    QDialog *editDialog = createFlightEditDialog(flightId);
+    if (editDialog) {
+        editDialog->exec(); // 显示模态对话框
+        delete editDialog; // 对话框关闭后释放内存
     }
 }
