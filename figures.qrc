@@ -19,5 +19,9 @@
         <file>source/figures/ChinaEasternAirlines.png</file>
         <file>source/figures/ChinaSouthernAirlines.png</file>
         <file>source/figures/ShenzhenAirlines.png</file>
+        <file>source/figures/HainanAirlines.png</file>
+        <file>source/figures/XiamenAir.png</file>
+        <file>source/figures/SichuanAirlines.png</file>
+        <file>source/figures/JuneyaoAir.png</file>
     </qresource>
 </RCC>

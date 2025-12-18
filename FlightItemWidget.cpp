@@ -31,6 +31,14 @@ FlightItemWidget::FlightItemWidget(const QString &flightNo, const QString &takeo
         logoPath = ":/img/source/figures/ChinaSouthernAirlines.png";
     } else if (airlineCompany == "深圳航空") {
         logoPath = ":/img/source/figures/ShenzhenAirlines.png";
+    } else if (airlineCompany == "海南航空") {
+    logoPath = ":/img/source/figures/HainanAirlines.png";
+    } else if (airlineCompany == "厦门航空") {
+        logoPath = ":/img/source/figures/XiamenAir.png";
+    } else if (airlineCompany == "四川航空") {
+        logoPath = ":/img/source/figures/SichuanAirlines.png";
+    } else if (airlineCompany == "吉祥航空") {
+        logoPath = ":/img/source/figures/JuneyaoAir.png";
     } else {
         logoPath = ":/img/source/figures/AirChina.png";
     }
