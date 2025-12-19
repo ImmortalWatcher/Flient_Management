@@ -70,7 +70,6 @@ private:
 
     // 事件处理
     bool eventFilter(QObject *obj, QEvent *event) override;
-    void closeEvent(QCloseEvent *event) override;
 
     // 用户信息相关
     void loadAvatar();
