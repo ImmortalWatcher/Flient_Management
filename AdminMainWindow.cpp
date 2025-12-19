@@ -16,6 +16,8 @@
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QDialog>
+#include <QBrush>
+#include <QColor>
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -365,6 +367,16 @@ void AdminMainWindow::loadOrderData(const QString &status) {
             for (int col = 0; col < 12; col++) {
                 QTableWidgetItem *item = new QTableWidgetItem(query.value(col).toString());
                 item->setTextAlignment(Qt::AlignCenter);
+                
+                if (col == 11) {
+                    QString status = query.value(col).toString();
+                    if (status == "已支付") {
+                        item->setForeground(QBrush(QColor(0, 150, 0)));
+                    } else if (status == "已取消") {
+                        item->setForeground(QBrush(QColor(200, 0, 0)));
+                    }
+                }
+                
                 ui->twOrderList->setItem(row, col, item);
             }
 
@@ -852,7 +864,7 @@ QDialog *AdminMainWindow::createFlightEditDialog(const QString &flightId) {
 // 保存编辑后的航班数据到数据库
 bool AdminMainWindow::saveFlightEditData(const QString &flightId, const QMap<QString, QVariant> &editData) {
     QString sql = QString(
-                      "UPDATE flight_info SET "
+                      "update flight_info set "
                       "airline_company = '%1', "
                       "departure_city = '%2', "
                       "departure_airport = '%3', "
@@ -863,7 +875,7 @@ bool AdminMainWindow::saveFlightEditData(const QString &flightId, const QMap<QSt
                       "price = %8, "
                       "total_seats = %9, "
                       "remaining_seats = %10 "
-                      "WHERE flight_id = '%11'"
+                      "where flight_id = '%11'"
                       ).arg(
                           editData["airline_company"].toString().replace("'", "''"), // 转义单引号
                           editData["departure_city"].toString().replace("'", "''"),

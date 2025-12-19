@@ -17,6 +17,7 @@
 #include <QSqlQuery>
 #include <QVBoxLayout>
 #include <QVector>
+#include <QCloseEvent>
 
 // 构造函数：初始化用户主窗口
 UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent), ui(new Ui::UserMainWindow), m_userId(userId) {
@@ -74,7 +75,14 @@ UserMainWindow::~UserMainWindow() {
     if (m_isEditMode) {
         exitEditMode();
     }
+    m_dbOperator.DBClose();
     delete ui;
+}
+
+// 窗口关闭事件处理
+void UserMainWindow::closeEvent(QCloseEvent *event) {
+    m_dbOperator.DBClose();
+    event->accept();
 }
 
 // 切换到航班查询页面
