@@ -24,7 +24,6 @@ QMainWindow *WindowFactory::createMainWindow(bool isAdmin, int userId, QWidget *
 
     QMainWindow *window = nullptr;
 
-    // 根据用户类型创建对应的主窗口
     if (!isAdmin) {
         window = new UserMainWindow(userId);
         window->setWindowTitle("用户界面");
@@ -36,7 +35,6 @@ QMainWindow *WindowFactory::createMainWindow(bool isAdmin, int userId, QWidget *
     if (window) {
         m_currentMainWindow = window;
 
-        // 连接注销信号
         if (!isAdmin) {
             UserMainWindow *userWindow = qobject_cast<UserMainWindow *>(window);
             if (userWindow) {
@@ -49,7 +47,6 @@ QMainWindow *WindowFactory::createMainWindow(bool isAdmin, int userId, QWidget *
             }
         }
 
-        // 窗口销毁时清空指针
         connect(window, &QMainWindow::destroyed, this, [this]() {
             m_currentMainWindow = nullptr;
         });
@@ -65,13 +62,11 @@ QDialog *WindowFactory::createLoginWindow(QWidget *parent) {
     LoginDlg *loginDlg = new LoginDlg(parent);
     loginDlg->setWindowTitle("用户登录");
 
-    // 连接登录成功信号，创建对应的主窗口
     connect(loginDlg, &LoginDlg::loginSuccess, this,
             [this, loginDlg](int userId, const QString &username, bool isAdmin) {
                 Q_UNUSED(username);
                 QMainWindow *mainWindow = createMainWindow(isAdmin, userId);
                 if (mainWindow) {
-                    // 居中显示主窗口
                     mainWindow->adjustSize();
                     QScreen *screen = QApplication::primaryScreen();
                     QRect screenGeometry = screen->geometry();
@@ -84,7 +79,6 @@ QDialog *WindowFactory::createLoginWindow(QWidget *parent) {
                 loginDlg->deleteLater();
             });
 
-    // 连接取消登录信号，退出程序
     connect(loginDlg, &LoginDlg::rejected, this, []() {
         QApplication::quit();
     });
@@ -92,7 +86,7 @@ QDialog *WindowFactory::createLoginWindow(QWidget *parent) {
     return loginDlg;
 }
 
-// 切换到登录窗口 (用于注销)
+// 切换到登录窗口
 void WindowFactory::switchToLogin() {
     destroyCurrentWindow();
     emit logoutRequested();

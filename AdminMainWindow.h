@@ -7,7 +7,7 @@
 #include <QPainter>
 
 #define QT_CHARTS_USE_NAMESPACE
-// ========== 新增 Qt Charts 相关头文件 ==========
+
 #include <QtCharts/QChart>
 #include <QtCharts/QBarSeries>
 #include <QtCharts/QBarSet>
@@ -64,24 +64,20 @@ private slots:
 
     void on_findBtn_clicked();
 
-    void onEditFlight(const QString &flightId); // 新增：编辑航班的核心槽函数
+    void onEditFlight(const QString &flightId);
 
 private:
-    // UI 相关
     Ui::AdminMainWindow *ui;
-
-    // 数据相关
     DBOperator *dbOperator;
     QSqlQueryModel *flightModel;
     QSqlQueryModel *orderModel;
     QSqlQueryModel *userModel;
 
-    // ========== 新增：图表相关成员变量 ==========
-    QChart *totalStatsChart;       // 总统计（航班、用户、订单、金额）
-    QChart *airlineFlightChart;    // 各航空公司航班数
-    QChart *airlineOrderChart;     // 各航空公司订单数
-    QChart *cityFlightChart;       // 各城市航班数
-    QChart *cityOrderChart;        // 各城市订单数
+    QChart *totalStatsChart;
+    QChart *airlineFlightChart;
+    QChart *airlineOrderChart;
+    QChart *cityFlightChart;
+    QChart *cityOrderChart;
     QChartView *totalStatsView;
     QChartView *airlineFlightView;
     QChartView *airlineOrderView;
@@ -94,15 +90,13 @@ private:
     void initUserManagement();
     void initDataStatistics();
 
-    // 数据加载相关
     void loadFlightData(const QString &whereClause = "");
     void loadOrderData(const QString &status = "");
     void loadUserData();
     void updateStatistics();
 
-    //：航班编辑对话框相关
-    QDialog *createFlightEditDialog(const QString &flightId); // 创建编辑对话框的函数
-    bool saveFlightEditData(const QString &flightId, const QMap<QString, QVariant> &editData); // 保存编辑数据的函数
+    QDialog *createFlightEditDialog(const QString &flightId);
+    bool saveFlightEditData(const QString &flightId, const QMap<QString, QVariant> &editData);
 };
 
 #endif // ADMINMAINWINDOW_H

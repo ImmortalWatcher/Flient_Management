@@ -15,7 +15,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS
     Widgets
     Sql
     Core
-    Charts  # 新增：Charts 模块
+    Charts # 新增：Charts 模块
 )
 
 set(PROJECT_SOURCES

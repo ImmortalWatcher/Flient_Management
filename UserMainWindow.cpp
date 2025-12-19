@@ -24,11 +24,9 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent
 
     m_dbOperator.DBOpen();
 
-    // 设置头像标签为可点击
     ui->avatarLabel->setCursor(Qt::PointingHandCursor);
     ui->avatarLabel->installEventFilter(this);
 
-    // 初始化编辑模式相关变量
     m_isEditMode = false;
     m_usernameEdit = nullptr;
     m_passwordEdit = nullptr;
@@ -42,7 +40,6 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent
     loadUserInfo();
     loadAvatar();
 
-    // 初始化航班列表布局
     flightLayout = new QVBoxLayout(ui->scrollAreaWidgetContents_1);
     ui->scrollAreaWidgetContents_1->setLayout(flightLayout);
     flightLayout->setContentsMargins(10, 5, 10, 5);
@@ -53,13 +50,11 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent
     ui->scrollArea_1->setWidgetResizable(false);
     ui->scrollAreaWidgetContents_1->show();
 
-    // 初始化订单列表布局
     orderLayout = new QVBoxLayout(ui->scrollAreaWidgetContents_2);
     ui->scrollAreaWidgetContents_2->setLayout(orderLayout);
     orderLayout->setContentsMargins(10, 5, 10, 5);
     orderLayout->setAlignment(Qt::AlignTop);
 
-    // 初始化收藏列表布局
     favoritesLayout = new QVBoxLayout(ui->scrollAreaWidgetContents_3);
     ui->scrollAreaWidgetContents_3->setLayout(favoritesLayout);
     favoritesLayout->setContentsMargins(10, 5, 10, 5);
@@ -67,18 +62,15 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent
 
     loadAllFlights();
 
-    // 如果默认停留在 “我的订单” 页，初始也要加载一次订单
     if (ui->stackedWidget->currentIndex() == 1) {
         loadOrders();
     }
-    // 如果默认停留在 “我的收藏” 页，初始也要加载一次收藏
     if (ui->stackedWidget->currentIndex() == 2) {
         loadFavorites();
     }
 }
 
 UserMainWindow::~UserMainWindow() {
-    // 如果处于编辑模式，先退出编辑模式以清理资源
     if (m_isEditMode) {
         exitEditMode();
     }
@@ -94,7 +86,7 @@ void UserMainWindow::on_flightQueryBtn_clicked() {
 // 切换到我的订单页面
 void UserMainWindow::on_myOrdersBtn_clicked() {
     ui->stackedWidget->setCurrentIndex(1);
-    loadOrders(); // 加载订单列表
+    loadOrders();
 }
 
 // 切换到我的收藏页面
@@ -133,7 +125,7 @@ void UserMainWindow::loadAvatar() {
     if (m_dbOperator.getUserInfo(m_userId, userInfo)) {
         setAvatar(userInfo.avatarId);
     } else {
-        setAvatar(1); // 使用默认头像
+        setAvatar(1);
     }
 }
 
@@ -153,7 +145,6 @@ void UserMainWindow::showAvatarselectionDialog() {
 
     QVBoxLayout *mainLayout = new QVBoxLayout(dialog);
 
-    // 添加标题标签
     QLabel *titleLabel = new QLabel("请选择您的头像：", dialog);
     titleLabel->setStyleSheet("font-size: 16px; font-weight: bold; padding: 10px;");
     mainLayout->addWidget(titleLabel);
@@ -191,12 +182,10 @@ void UserMainWindow::showAvatarselectionDialog() {
         QDialog *m_dialog;
     };
 
-    // 创建网格布局显示所有可选头像
     QGridLayout *gridLayout = new QGridLayout();
     gridLayout->setSpacing(15);
     gridLayout->setContentsMargins(20, 10, 20, 10);
 
-    // 加载15个头像选项
     for (int i = 1; i <= 15; i++) {
         QString avatarPath = QString(":/img/source/avatars/avatar_%1.png").arg(i);
 
@@ -285,7 +274,6 @@ void UserMainWindow::loadAllFlights() {
         return;
     }
 
-    // 设置滚动区域内容宽度
     int viewportWidth = ui->scrollArea_1->viewport()->width();
     int contentWidth = qMax(600, viewportWidth - 20);
     ui->scrollAreaWidgetContents_1->setMinimumWidth(contentWidth);
@@ -297,7 +285,6 @@ void UserMainWindow::loadAllFlights() {
         count++;
         QString flightNo = query.value("flight_id").toString();
 
-        // 格式化起飞和到达时间
         QDateTime takeoffDateTime = query.value("departure_time").toDateTime();
         QString takeoffTime = formatDateTime(takeoffDateTime);
         QDateTime arriveDateTime = query.value("arrival_time").toDateTime();
@@ -309,7 +296,6 @@ void UserMainWindow::loadAllFlights() {
         QString remaining = QString("%1/%2").arg(query.value("remaining_seats").toString(), query.value("total_seats").toString());
         QString airlineCompany = query.value("airline_company").toString();
 
-        // 创建航班条目组件并添加到布局
         FlightItemWidget *itemWidget = new FlightItemWidget(flightNo, takeoffTime, arriveTime, dep, dest, price, remaining, airlineCompany, ui->scrollAreaWidgetContents_1);
 
         itemWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -317,7 +303,6 @@ void UserMainWindow::loadAllFlights() {
         itemWidget->setFixedHeight(180);
         itemWidget->show();
 
-        // 连接预订和收藏按钮信号
         connect(itemWidget, &FlightItemWidget::bookClicked, this, &UserMainWindow::on_book_clicked);
         connect(itemWidget, &FlightItemWidget::collectClicked, this, &UserMainWindow::on_collect_clicked);
 
@@ -343,16 +328,11 @@ void UserMainWindow::loadAllFlights() {
 
 // 重置查询条件并显示所有航班
 void UserMainWindow::on_resetBtn_clicked() {
-    // 重置出发地和目的地下拉框到第一个选项
     ui->departureCbox->setCurrentIndex(0);
     ui->arrivalCbox->setCurrentIndex(0);
-
-    // 重置日期到初始值 (2025 年 1 月 1 日)
     ui->yearSpin->setValue(2025);
     ui->monthSpin->setValue(1);
     ui->daySpin->setValue(1);
-
-    // 加载所有航班
     loadAllFlights();
 }
 
@@ -360,7 +340,6 @@ void UserMainWindow::on_resetBtn_clicked() {
 void UserMainWindow::on_searchBtn_clicked() {
     clearFlightItems();
 
-    // 获取搜索条件
     QString departure = ui->departureCbox->currentText();
     QString destination = ui->arrivalCbox->currentText();
     QString year = ui->yearSpin->text();
@@ -368,7 +347,6 @@ void UserMainWindow::on_searchBtn_clicked() {
     QString day = ui->daySpin->text().rightJustified(2, '0');
     QString takeoffDate = QString("%1-%2-%3").arg(year, month, day);
 
-    // 执行搜索查询
     bool sf = false;
     QString sqlstr = QString("select * from flight_info where departure_city='%1' and arrival_city='%2' and DATE(departure_time)='%3' order by departure_time").arg(departure, destination, takeoffDate);
     QSqlQuery query = m_dbOperator.DBGetData(sqlstr, sf);
@@ -387,7 +365,6 @@ void UserMainWindow::on_searchBtn_clicked() {
         count++;
         QString flightNo = query.value("flight_id").toString();
 
-        // 格式化起飞和到达时间
         QDateTime takeoffDateTime = query.value("departure_time").toDateTime();
         QString takeoffTime = formatDateTime(takeoffDateTime);
         QDateTime arriveDateTime = query.value("arrival_time").toDateTime();
@@ -983,7 +960,6 @@ void UserMainWindow::loadFavorites() {
         int remaining = query.value("remaining_seats").toInt();
         QDateTime favTime = query.value("create_time").toDateTime();
 
-        // 格式化起飞和到达时间
         QString depStr = formatDateTime(depTime);
         QString arrStr = formatDateTime(arrTime);
         QString favTimeStr = favTime.isValid() ? favTime.toString("yyyy-MM-dd hh:mm") : "";
@@ -1280,7 +1256,7 @@ void UserMainWindow::handleReschedule(int orderId, const QString &oldFlightId, d
     dialog->deleteLater();
 }
 
-// 进入编辑模式：将标签转换为可编辑的输入框，隐藏原按钮，显示保存和取消按钮
+// 进入编辑模式
 void UserMainWindow::enterEditMode() {
     if (m_isEditMode) {
         return;
@@ -1288,10 +1264,8 @@ void UserMainWindow::enterEditMode() {
 
     m_isEditMode = true;
 
-    // 保存原始用户信息
     m_dbOperator.getUserInfo(m_userId, m_originalUserInfo);
 
-    // 获取各个标签的位置和大小
     QRect usernameRect = ui->UsernameLabel->geometry();
     QRect passwordRect = ui->PasswordLabel->geometry();
     QRect phoneRect = ui->PhoneLabel->geometry();
@@ -1299,7 +1273,6 @@ void UserMainWindow::enterEditMode() {
     QRect realnameRect = ui->RealnameLabel->geometry();
     QRect idcardRect = ui->IdcardLabel->geometry();
 
-    // 创建用户名输入框
     m_usernameEdit = new QLineEdit(ui->page_4);
     m_usernameEdit->setGeometry(usernameRect);
     m_usernameEdit->setText(ui->UsernameLabel->text());
@@ -1307,7 +1280,6 @@ void UserMainWindow::enterEditMode() {
     m_usernameEdit->show();
     ui->UsernameLabel->hide();
 
-    // 创建密码输入框
     m_passwordEdit = new QLineEdit(ui->page_4);
     m_passwordEdit->setGeometry(passwordRect);
     m_passwordEdit->setText(ui->PasswordLabel->text());
@@ -1316,7 +1288,6 @@ void UserMainWindow::enterEditMode() {
     m_passwordEdit->show();
     ui->PasswordLabel->hide();
 
-    // 创建手机号输入框
     m_phoneEdit = new QLineEdit(ui->page_4);
     m_phoneEdit->setGeometry(phoneRect);
     m_phoneEdit->setText(ui->PhoneLabel->text());
@@ -1324,7 +1295,6 @@ void UserMainWindow::enterEditMode() {
     m_phoneEdit->show();
     ui->PhoneLabel->hide();
 
-    // 创建邮箱输入框
     m_emailEdit = new QLineEdit(ui->page_4);
     m_emailEdit->setGeometry(emailRect);
     m_emailEdit->setText(ui->EmailLabel->text());
@@ -1332,7 +1302,6 @@ void UserMainWindow::enterEditMode() {
     m_emailEdit->show();
     ui->EmailLabel->hide();
 
-    // 创建真实姓名输入框
     m_realnameEdit = new QLineEdit(ui->page_4);
     m_realnameEdit->setGeometry(realnameRect);
     m_realnameEdit->setText(ui->RealnameLabel->text());
@@ -1340,7 +1309,6 @@ void UserMainWindow::enterEditMode() {
     m_realnameEdit->show();
     ui->RealnameLabel->hide();
 
-    // 创建身份证号输入框
     m_idcardEdit = new QLineEdit(ui->page_4);
     m_idcardEdit->setGeometry(idcardRect);
     m_idcardEdit->setText(ui->IdcardLabel->text());
@@ -1348,12 +1316,10 @@ void UserMainWindow::enterEditMode() {
     m_idcardEdit->show();
     ui->IdcardLabel->hide();
 
-    // 隐藏原来的 3 个按钮
     ui->editInfoBtn->hide();
     ui->rechargeBtn->hide();
     ui->cancelAccountBtn->hide();
 
-    // 创建并显示保存按钮 (向右平移)
     m_saveBtn = new QPushButton(ui->page_4);
     QRect saveBtnRect = ui->editInfoBtn->geometry();
     saveBtnRect.moveLeft(saveBtnRect.x() + 105);
@@ -1364,7 +1330,6 @@ void UserMainWindow::enterEditMode() {
     m_saveBtn->show();
     connect(m_saveBtn, &QPushButton::clicked, this, &UserMainWindow::on_saveBtn_clicked);
 
-    // 创建并显示取消按钮 (向右平移)
     m_cancelBtn = new QPushButton(ui->page_4);
     QRect cancelBtnRect = ui->rechargeBtn->geometry();
     cancelBtnRect.moveLeft(cancelBtnRect.x() + 115);
@@ -1376,7 +1341,7 @@ void UserMainWindow::enterEditMode() {
     connect(m_cancelBtn, &QPushButton::clicked, this, &UserMainWindow::on_cancelBtn_clicked);
 }
 
-// 退出编辑模式：恢复标签显示，隐藏输入框，恢复原按钮
+// 退出编辑模式
 void UserMainWindow::exitEditMode() {
     if (!m_isEditMode) {
         return;
@@ -1585,7 +1550,7 @@ void UserMainWindow::saveUserInfo() {
     QMessageBox::information(this, "成功", "个人信息已更新！");
 }
 
-// 格式化日期时间为中文格式：年月日 时:分
+// 格式化日期时间为中文格式
 QString UserMainWindow::formatDateTime(const QDateTime& dateTime) {
     return QString("%1年%2月%3日 %4:%5")
         .arg(dateTime.date().year())

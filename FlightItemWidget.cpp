@@ -3,16 +3,15 @@
 
 #include <QPixmap>
 
-// 默认构造函数：仅初始化 UI
+// 默认构造函数
 FlightItemWidget::FlightItemWidget(QWidget *parent) : QWidget(parent), ui(new Ui::FlightItemWidget) {
     ui->setupUi(this);
 }
 
-// 带参数构造函数：初始化 UI 并填充航班数据
+// 带参数构造函数
 FlightItemWidget::FlightItemWidget(const QString &flightNo, const QString &takeoffTime, const QString &arriveTime, const QString &departure, const QString &destination, const QString &price, const QString &remaining, const QString &airlineCompany, QWidget *parent): QWidget(parent), ui(new Ui::FlightItemWidget), m_flightNo(flightNo) {
     ui->setupUi(this);
 
-    // 填充航班信息到界面
     ui->flightNoLabel->setText(flightNo);
     ui->takeoffTimeLabel->setText(takeoffTime);
     ui->arriveTimeLabel->setText(arriveTime);
@@ -21,7 +20,6 @@ FlightItemWidget::FlightItemWidget(const QString &flightNo, const QString &takeo
     ui->priceLabel->setText(price);
     ui->remainingLabel->setText(remaining);
 
-    // 根据航空公司名称设置对应的 logo
     QString logoPath;
     if (airlineCompany == "中国国航") {
         logoPath = ":/img/source/figures/AirChina.png";
@@ -44,7 +42,6 @@ FlightItemWidget::FlightItemWidget(const QString &flightNo, const QString &takeo
     }
     ui->airlineLogoLabel->setPixmap(QPixmap(logoPath));
 
-    // 连接预订和收藏按钮的信号
     connect(ui->bookBtn, &QPushButton::clicked, this, [=]() {
         emit bookClicked(m_flightNo);
     });

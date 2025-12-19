@@ -8,7 +8,6 @@ DBOperator::DBOperator() : openFlag(false) {
 // 打开数据库连接
 void DBOperator::DBOpen() {
     if (!openFlag) {
-        // 为每个实例创建独立连接，避免被其他实例关闭
         if (QSqlDatabase::contains(connectionName)) {
             dbcon = QSqlDatabase::database(connectionName);
         } else {
@@ -46,7 +45,6 @@ bool DBOperator::getUserInfo(int userId, UserInfo &userInfo) {
     QString sqlstr = QString("select username, password, phone, email, realname, idcard, avatarid, COALESCE(balance, 0) as balance from user_info where id=%1").arg(userId);
     QSqlQuery qs = DBGetData(sqlstr, sf);
 
-    // 如果查询成功，填充用户信息结构体
     if (sf && qs.next()) {
         userInfo.username = qs.value("username").toString();
         userInfo.password = qs.value("password").toString();
