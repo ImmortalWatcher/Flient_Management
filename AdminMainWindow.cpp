@@ -33,6 +33,18 @@ AdminMainWindow::AdminMainWindow(QWidget *parent) : QMainWindow(parent), ui(new 
     dbOperator = new DBOperator();
     dbOperator->DBOpen();
 
+    // ========== 新增：初始化图表指针为 nullptr（避免析构空指针） ==========
+    totalStatsChart = nullptr;
+    airlineFlightChart = nullptr;
+    airlineOrderChart = nullptr;
+    cityFlightChart = nullptr;
+    cityOrderChart = nullptr;
+    totalStatsView = nullptr;
+    airlineFlightView = nullptr;
+    airlineOrderView = nullptr;
+    cityFlightView = nullptr;
+    cityOrderView = nullptr;
+
     // 初始化各个功能模块
     initFlightManagement();
     initOrderView();
@@ -41,6 +53,19 @@ AdminMainWindow::AdminMainWindow(QWidget *parent) : QMainWindow(parent), ui(new 
 }
 
 AdminMainWindow::~AdminMainWindow() {
+    // ========== 新增：释放图表相关对象 ==========
+    delete totalStatsView;
+    delete airlineFlightView;
+    delete airlineOrderView;
+    delete cityFlightView;
+    delete cityOrderView;
+
+    delete totalStatsChart;
+    delete airlineFlightChart;
+    delete airlineOrderChart;
+    delete cityFlightChart;
+    delete cityOrderChart;
+
     delete ui;
     delete dbOperator;
     delete flightModel;
@@ -192,36 +217,88 @@ void AdminMainWindow::initUserManagement() {
     loadUserData();
 }
 
-// 初始化数据统计模块
+//  数据统计页面初始化（创建图表布局和容器）
 void AdminMainWindow::initDataStatistics() {
-    // 初始化日期选择下拉框 (年份、月份、日期)
-    int currentYear = QDate::currentDate().year();
-    for (int i = currentYear - 10; i <= currentYear; i++) {
-        ui->cbStartYear->addItem(QString::number(i));
-        ui->cbEndYear->addItem(QString::number(i));
+    // ========== 1. 获取 StackedWidget 第3页（数据统计页） ==========
+    QStackedWidget *stackWidget = ui->stackedWidget;
+    if (!stackWidget) {
+        qWarning() << "错误：未找到 StackedWidget 控件！";
+        return;
+    }
+    QWidget *statsPage = stackWidget->widget(3);
+    if (!statsPage) {
+        qWarning() << "错误：StackedWidget 索引 3 对应的页面不存在！";
+        return;
     }
 
-    for (int i = 1; i <= 12; i++) {
-        ui->cbStartMonth->addItem(QString::number(i));
-        ui->cbEndMonth->addItem(QString::number(i));
-    }
+    // ========== 2. 创建 QScrollArea 并铺满整个页面 ==========
+    QScrollArea *scrollArea = new QScrollArea(statsPage);
+    scrollArea->setWidgetResizable(true); // 关键：让内部Widget自适应ScrollArea
+    scrollArea->setStyleSheet("QScrollArea { border: none; }"); // 去掉边框更美观
 
-    for (int i = 1; i <= 31; i++) {
-        ui->cbStartDay->addItem(QString::number(i));
-        ui->cbEndDay->addItem(QString::number(i));
-    }
+    // ========== 3. 创建 ScrollArea 的内部容器Widget ==========
+    QWidget *scrollContent = new QWidget(scrollArea);
+    scrollArea->setWidget(scrollContent);
 
-    // 设置默认日期为当前日期
-    ui->cbStartYear->setCurrentText(QString::number(currentYear));
-    ui->cbEndYear->setCurrentText(QString::number(currentYear));
-    ui->cbStartMonth->setCurrentText(QString::number(QDate::currentDate().month()));
-    ui->cbEndMonth->setCurrentText(QString::number(QDate::currentDate().month()));
-    ui->cbStartDay->setCurrentText(QString::number(QDate::currentDate().day()));
-    ui->cbEndDay->setCurrentText(QString::number(QDate::currentDate().day()));
+    // ========== 4. 垂直布局：容纳所有大尺寸图表 ==========
+    QVBoxLayout *mainLayout = new QVBoxLayout(scrollContent);
+    mainLayout->setSpacing(40); // 图表间大间距，更清晰
+    mainLayout->setContentsMargins(30, 30, 30, 30); // 内边距
 
+    // ========== 5. 初始化3个大尺寸图表（宽度铺满，高度400px） ==========
+    // 5.1 核心指标柱状图
+    QLabel *totalTitle = new QLabel("核心运营数据总览", scrollContent);
+    totalTitle->setStyleSheet("font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;");
+    mainLayout->addWidget(totalTitle, 0, Qt::AlignCenter);
+
+    totalStatsChart = new QChart();
+    totalStatsChart->setTitle("总航班数 / 总用户数 / 总订单数 / 订单总金额");
+    totalStatsChart->setAnimationOptions(QChart::SeriesAnimations);
+    totalStatsView = new QChartView(totalStatsChart);
+    totalStatsView->setRenderHint(QPainter::Antialiasing);
+    totalStatsView->setMinimumHeight(400); // 大尺寸高度
+    totalStatsView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed); // 宽度铺满，高度固定
+    totalStatsView->setStyleSheet("border: 1px solid #ecf0f1; border-radius: 10px; padding: 10px;");
+    mainLayout->addWidget(totalStatsView);
+
+    // 5.2 航空公司航班数饼状图
+    QLabel *airlineTitle = new QLabel("各航空公司航班占比", scrollContent);
+    airlineTitle->setStyleSheet("font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;");
+    mainLayout->addWidget(airlineTitle, 0, Qt::AlignCenter);
+
+    airlineFlightChart = new QChart();
+    airlineFlightChart->setTitle("各航空公司航班数量占比（百分比）");
+    airlineFlightChart->setAnimationOptions(QChart::SeriesAnimations);
+    airlineFlightView = new QChartView(airlineFlightChart);
+    airlineFlightView->setRenderHint(QPainter::Antialiasing);
+    airlineFlightView->setMinimumHeight(400);
+    airlineFlightView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    airlineFlightView->setStyleSheet("border: 1px solid #ecf0f1; border-radius: 10px; padding: 10px;");
+    mainLayout->addWidget(airlineFlightView);
+
+    // 5.3 城市航班数饼状图
+    QLabel *cityTitle = new QLabel("各城市出发航班占比", scrollContent);
+    cityTitle->setStyleSheet("font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;");
+    mainLayout->addWidget(cityTitle, 0, Qt::AlignCenter);
+
+    cityFlightChart = new QChart();
+    cityFlightChart->setTitle("各城市出发航班数量占比（百分比）");
+    cityFlightChart->setAnimationOptions(QChart::SeriesAnimations);
+    cityFlightView = new QChartView(cityFlightChart);
+    cityFlightView->setRenderHint(QPainter::Antialiasing);
+    cityFlightView->setMinimumHeight(400);
+    cityFlightView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    cityFlightView->setStyleSheet("border: 1px solid #ecf0f1; border-radius: 10px; padding: 10px;");
+    mainLayout->addWidget(cityFlightView);
+
+    // ========== 6. 将 ScrollArea 铺满整个 StackedWidget 页面 ==========
+    QVBoxLayout *pageLayout = new QVBoxLayout(statsPage);
+    pageLayout->setContentsMargins(0, 0, 0, 0); // 无内边距，完全铺满
+    pageLayout->addWidget(scrollArea);
+
+    // ========== 7. 初始化图表数据 ==========
     updateStatistics();
 }
-
 // 加载航班数据到表格
 void AdminMainWindow::loadFlightData(const QString &whereClause) {
     QString sql =
@@ -392,38 +469,202 @@ void AdminMainWindow::loadUserData() {
 
 // 更新统计数据
 void AdminMainWindow::updateStatistics() {
+    // ---------------- 1. 核心指标：总航班/用户/订单/金额（柱状图） ----------------
+    qint64 totalFlights = 0;    // 总航班数
+    qint64 totalUsers = 0;      // 总用户数
+    qint64 totalOrders = 0;     // 总订单数
+    double totalAmount = 0.0;   // 订单总金额
+
+    // ===== 调试：打印数据库查询结果 =====
+    qDebug() << "===== 核心指标查询 =====";
     bool success;
-    QSqlQuery query;
 
-    // 统计总航班数
-    QString flightSql = "select count(*) from flights";
-    query = dbOperator->DBGetData(flightSql, success);
-    if (success && query.next()) {
-        ui->leTotalFlights->setText(query.value(0).toString());
+    // 查询总航班数
+    QSqlQuery flightQuery = dbOperator->DBGetData("SELECT COUNT(*) AS flight_count FROM flight_info", success);
+    if (success && flightQuery.next()) {
+        totalFlights = flightQuery.value("flight_count").toLongLong();
+        qDebug() << "总航班数：" << totalFlights;
+    } else {
+        qDebug() << "总航班数查询失败：" << flightQuery.lastError().text();
     }
 
-    // 统计总订单数
-    QString orderSql = "select count(*) from orders";
-    query = dbOperator->DBGetData(orderSql, success);
-    if (success && query.next()) {
-        ui->leTotalOrders->setText(query.value(0).toString());
+    // 查询总用户数
+    QSqlQuery userQuery = dbOperator->DBGetData("SELECT COUNT(*) AS user_count FROM user_info", success);
+    if (success && userQuery.next()) {
+        totalUsers = userQuery.value("user_count").toLongLong();
+        qDebug() << "总用户数：" << totalUsers;
+    } else {
+        qDebug() << "总用户数查询失败：" << userQuery.lastError().text();
     }
 
-    // 统计总用户数
-    QString userSql = "select count(*) from users";
-    query = dbOperator->DBGetData(userSql, success);
-    if (success && query.next()) {
-        ui->leTotalUsers->setText(query.value(0).toString());
+    // 查询总订单数 + 总金额
+    QSqlQuery orderQuery = dbOperator->DBGetData("SELECT COUNT(*) AS order_count, COALESCE(SUM(price), 0) AS total_price FROM order_info", success);
+    if (success && orderQuery.next()) {
+        totalOrders = orderQuery.value("order_count").toLongLong();
+        totalAmount = orderQuery.value("total_price").toDouble();
+        qDebug() << "总订单数：" << totalOrders << " 总金额：" << totalAmount;
+    } else {
+        qDebug() << "总订单数查询失败：" << orderQuery.lastError().text();
     }
 
-    // 统计已支付订单总金额
-    QString amountSql = "select sum(amount) from orders where status = '已支付'";
-    query = dbOperator->DBGetData(amountSql, success);
-    if (success && query.next()) {
-        ui->leTotalAmount->setText(query.value(0).toString() + " 元");
+    // ========== 终极极简版：Qt5全兼容 + 无任何编译报错 ==========
+    totalStatsChart->removeAllSeries(); // 清空所有系列
+
+    // 遍历移除所有旧轴（Qt5/6通用）
+    QList<QAbstractAxis*> oldAxes = totalStatsChart->axes();
+    for (QAbstractAxis* axis : oldAxes) {
+        totalStatsChart->removeAxis(axis);
     }
+
+    // 1. 创建数据Set（仅存数据+柱子颜色）
+    QBarSet *countSet = new QBarSet("数量");
+    QBarSet *amountSet = new QBarSet("金额");
+    // 填充数据
+    *countSet << totalFlights << totalUsers << totalOrders << 0;
+    *amountSet << 0 << 0 << 0 << totalAmount;
+    // 仅保留柱子颜色（Qt5肯定支持）
+    countSet->setColor(QColor(52, 152, 219));     // 数量柱：蓝色
+    amountSet->setColor(QColor(231, 76, 60));     // 金额柱：红色
+
+    // 2. 创建Series并设置【仅保留Qt5兼容的标签接口】
+    QBarSeries *countSeries = new QBarSeries();
+    QBarSeries *amountSeries = new QBarSeries();
+    countSeries->append(countSet);
+    amountSeries->append(amountSet);
+
+    // ---------------- 数量系列：仅保留3个Qt5兼容接口 ----------------
+    countSeries->setLabelsVisible(true);          // 显示标签（Qt5支持）
+    countSeries->setLabelsFormat("%lld");         // 正整数格式（Qt5支持）
+    countSeries->setLabelsPosition(QAbstractBarSeries::LabelsOutsideEnd); // 顶端外侧（Qt5支持）
+
+    // ---------------- 金额系列：仅保留3个Qt5兼容接口 ----------------
+    amountSeries->setLabelsVisible(true);
+    amountSeries->setLabelsFormat("%.0f");        // 金额无小数
+    amountSeries->setLabelsPosition(QAbstractBarSeries::LabelsOutsideEnd);
+
+    // 3. 原始横坐标（无过长问题）
+    QBarCategoryAxis *totalXAxis = new QBarCategoryAxis();
+    totalXAxis->append({"总航班数", "总用户数", "总订单数", "订单总金额(元)"});
+    totalXAxis->setLabelsFont(QFont("Microsoft YaHei", 12));
+    totalStatsChart->addAxis(totalXAxis, Qt::AlignBottom);
+    countSeries->attachAxis(totalXAxis);
+    amountSeries->attachAxis(totalXAxis);
+
+    // 4. 数量轴：正整数 + 不冲顶（1.3倍范围）
+    QValueAxis *axisY_Count = new QValueAxis();
+    axisY_Count->setTitleText("数量");
+    axisY_Count->setLabelsFont(QFont("Microsoft YaHei", 12));
+    axisY_Count->setLabelFormat("%d");          // 仅显示正整数（Qt5支持）
+    axisY_Count->setTickType(QValueAxis::TicksFixed);
+    axisY_Count->setTickInterval(1);            // 刻度间隔1（Qt5支持）
+    qint64 maxCount = qMax(totalFlights, qMax(totalUsers, totalOrders));
+    int countRangeMax = (maxCount <= 0) ? 10 : static_cast<int>(maxCount * 1.3);
+    axisY_Count->setRange(0, countRangeMax);
+    totalStatsChart->addAxis(axisY_Count, Qt::AlignLeft);
+    countSeries->attachAxis(axisY_Count);
+
+    // 5. 金额轴：整数 + 不冲顶（1.3倍范围）
+    QValueAxis *axisY_Amount = new QValueAxis();
+    axisY_Amount->setTitleText("金额（元）");
+    axisY_Amount->setLabelsFont(QFont("Microsoft YaHei", 12));
+    axisY_Amount->setLabelFormat("%.0f");        // 无小数（Qt5支持）
+    axisY_Amount->setTickType(QValueAxis::TicksFixed);
+    axisY_Amount->setTickInterval(100);
+    double amountRangeMax = (totalAmount <= 0) ? 1000 : totalAmount * 1.3;
+    axisY_Amount->setRange(0, amountRangeMax);
+    totalStatsChart->addAxis(axisY_Amount, Qt::AlignRight);
+    amountSeries->attachAxis(axisY_Amount);
+
+    // 6. 最终设置 + 加大顶部边距（确保标签显示）
+    totalStatsChart->addSeries(countSeries);
+    totalStatsChart->addSeries(amountSeries);
+    totalStatsChart->setTitle("核心运营数据总览（数量/金额双轴）");
+    totalStatsChart->setAnimationOptions(QChart::SeriesAnimations);
+    totalStatsChart->legend()->setFont(QFont("Microsoft YaHei", 12));
+    totalStatsChart->legend()->setAlignment(Qt::AlignBottom);
+    // 顶部边距加大，确保顶端标签不被截断
+    totalStatsChart->setMargins(QMargins(20, 40, 20, 20));
+
+    // ========== 饼图部分代码保持不变 ==========
+    QList<QColor> pieColors = {QColor(46, 204, 113), QColor(155, 89, 182), QColor(231, 76, 60),
+                               QColor(241, 196, 15), QColor(52, 152, 219), QColor(127, 140, 141)};
+
+    // ---------------- 2. 各航空公司航班数：饼状图 ----------------
+    airlineFlightChart->removeAllSeries();
+    QPieSeries *airlinePieSeries = new QPieSeries();
+    int totalAirlineFlights = 0;
+
+    QSqlQuery airFlightQuery = dbOperator->DBGetData("SELECT airline_company, COUNT(*) FROM flight_info GROUP BY airline_company", success);
+    if (success) {
+        while (airFlightQuery.next()) {
+            totalAirlineFlights += airFlightQuery.value(1).toInt();
+        }
+        airFlightQuery.first();
+        airFlightQuery.previous();
+
+        int colorIdx = 0;
+        while (airFlightQuery.next()) {
+            QString airline = airFlightQuery.value(0).toString().trimmed();
+            int cnt = airFlightQuery.value(1).toInt();
+            if (airline.isEmpty() || cnt == 0) continue;
+
+            double percent = (double)cnt / totalAirlineFlights * 100;
+            QString label = QString("%1 (%2%)").arg(airline).arg(percent, 0, 'f', 1);
+            QPieSlice *slice = airlinePieSeries->append(label, cnt);
+            slice->setBrush(pieColors[colorIdx % pieColors.size()]);
+            slice->setLabelFont(QFont("Microsoft YaHei", 11));
+            slice->setLabelVisible(true);
+            colorIdx++;
+        }
+    } else {
+        qDebug() << "航空公司航班数查询失败：" << airFlightQuery.lastError().text();
+    }
+
+    airlineFlightChart->addSeries(airlinePieSeries);
+    airlineFlightChart->setTitle("各航空公司航班数量占比（百分比）");
+    airlineFlightChart->setTitleFont(QFont("Microsoft YaHei", 14, QFont::Bold));
+    airlineFlightChart->legend()->setFont(QFont("Microsoft YaHei", 12));
+    airlineFlightChart->legend()->setAlignment(Qt::AlignRight);
+    airlineFlightChart->createDefaultAxes();
+
+    // ---------------- 3. 各城市出发航班数：饼状图 ----------------
+    cityFlightChart->removeAllSeries();
+    QPieSeries *cityPieSeries = new QPieSeries();
+    int totalCityFlights = 0;
+
+    QSqlQuery cityFlightQuery = dbOperator->DBGetData("SELECT departure_city, COUNT(*) FROM flight_info GROUP BY departure_city", success);
+    if (success) {
+        while (cityFlightQuery.next()) {
+            totalCityFlights += cityFlightQuery.value(1).toInt();
+        }
+        cityFlightQuery.first();
+        cityFlightQuery.previous();
+
+        int colorIdx = 0;
+        while (cityFlightQuery.next()) {
+            QString city = cityFlightQuery.value(0).toString().trimmed();
+            int cnt = cityFlightQuery.value(1).toInt();
+            if (city.isEmpty() || cnt == 0) continue;
+
+            double percent = (double)cnt / totalCityFlights * 100;
+            QString label = QString("%1 (%2%)").arg(city).arg(percent, 0, 'f', 1);
+            QPieSlice *slice = cityPieSeries->append(label, cnt);
+            slice->setBrush(pieColors[colorIdx % pieColors.size()]);
+            slice->setLabelFont(QFont("Microsoft YaHei", 11));
+            slice->setLabelVisible(true);
+            colorIdx++;
+        }
+    } else {
+        qDebug() << "城市航班数查询失败：" << cityFlightQuery.lastError().text();
+    }
+
+    cityFlightChart->addSeries(cityPieSeries);
+    cityFlightChart->setTitle("各城市出发航班数量占比（百分比）");
+    cityFlightChart->setTitleFont(QFont("Microsoft YaHei", 14, QFont::Bold));
+    cityFlightChart->legend()->setFont(QFont("Microsoft YaHei", 12));
+    cityFlightChart->legend()->setAlignment(Qt::AlignRight);
+    cityFlightChart->createDefaultAxes();
 }
-
 // 切换到航班管理页面
 void AdminMainWindow::on_flightManagementBtn_clicked() {
     ui->stackedWidget->setCurrentIndex(0);
