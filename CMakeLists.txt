@@ -10,9 +10,13 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Sql)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Sql)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core)
+# 合并重复的 find_package，新增 Charts 组件
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS
+    Widgets
+    Sql
+    Core
+    Charts  # 新增：Charts 模块
+)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -40,19 +44,43 @@ else()
     if(ANDROID)
         add_library(Flight_managerment SHARED
             ${PROJECT_SOURCES}
+            # 新增：补全 Qt5 下的源文件（和 Qt6 一致）
+            DBOperator.h DBOperator.cpp
+            WindowFactory.h WindowFactory.cpp
+            figures.qrc
+            avatars.qrc
+            LoginDlg.h LoginDlg.cpp LoginDlg.ui
+            RegisterDlg.h RegisterDlg.cpp RegisterDlg.ui
+            UserMainWindow.h UserMainWindow.cpp UserMainWindow.ui
+            FlightItemWidget.h FlightItemWidget.cpp FlightItemWidget.ui
+            AdminMainWindow.h AdminMainWindow.cpp AdminMainWindow.ui
         )
 # Define properties for Android with Qt 5 after find_package() calls as:
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
         add_executable(Flight_managerment
             ${PROJECT_SOURCES}
+            # 新增：补全 Qt5 下的源文件（和 Qt6 一致）
+            DBOperator.h DBOperator.cpp
+            WindowFactory.h WindowFactory.cpp
+            figures.qrc
+            avatars.qrc
+            LoginDlg.h LoginDlg.cpp LoginDlg.ui
+            RegisterDlg.h RegisterDlg.cpp RegisterDlg.ui
+            UserMainWindow.h UserMainWindow.cpp UserMainWindow.ui
+            FlightItemWidget.h FlightItemWidget.cpp FlightItemWidget.ui
+            AdminMainWindow.h AdminMainWindow.cpp AdminMainWindow.ui
         )
     endif()
 endif()
 
-target_link_libraries(Flight_managerment PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Sql)
-target_link_libraries(Flight_managerment PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Sql)
-target_link_libraries(Flight_managerment PRIVATE Qt${QT_VERSION_MAJOR}::Core)
+# 合并所有重复的 target_link_libraries，新增 Charts 链接
+target_link_libraries(Flight_managerment PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Sql
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Charts  # 新增：链接 Charts 库
+)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
