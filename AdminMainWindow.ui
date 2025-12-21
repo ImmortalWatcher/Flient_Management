@@ -427,6 +427,21 @@
          <height>31</height>
         </rect>
        </property>
+       <property name="font">
+        <font>
+         <family>华文楷体</family>
+         <pointsize>12</pointsize>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">QPushButton {
+    background-color:#e6e6e6;
+    color: black;
+    border: 1px solid #ababab;
+    border-radius: 12px;
+}</string>
+       </property>
        <property name="text">
         <string>查  询</string>
        </property>
@@ -817,7 +832,7 @@
         <x>20</x>
         <y>30</y>
         <width>610</width>
-        <height>411</height>
+        <height>431</height>
        </rect>
       </property>
       <property name="font">
@@ -917,8 +932,8 @@
      <widget class="QPushButton" name="deleteUserBtn">
       <property name="geometry">
        <rect>
-        <x>280</x>
-        <y>460</y>
+        <x>290</x>
+        <y>480</y>
         <width>91</width>
         <height>31</height>
        </rect>
@@ -929,6 +944,14 @@
         <pointsize>12</pointsize>
         <bold>true</bold>
        </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QPushButton {
+    background-color:#e6e6e6;
+    color: black;
+    border: 1px solid #ababab;
+    border-radius: 12px;
+}</string>
       </property>
       <property name="text">
        <string>删除</string>
