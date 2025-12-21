@@ -53,12 +53,22 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent
     orderLayout = new QVBoxLayout(ui->scrollAreaWidgetContents_2);
     ui->scrollAreaWidgetContents_2->setLayout(orderLayout);
     orderLayout->setContentsMargins(10, 5, 10, 5);
+    orderLayout->setSpacing(15);
     orderLayout->setAlignment(Qt::AlignTop);
+
+    ui->scrollAreaWidgetContents_2->setMinimumSize(0, 0);
+    ui->scrollAreaWidgetContents_2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    ui->scrollArea_2->setWidgetResizable(true);
 
     favoritesLayout = new QVBoxLayout(ui->scrollAreaWidgetContents_3);
     ui->scrollAreaWidgetContents_3->setLayout(favoritesLayout);
     favoritesLayout->setContentsMargins(10, 5, 10, 5);
+    favoritesLayout->setSpacing(15);
     favoritesLayout->setAlignment(Qt::AlignTop);
+
+    ui->scrollAreaWidgetContents_3->setMinimumSize(0, 0);
+    ui->scrollAreaWidgetContents_3->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    ui->scrollArea_3->setWidgetResizable(true);
 
     loadAllFlights();
 
@@ -831,6 +841,7 @@ void UserMainWindow::loadOrders() {
                                   "    padding: 10px;"
                                   "}");
         orderFrame->setFixedHeight(320);
+        orderFrame->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
         QVBoxLayout *orderFrameLayout = new QVBoxLayout(orderFrame);
         orderFrameLayout->setContentsMargins(15, 15, 15, 15);
