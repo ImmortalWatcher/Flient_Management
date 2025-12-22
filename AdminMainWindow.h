@@ -60,6 +60,8 @@ private slots:
     void on_cbOrderStatus_currentIndexChanged(int index);
 
     // 用户管理相关
+    void on_deleteUserBtn_2_clicked();
+
     void on_deleteUserBtn_clicked();
 
     void on_findBtn_clicked();
@@ -97,6 +99,8 @@ private:
 
     QDialog *createFlightEditDialog(const QString &flightId);
     bool saveFlightEditData(const QString &flightId, const QMap<QString, QVariant> &editData);
+    QDialog *createUserEditDialog(const QString &username);
+    bool saveUserEditData(const QString &username, const QMap<QString, QVariant> &editData);
 };
 
 #endif // ADMINMAINWINDOW_H

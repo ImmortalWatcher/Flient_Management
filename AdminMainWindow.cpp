@@ -950,3 +950,160 @@ void AdminMainWindow::onEditFlight(const QString &flightId) {
         delete editDialog;
     }
 }
+
+// 用户编辑按钮点击事件
+void AdminMainWindow::on_deleteUserBtn_2_clicked() {
+    int row = ui->twUserList->currentRow();
+    if (row < 0) {
+        QMessageBox::warning(this, "提示", "请先选择要编辑的用户");
+        return;
+    }
+
+    QString username = ui->twUserList->item(row, 0)->text();
+    QDialog *editDialog = createUserEditDialog(username);
+    if (editDialog) {
+        editDialog->exec();
+        delete editDialog;
+    }
+}
+
+// 创建用户编辑对话框
+QDialog *AdminMainWindow::createUserEditDialog(const QString &username) {
+    QDialog *dialog = new QDialog(this);
+    dialog->setWindowTitle("编辑用户信息");
+    dialog->setModal(true);
+    dialog->setFixedSize(500, 400);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(dialog);
+    QGridLayout *formLayout = new QGridLayout();
+    mainLayout->addLayout(formLayout);
+
+    // 用户名字段（只读）
+    QLabel *lblUsername = new QLabel("用户名：");
+    QLineEdit *leUsername = new QLineEdit();
+    leUsername->setReadOnly(true);
+    formLayout->addWidget(lblUsername, 0, 0);
+    formLayout->addWidget(leUsername, 0, 1);
+
+    // 密码
+    QLabel *lblPassword = new QLabel("密码：");
+    QLineEdit *lePassword = new QLineEdit();
+    formLayout->addWidget(lblPassword, 1, 0);
+    formLayout->addWidget(lePassword, 1, 1);
+
+    // 电话
+    QLabel *lblPhone = new QLabel("电话：");
+    QLineEdit *lePhone = new QLineEdit();
+    formLayout->addWidget(lblPhone, 2, 0);
+    formLayout->addWidget(lePhone, 2, 1);
+
+    // 邮箱
+    QLabel *lblEmail = new QLabel("邮箱：");
+    QLineEdit *leEmail = new QLineEdit();
+    formLayout->addWidget(lblEmail, 3, 0);
+    formLayout->addWidget(leEmail, 3, 1);
+
+    // 真实姓名
+    QLabel *lblRealname = new QLabel("真实姓名：");
+    QLineEdit *leRealname = new QLineEdit();
+    formLayout->addWidget(lblRealname, 4, 0);
+    formLayout->addWidget(leRealname, 4, 1);
+
+    // 身份证号
+    QLabel *lblIdcard = new QLabel("身份证号：");
+    QLineEdit *leIdcard = new QLineEdit();
+    formLayout->addWidget(lblIdcard, 5, 0);
+    formLayout->addWidget(leIdcard, 5, 1);
+
+    // 余额
+    QLabel *lblBalance = new QLabel("余额（元）：");
+    QDoubleSpinBox *dsbBalance = new QDoubleSpinBox();
+    dsbBalance->setRange(0.0, 99999.99);
+    dsbBalance->setDecimals(2);
+    formLayout->addWidget(lblBalance, 6, 0);
+    formLayout->addWidget(dsbBalance, 6, 1);
+
+    // 加载用户数据
+    QString sql = QString("select * from user_info where username = '%1'").arg(username);
+    bool success;
+    QSqlQuery query = dbOperator->DBGetData(sql, success);
+    if (success && query.next()) {
+        leUsername->setText(query.value("username").toString());
+        lePassword->setText(query.value("password").toString());
+        lePhone->setText(query.value("phone").toString());
+        leEmail->setText(query.value("email").toString());
+        leRealname->setText(query.value("realname").toString());
+        leIdcard->setText(query.value("idcard").toString());
+        dsbBalance->setValue(query.value("balance").toDouble());
+    } else {
+        QMessageBox::warning(dialog, "错误", "加载用户数据失败！");
+        dialog->close();
+        return nullptr;
+    }
+
+    // 按钮布局
+    QHBoxLayout *btnLayout = new QHBoxLayout();
+    QPushButton *btnSave = new QPushButton("保存");
+    QPushButton *btnCancel = new QPushButton("取消");
+    btnLayout->addStretch();
+    btnLayout->addWidget(btnSave);
+    btnLayout->addWidget(btnCancel);
+    mainLayout->addLayout(btnLayout);
+
+    // 保存按钮点击事件
+    connect(btnSave, &QPushButton::clicked, this, [=]() {
+        QMap<QString, QVariant> editData;
+        editData["password"] = lePassword->text().trimmed();
+        editData["phone"] = lePhone->text().trimmed();
+        editData["email"] = leEmail->text().trimmed();
+        editData["realname"] = leRealname->text().trimmed();
+        editData["idcard"] = leIdcard->text().trimmed();
+        editData["balance"] = dsbBalance->value();
+
+        // 验证必要字段
+        if (editData["password"].toString().isEmpty() ||
+            editData["realname"].toString().isEmpty() ||
+            editData["idcard"].toString().isEmpty()) {
+            QMessageBox::warning(dialog, "提示", "密码、真实姓名和身份证号不能为空！");
+            return;
+        }
+
+        if (saveUserEditData(username, editData)) {
+            QMessageBox::information(dialog, "成功", "用户信息修改成功！");
+            dialog->accept();
+            loadUserData(); // 刷新用户列表
+        } else {
+            QMessageBox::warning(dialog, "错误", "修改用户信息失败！");
+        }
+    });
+
+    connect(btnCancel, &QPushButton::clicked, dialog, &QDialog::reject);
+
+    return dialog;
+}
+
+// 保存用户编辑数据
+bool AdminMainWindow::saveUserEditData(const QString &username, const QMap<QString, QVariant> &editData) {
+    QString sql = QString(
+                      "update user_info set "
+                      "password = '%1', "
+                      "phone = '%2', "
+                      "email = '%3', "
+                      "realname = '%4', "
+                      "idcard = '%5', "
+                      "balance = %6 "
+                      "where username = '%7'"
+                      ).arg(
+                          editData["password"].toString().replace("'", "''"),
+                          editData["phone"].toString().replace("'", "''"),
+                          editData["email"].toString().replace("'", "''"),
+                          editData["realname"].toString().replace("'", "''"),
+                          editData["idcard"].toString().replace("'", "''"),
+                          QString::number(editData["balance"].toDouble()),
+                          username
+                          );
+
+    bool success;
+    dbOperator->DBGetData(sql, success);
+    return success;
+}
