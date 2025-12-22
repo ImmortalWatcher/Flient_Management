@@ -347,7 +347,7 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
 
 // 加载订单数据
 void AdminMainWindow::loadOrderData(const QString &status) {
-    QString sql = "select order_id, user_id, flight_id, passenger_name, passenger_idcard, departure_city, departure_time, arrival_city, arrival_time, price, order_time, order_status from order_info";
+    QString sql = "select order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, departure_time, arrival_city, arrival_time, price, order_time, order_status from order_info";
 
     QString filterStatus = status.trimmed();
     if (!filterStatus.isEmpty() && filterStatus != "全部订单") {

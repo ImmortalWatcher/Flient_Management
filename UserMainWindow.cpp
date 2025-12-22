@@ -568,10 +568,40 @@ void UserMainWindow::on_book_clicked(const QString &flightNo) {
             return;
         }
 
+        //生成17位order_no
+        QDateTime orderTime = QDateTime::currentDateTime();
+        // 查询数据库中最大的order_id，用于生成最后3位序号
+        int maxOrderId = 0;
+        bool isMaxIdSuccess = false;
+        QSqlQuery maxIdQuery = m_dbOperator.DBGetData("select max(order_id) from order_info", isMaxIdSuccess);
+        if (isMaxIdSuccess && maxIdQuery.next() && !maxIdQuery.value(0).isNull()) {
+            maxOrderId = maxIdQuery.value(0).toInt() + 1; // 自增1保证唯一
+        } else {
+            maxOrderId = 1; // 无订单时从1开始
+        }
+        // 生成17位订单号：年(4)+月(2)+日(2)+时(2)+分(2)+秒(2)+序号(3)
+        QString orderNo = QString("%1%2%3%4%5%6%7")
+                              .arg(orderTime.date().year(), 4, 10, QChar('0'))
+                              .arg(orderTime.date().month(), 2, 10, QChar('0'))
+                              .arg(orderTime.date().day(), 2, 10, QChar('0'))
+                              .arg(orderTime.time().hour(), 2, 10, QChar('0'))
+                              .arg(orderTime.time().minute(), 2, 10, QChar('0'))
+                              .arg(orderTime.time().second(), 2, 10, QChar('0'))
+                              .arg(maxOrderId, 3, 10, QChar('0'));
+
         // 创建订单
         // 订单内保存城市维度，便于后续改签同城航线匹配
-        QString insertSql = QString("insert into order_info (user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price) values (%1, '%2', '%3', '%4', '%5', '%6', '%7', '%8', %9)").arg(m_userId).arg(flightNo).arg(passengerName).arg(passengerIdcard).arg(departureCity).arg(arrivalCity).arg(departureTime.toString("yyyy-MM-dd hh:mm:ss")).arg(arrivalTime.toString("yyyy-MM-dd hh:mm:ss")).arg(price);
-
+        QString insertSql = QString("insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price) values ('%1', %2, '%3', '%4', '%5', '%6', '%7', '%8', '%9', %10)")
+                                .arg(orderNo)
+                                .arg(m_userId)
+                                .arg(flightNo)
+                                .arg(passengerName)
+                                .arg(passengerIdcard)
+                                .arg(departureCity)
+                                .arg(arrivalCity)
+                                .arg(departureTime.toString("yyyy-MM-dd hh:mm:ss"))
+                                .arg(arrivalTime.toString("yyyy-MM-dd hh:mm:ss"))
+                                .arg(price);
         bool insertSuccess = false;
         QSqlQuery insertQuery = m_dbOperator.DBGetData(insertSql, insertSuccess);
 
