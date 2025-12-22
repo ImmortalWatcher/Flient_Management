@@ -830,13 +830,24 @@ void UserMainWindow::clearOrders() {
     }
 }
 
-// 加载订单列表
+// 加载订单列表（最终修正版）
 void UserMainWindow::loadOrders() {
     clearOrders();
 
-    // 查询当前用户的所有订单
+    // 关键修正：不使用o.*，明确列出订单表字段，避免覆盖用户表的别名字段
     bool success = false;
-    QString sqlstr = QString("select * from order_info where user_id=%1 order by order_time desc").arg(m_userId);
+    QString sqlstr = QString(
+                         "select "
+                         "o.order_id, o.order_no, o.user_id, o.flight_id, "
+                         "o.departure_city, o.arrival_city, o.departure_time, "
+                         "o.arrival_time, o.price, o.order_time, o.order_status, "
+                         "u.realname as passenger_name, "  // 强制读取用户表最新姓名
+                         "u.idcard as passenger_idcard     "  // 强制读取用户表最新身份证
+                         "from order_info o "
+                         "inner join user_info u on o.user_id = u.id "
+                         "where o.user_id=%1 "
+                         "order by o.order_time desc"
+                         ).arg(m_userId);
     QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
 
     if (!success) {
@@ -849,6 +860,7 @@ void UserMainWindow::loadOrders() {
         count++;
         int orderId = query.value("order_id").toInt();
         QString flightId = query.value("flight_id").toString();
+        // 此时读取的是用户表最新数据，而非订单表旧数据
         QString passengerName = query.value("passenger_name").toString();
         QString passengerIdcard = query.value("passenger_idcard").toString();
         QString departureCity = query.value("departure_city").toString();
@@ -858,14 +870,21 @@ void UserMainWindow::loadOrders() {
         double price = query.value("price").toDouble();
         QDateTime orderTime = query.value("order_time").toDateTime();
 
-        // 生成订单号
-        QString orderNo = QString("%1%2%3%4%5%6%7").arg(orderTime.date().year(), 4, 10, QChar('0')).arg(orderTime.date().month(), 2, 10, QChar('0')).arg(orderTime.date().day(), 2, 10, QChar('0')).arg(orderTime.time().hour(), 2, 10, QChar('0')).arg(orderTime.time().minute(), 2, 10, QChar('0')).arg(orderTime.time().second(), 2, 10, QChar('0')).arg(orderId, 3, 10, QChar('0'));
+        // 生成订单号（原有逻辑不变）
+        QString orderNo = QString("%1%2%3%4%5%6%7").arg(
+                                                       orderTime.date().year(), 4, 10, QChar('0')).arg(
+                                  orderTime.date().month(), 2, 10, QChar('0')).arg(
+                                  orderTime.date().day(), 2, 10, QChar('0')).arg(
+                                  orderTime.time().hour(), 2, 10, QChar('0')).arg(
+                                  orderTime.time().minute(), 2, 10, QChar('0')).arg(
+                                  orderTime.time().second(), 2, 10, QChar('0')).arg(
+                                  orderId, 3, 10, QChar('0'));
 
-        // 格式化时间
+        // 格式化时间（原有逻辑不变）
         QString takeoffTime = formatDateTime(departureTime);
         QString arriveTime = formatDateTime(arrivalTime);
 
-        // 创建订单显示组件
+        // 创建订单显示组件（原有逻辑完全不变）
         QFrame *orderFrame = new QFrame(ui->scrollAreaWidgetContents_2);
         orderFrame->setStyleSheet("QFrame {"
                                   "    background-color: #f5f5f5;"
@@ -889,13 +908,13 @@ void UserMainWindow::loadOrders() {
         QLabel *flightInfoLabel = new QLabel(QString("航班号：%1 | %2 → %3").arg(flightId, departureCity, arrivalCity), orderFrame);
         flightInfoLabel->setStyleSheet("font-size: 13px;");
         orderFrameLayout->addWidget(flightInfoLabel);
-        
+
         // 时间信息
         QLabel *timeLabel = new QLabel(QString("起飞：%1 | 到达：%2").arg(takeoffTime, arriveTime), orderFrame);
         timeLabel->setStyleSheet("font-size: 13px;");
         orderFrameLayout->addWidget(timeLabel);
 
-        // 乘客信息
+        // 乘客信息（此时显示的是用户表最新数据）
         QLabel *passengerLabel = new QLabel(QString("乘客：%1 | 身份证：%2").arg(passengerName, passengerIdcard), orderFrame);
         passengerLabel->setStyleSheet("font-size: 13px;");
         orderFrameLayout->addWidget(passengerLabel);
@@ -915,7 +934,7 @@ void UserMainWindow::loadOrders() {
 
         orderFrameLayout->addLayout(bottomLayout);
 
-        // 操作按钮
+        // 操作按钮（原有逻辑不变）
         QHBoxLayout *actionLayout = new QHBoxLayout();
         actionLayout->addStretch();
 
@@ -930,6 +949,7 @@ void UserMainWindow::loadOrders() {
                                     "QPushButton:hover {"
                                     "    background-color: #c9302c;"
                                     "}");
+
         actionLayout->addWidget(cancelPayBtn);
 
         QPushButton *rescheduleBtn = new QPushButton("改签", orderFrame);
@@ -963,7 +983,7 @@ void UserMainWindow::loadOrders() {
         noOrderLabel->setAlignment(Qt::AlignCenter);
         orderLayout->addWidget(noOrderLabel);
     }
-    
+
     orderLayout->addStretch();
 }
 
