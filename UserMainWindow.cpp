@@ -17,6 +17,9 @@
 #include <QSqlQuery>
 #include <QVBoxLayout>
 #include <QVector>
+#include <QDateEdit>
+#include <QCheckBox>
+#include <QPushButton>
 
 // 构造函数：初始化用户主窗口
 UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent), ui(new Ui::UserMainWindow), m_userId(userId) {
@@ -953,7 +956,7 @@ void UserMainWindow::loadOrders() {
 
         orderLayout->addWidget(orderFrame);
     }
-    
+
     if (count == 0) {
         QLabel *noOrderLabel = new QLabel("暂无订单", ui->scrollAreaWidgetContents_2);
         noOrderLabel->setStyleSheet("font-size: 16px; color: #999; padding: 50px;");
@@ -1140,16 +1143,6 @@ void UserMainWindow::handleCancelOrder(int orderId, const QString &flightId, dou
 
 // 改签订单：选择新航班后差额结算并更新订单
 void UserMainWindow::handleReschedule(int orderId, const QString &oldFlightId, double oldPrice, const QString &departureCity, const QString &arrivalCity) {
-    // 查询可用航班
-    bool success = false;
-    // 同城改签：要求出发城市和到达城市一致
-    QString sqlstr = QString("select flight_id, departure_airport, arrival_airport, departure_time, arrival_time, price, remaining_seats, airline_company from flight_info where departure_city='%1' and arrival_city='%2' and remaining_seats>0 and flight_id!='%3' order by departure_time").arg(departureCity, arrivalCity, oldFlightId);
-    QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
-    if (!success) {
-        QMessageBox::warning(this, "加载失败", "查询可改签航班失败：" + query.lastError().text());
-        return;
-    }
-
     struct FlightOption {
         QString flightId;
         QString depAirport;
@@ -1160,25 +1153,220 @@ void UserMainWindow::handleReschedule(int orderId, const QString &oldFlightId, d
         int remaining;
         QString airline;
     };
+
     QVector<FlightOption> options;
+    auto refreshFlights = [&](const QString &depCity, const QString &arrCity, const QString &depAirport = "", const QString &arrAirport = "", const QDate &targetDate = QDate()) -> bool {
+        options.clear();
+        bool success = false;
+        QString sqlstr = QString("select flight_id, departure_airport, arrival_airport, departure_time, arrival_time, price, remaining_seats, airline_company from flight_info where departure_city='%1' and arrival_city='%2' and remaining_seats>0 and flight_id!='%3'").arg(depCity, arrCity, oldFlightId);
+        
+        if (!depAirport.isEmpty()) {
+            sqlstr += QString(" and departure_airport='%1'").arg(depAirport);
+        }
+        if (!arrAirport.isEmpty()) {
+            sqlstr += QString(" and arrival_airport='%1'").arg(arrAirport);
+        }
+        if (targetDate.isValid()) {
+            sqlstr += QString(" and date(departure_time)='%1'").arg(targetDate.toString("yyyy-MM-dd"));
+        }
+        
+        sqlstr += " order by departure_time";
+        
+        QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
+        if (!success) {
+            return false;
+        }
 
-    while (query.next()) {
-        FlightOption opt;
-        opt.flightId = query.value("flight_id").toString();
-        opt.depAirport = query.value("departure_airport").toString();
-        opt.arrAirport = query.value("arrival_airport").toString();
-        opt.depTime = query.value("departure_time").toDateTime();
-        opt.arrTime = query.value("arrival_time").toDateTime();
-        opt.price = query.value("price").toDouble();
-        opt.remaining = query.value("remaining_seats").toInt();
-        opt.airline = query.value("airline_company").toString();
-        options.append(opt);
-    }
+        while (query.next()) {
+            FlightOption opt;
+            opt.flightId = query.value("flight_id").toString();
+            opt.depAirport = query.value("departure_airport").toString();
+            opt.arrAirport = query.value("arrival_airport").toString();
+            opt.depTime = query.value("departure_time").toDateTime();
+            opt.arrTime = query.value("arrival_time").toDateTime();
+            opt.price = query.value("price").toDouble();
+            opt.remaining = query.value("remaining_seats").toInt();
+            opt.airline = query.value("airline_company").toString();
+            options.append(opt);
+        }
+        return true;
+    };
 
-    if (options.isEmpty()) {
-        QMessageBox::information(this, "无可改签航班", "当前航线暂无可改签的航班。");
+    if (!refreshFlights(departureCity, arrivalCity)) {
+        QMessageBox::warning(this, "加载失败", "查询可改签航班失败。");
         return;
     }
+
+    QDialog *filterDialog = new QDialog(this);
+    filterDialog->setWindowTitle("改签筛选条件");
+    filterDialog->setModal(true);
+    filterDialog->resize(480, 400);
+
+    QVBoxLayout *filterLayout = new QVBoxLayout(filterDialog);
+    
+    QLabel *titleLabel = new QLabel("设置改签筛选条件：", filterDialog);
+    titleLabel->setStyleSheet("font-size: 14px; font-weight: bold; padding: 5px 0;");
+    filterLayout->addWidget(titleLabel);
+
+    QGridLayout *gridLayout = new QGridLayout();
+    
+    QLabel *depCityLabel = new QLabel("出发城市：", filterDialog);
+    QComboBox *depCityCombo = new QComboBox(filterDialog);
+    bool success = false;
+    QSqlQuery cityQuery = m_dbOperator.DBGetData("select distinct departure_city from flight_info order by departure_city", success);
+    if (success) {
+        while (cityQuery.next()) {
+            QString city = cityQuery.value(0).toString();
+            depCityCombo->addItem(city);
+            if (city == departureCity) {
+                depCityCombo->setCurrentIndex(depCityCombo->count() - 1);
+            }
+        }
+    }
+    gridLayout->addWidget(depCityLabel, 0, 0);
+    gridLayout->addWidget(depCityCombo, 0, 1);
+
+    QLabel *arrCityLabel = new QLabel("到达城市：", filterDialog);
+    QComboBox *arrCityCombo = new QComboBox(filterDialog);
+    cityQuery = m_dbOperator.DBGetData("select distinct arrival_city from flight_info order by arrival_city", success);
+    if (success) {
+        while (cityQuery.next()) {
+            QString city = cityQuery.value(0).toString();
+            arrCityCombo->addItem(city);
+            if (city == arrivalCity) {
+                arrCityCombo->setCurrentIndex(arrCityCombo->count() - 1);
+            }
+        }
+    }
+    gridLayout->addWidget(arrCityLabel, 1, 0);
+    gridLayout->addWidget(arrCityCombo, 1, 1);
+
+    QLabel *depAirportLabel = new QLabel("出发机场：", filterDialog);
+    QComboBox *depAirportCombo = new QComboBox(filterDialog);
+    depAirportCombo->addItem("（不限）");
+    QCheckBox *depAirportCheck = new QCheckBox("启用", filterDialog);
+    depAirportCheck->setChecked(false);
+    depAirportCombo->setEnabled(false);
+    gridLayout->addWidget(depAirportLabel, 2, 0);
+    gridLayout->addWidget(depAirportCombo, 2, 1);
+    gridLayout->addWidget(depAirportCheck, 2, 2);
+
+    QLabel *arrAirportLabel = new QLabel("到达机场：", filterDialog);
+    QComboBox *arrAirportCombo = new QComboBox(filterDialog);
+    arrAirportCombo->addItem("（不限）");
+    QCheckBox *arrAirportCheck = new QCheckBox("启用", filterDialog);
+    arrAirportCheck->setChecked(false);
+    arrAirportCombo->setEnabled(false);
+    gridLayout->addWidget(arrAirportLabel, 3, 0);
+    gridLayout->addWidget(arrAirportCombo, 3, 1);
+    gridLayout->addWidget(arrAirportCheck, 3, 2);
+
+    QLabel *dateLabel = new QLabel("出发日期：", filterDialog);
+    QDateEdit *dateEdit = new QDateEdit(filterDialog);
+    dateEdit->setCalendarPopup(true);
+    dateEdit->setDate(QDate::currentDate());
+    dateEdit->setMinimumDate(QDate::currentDate());
+    QCheckBox *dateCheck = new QCheckBox("启用", filterDialog);
+    dateCheck->setChecked(false);
+    dateEdit->setEnabled(false);
+    gridLayout->addWidget(dateLabel, 4, 0);
+    gridLayout->addWidget(dateEdit, 4, 1);
+    gridLayout->addWidget(dateCheck, 4, 2);
+
+    auto updateAirportOptions = [&](QComboBox *combo, const QString &city, bool isDeparture) {
+        combo->clear();
+        combo->addItem("（不限）");
+        QString sql = isDeparture ? 
+            QString("select distinct departure_airport from flight_info where departure_city='%1' order by departure_airport").arg(city) :
+            QString("select distinct arrival_airport from flight_info where arrival_city='%1' order by arrival_airport").arg(city);
+        QSqlQuery query = m_dbOperator.DBGetData(sql, success);
+        if (success) {
+            while (query.next()) {
+                combo->addItem(query.value(0).toString());
+            }
+        }
+    };
+
+    connect(depCityCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), [&](int) {
+        if (depAirportCheck->isChecked()) {
+            updateAirportOptions(depAirportCombo, depCityCombo->currentText(), true);
+        }
+    });
+
+    connect(arrCityCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), [&](int) {
+        if (arrAirportCheck->isChecked()) {
+            updateAirportOptions(arrAirportCombo, arrCityCombo->currentText(), false);
+        }
+    });
+
+    connect(depAirportCheck, &QCheckBox::toggled, [&](bool checked) {
+        depAirportCombo->setEnabled(checked);
+        if (checked) {
+            updateAirportOptions(depAirportCombo, depCityCombo->currentText(), true);
+        }
+    });
+
+    connect(arrAirportCheck, &QCheckBox::toggled, [&](bool checked) {
+        arrAirportCombo->setEnabled(checked);
+        if (checked) {
+            updateAirportOptions(arrAirportCombo, arrCityCombo->currentText(), false);
+        }
+    });
+
+    connect(dateCheck, &QCheckBox::toggled, dateEdit, &QDateEdit::setEnabled);
+
+    filterLayout->addLayout(gridLayout);
+
+    QLabel *resultLabel = new QLabel(QString("找到 %1 个可改签航班").arg(options.size()), filterDialog);
+    resultLabel->setStyleSheet("font-size: 12px; color: #666; padding: 10px 0;");
+    filterLayout->addWidget(resultLabel);
+
+    QHBoxLayout *filterBtnLayout = new QHBoxLayout();
+    filterBtnLayout->addStretch();
+    QPushButton *searchBtn = new QPushButton("查询", filterDialog);
+    searchBtn->setStyleSheet("QPushButton { background-color: #156080; color: white; border-radius: 5px; padding: 8px 24px; font-size: 13px; } QPushButton:hover { background-color: #1a7a9f; }");
+    QPushButton *cancelFilterBtn = new QPushButton("取消", filterDialog);
+    cancelFilterBtn->setStyleSheet("QPushButton { background-color: #999; color: white; border-radius: 5px; padding: 8px 24px; font-size: 13px; } QPushButton:hover { background-color: #777; }");
+    filterBtnLayout->addWidget(searchBtn);
+    filterBtnLayout->addWidget(cancelFilterBtn);
+    filterLayout->addLayout(filterBtnLayout);
+
+    QString selectedDepCity = departureCity;
+    QString selectedArrCity = arrivalCity;
+
+    connect(cancelFilterBtn, &QPushButton::clicked, filterDialog, &QDialog::reject);
+    connect(searchBtn, &QPushButton::clicked, [&, depCityCombo, arrCityCombo, depAirportCheck, depAirportCombo, arrAirportCheck, arrAirportCombo, dateCheck, dateEdit, resultLabel, filterDialog]() {
+        selectedDepCity = depCityCombo->currentText();
+        selectedArrCity = arrCityCombo->currentText();
+        QString depAirport = depAirportCheck->isChecked() && depAirportCombo->currentIndex() > 0 ? depAirportCombo->currentText() : "";
+        QString arrAirport = arrAirportCheck->isChecked() && arrAirportCombo->currentIndex() > 0 ? arrAirportCombo->currentText() : "";
+        QDate targetDate = dateCheck->isChecked() ? dateEdit->date() : QDate();
+        
+        if (!refreshFlights(selectedDepCity, selectedArrCity, depAirport, arrAirport, targetDate)) {
+            QMessageBox::warning(filterDialog, "查询失败", "查询可改签航班失败。");
+            return;
+        }
+        
+        resultLabel->setText(QString("找到 %1 个可改签航班").arg(options.size()));
+        if (options.isEmpty()) {
+            QMessageBox::information(filterDialog, "无结果", "根据筛选条件未找到可改签的航班。");
+        } else {
+            filterDialog->accept();
+        }
+    });
+
+    if (filterDialog->exec() != QDialog::Accepted || options.isEmpty()) {
+        filterDialog->deleteLater();
+        if (options.isEmpty()) {
+            QMessageBox::information(this, "无可改签航班", "当前筛选条件下暂无可改签的航班。");
+        }
+        return;
+    }
+
+    filterDialog->deleteLater();
+
+    QString finalDepCity = selectedDepCity;
+    QString finalArrCity = selectedArrCity;
 
     QDialog *dialog = new QDialog(this);
     dialog->setWindowTitle("选择改签航班");
@@ -1280,7 +1468,7 @@ void UserMainWindow::handleReschedule(int orderId, const QString &oldFlightId, d
         }
 
         // 更新订单信息
-        QString updateOrderSql = QString("update order_info set flight_id='%1', departure_city='%2', arrival_city='%3', departure_time='%4', arrival_time='%5', price=%6, order_time=now() where order_id=%7").arg(opt.flightId).arg(departureCity).arg(arrivalCity).arg(opt.depTime.toString("yyyy-MM-dd hh:mm:ss")).arg(opt.arrTime.toString("yyyy-MM-dd hh:mm:ss")).arg(opt.price).arg(orderId);
+        QString updateOrderSql = QString("update order_info set flight_id='%1', departure_city='%2', arrival_city='%3', departure_time='%4', arrival_time='%5', price=%6, order_time=now() where order_id=%7").arg(opt.flightId).arg(finalDepCity).arg(finalArrCity).arg(opt.depTime.toString("yyyy-MM-dd hh:mm:ss")).arg(opt.arrTime.toString("yyyy-MM-dd hh:mm:ss")).arg(opt.price).arg(orderId);
         QSqlQuery updateOrderQuery = m_dbOperator.DBGetData(updateOrderSql, updateOk);
         if (!updateOk) {
             QMessageBox::warning(dialog, "改签失败", "更新订单失败：" + updateOrderQuery.lastError().text());
