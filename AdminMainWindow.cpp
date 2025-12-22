@@ -399,13 +399,16 @@ void AdminMainWindow::loadUserData() {
     if (success) {
         ui->twUserList->setRowCount(0);
 
+        // 关键：设置表格样式表，让单元格文本自动换行
+        ui->twUserList->setStyleSheet("QTableWidget::item { white-space: normal; }");
+
         int row = 0;
         while (query.next()) {
             ui->twUserList->insertRow(row);
 
             for (int col = 0; col < 7; col++) {
                 QTableWidgetItem *item = new QTableWidgetItem(query.value(col).toString());
-                item->setTextAlignment(Qt::AlignCenter);
+                item->setTextAlignment(Qt::AlignCenter); // 保持居中对齐
                 ui->twUserList->setItem(row, col, item);
             }
 
@@ -415,10 +418,12 @@ void AdminMainWindow::loadUserData() {
         QHeaderView *header = ui->twUserList->horizontalHeader();
         if (header) {
             header->setDefaultAlignment(Qt::AlignCenter);
+            // 列宽自适应内容（适配换行后的文本宽度）
+            header->setSectionResizeMode(QHeaderView::ResizeToContents);
         }
 
-        ui->twUserList->resizeColumnsToContents();
-        ui->twUserList->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+        // 行高自适应内容（关键：换行后行高自动撑开）
+        ui->twUserList->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     } else {
         QMessageBox::warning(this, "错误", "加载用户数据失败");
     }
