@@ -27,6 +27,8 @@
 #include <QSpinBox>
 #include <QLabel>
 #include <QMap>
+#include <QToolTip>
+#include <QCursor>
 
 // 构造函数：初始化管理员主窗口
 AdminMainWindow::AdminMainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::AdminMainWindow) {
@@ -469,6 +471,28 @@ void AdminMainWindow::updateStatistics() {
     countSeries->setLabelsVisible(false);
     amountSeries->setLabelsVisible(false);
 
+    QStringList categories = {"总航班数", "总用户数", "总订单数", "订单总金额(元)"};
+    QList<qreal> countValues = {static_cast<qreal>(totalFlights), static_cast<qreal>(totalUsers), static_cast<qreal>(totalOrders), 0.0};
+    QList<qreal> amountValues = {0.0, 0.0, 0.0, totalAmount};
+
+    connect(countSeries, &QBarSeries::hovered, this, [=](bool status, int index, QBarSet *barset) {
+        if (status && index >= 0 && index < categories.size() && countValues[index] > 0) {
+            QString tooltip = QString("%1\n数量：%2").arg(categories[index]).arg(QString::number(countValues[index], 'f', 0));
+            QToolTip::showText(QCursor::pos(), tooltip);
+        } else {
+            QToolTip::hideText();
+        }
+    });
+
+    connect(amountSeries, &QBarSeries::hovered, this, [=](bool status, int index, QBarSet *barset) {
+        if (status && index >= 0 && index < categories.size() && amountValues[index] > 0) {
+            QString tooltip = QString("%1\n金额：%2 元").arg(categories[index]).arg(QString::number(amountValues[index], 'f', 2));
+            QToolTip::showText(QCursor::pos(), tooltip);
+        } else {
+            QToolTip::hideText();
+        }
+    });
+
     QBarCategoryAxis *totalXAxis = new QBarCategoryAxis();
     totalXAxis->append({"总航班数", "总用户数", "总订单数", "订单总金额(元)"});
     totalXAxis->setLabelsFont(QFont("Microsoft YaHei", 12));
@@ -533,6 +557,15 @@ void AdminMainWindow::updateStatistics() {
             slice->setBrush(pieColors[colorIdx % pieColors.size()]);
             slice->setLabelFont(QFont("Microsoft YaHei", 11));
             slice->setLabelVisible(true);
+            slice->setExploded(false);
+            connect(slice, &QPieSlice::hovered, this, [=](bool state) {
+                if (state) {
+                    QString tooltip = QString("%1\n航班数：%2\n占比：%3%").arg(airline).arg(cnt).arg(percent, 0, 'f', 1);
+                    QToolTip::showText(QCursor::pos(), tooltip);
+                } else {
+                    QToolTip::hideText();
+                }
+            });
             colorIdx++;
         }
     } else {
@@ -569,6 +602,15 @@ void AdminMainWindow::updateStatistics() {
             slice->setBrush(pieColors[colorIdx % pieColors.size()]);
             slice->setLabelFont(QFont("Microsoft YaHei", 11));
             slice->setLabelVisible(true);
+            slice->setExploded(false);
+            connect(slice, &QPieSlice::hovered, this, [=](bool state) {
+                if (state) {
+                    QString tooltip = QString("%1\n航班数：%2\n占比：%3%").arg(city).arg(cnt).arg(percent, 0, 'f', 1);
+                    QToolTip::showText(QCursor::pos(), tooltip);
+                } else {
+                    QToolTip::hideText();
+                }
+            });
             colorIdx++;
         }
     } else {
