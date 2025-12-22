@@ -318,12 +318,14 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
     QSqlQuery query = dbOperator->DBGetData(sql, success);
 
     if (success) {
+        // 禁用UI更新以提高性能
+        ui->flightTable->setUpdatesEnabled(false);
         ui->flightTable->setRowCount(0);
 
-        int row = 0;
+        // 先收集所有数据
+        QVector<QStringList> allRows;
+        QVector<QString> allFlightIds;
         while (query.next()) {
-            ui->flightTable->insertRow(row);
-
             QStringList values;
             values << query.value("flight_id").toString()
                    << query.value("airline_company").toString()
@@ -336,7 +338,17 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
                    << query.value("price").toString()
                    << query.value("total_seats").toString()
                    << query.value("remaining_seats").toString();
+            allRows.append(values);
+            allFlightIds.append(values.at(0));
+        }
 
+        // 一次性设置行数
+        int rowCount = allRows.size();
+        ui->flightTable->setRowCount(rowCount);
+
+        // 批量设置数据
+        for (int row = 0; row < rowCount; row++) {
+            const QStringList &values = allRows.at(row);
             for (int col = 0; col < values.size(); col++) {
                 QTableWidgetItem *item = new QTableWidgetItem(values.at(col));
                 ui->flightTable->setItem(row, col, item);
@@ -344,7 +356,7 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
 
             QPushButton *editBtn = new QPushButton("编辑");
             QPushButton *deleteBtn = new QPushButton("删除");
-            QString flightId = values.at(0);
+            QString flightId = allFlightIds.at(row);
 
             connect(editBtn, &QPushButton::clicked, this, [this, flightId]() {
                 onEditFlight(flightId);
@@ -365,9 +377,11 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
 
             ui->flightTable->setCellWidget(row, 11, editBtn);
             ui->flightTable->setCellWidget(row, 12, deleteBtn);
-
-            row++;
         }
+
+        // 重新启用UI更新
+        ui->flightTable->setUpdatesEnabled(true);
+        ui->flightTable->viewport()->update();
     } else {
         QMessageBox::warning(this, "错误", "加载航班数据失败");
     }
