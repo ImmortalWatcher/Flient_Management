@@ -594,17 +594,10 @@ void UserMainWindow::on_book_clicked(const QString &flightNo) {
 
         // 创建订单
         // 订单内保存城市维度，便于后续改签同城航线匹配
-        QString insertSql = QString("insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price) values ('%1', %2, '%3', '%4', '%5', '%6', '%7', '%8', '%9', %10)")
-                                .arg(orderNo)
-                                .arg(m_userId)
-                                .arg(flightNo)
-                                .arg(passengerName)
-                                .arg(passengerIdcard)
-                                .arg(departureCity)
-                                .arg(arrivalCity)
-                                .arg(departureTime.toString("yyyy-MM-dd hh:mm:ss"))
-                                .arg(arrivalTime.toString("yyyy-MM-dd hh:mm:ss"))
-                                .arg(price);
+        QString insertSql = QString("insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_status) values ('%1', %2, '%3', '%4', '%5', '%6', '%7', '%8', '%9', %10, '%11')")
+                                .arg(orderNo).arg(m_userId).arg(flightNo).arg(passengerName).arg(passengerIdcard)
+                                .arg(departureCity).arg(arrivalCity).arg(departureTime.toString("yyyy-MM-dd hh:mm:ss"))
+                                .arg(arrivalTime.toString("yyyy-MM-dd hh:mm:ss")).arg(price).arg("已支付");
         bool insertSuccess = false;
         QSqlQuery insertQuery = m_dbOperator.DBGetData(insertSql, insertSuccess);
 
@@ -834,18 +827,18 @@ void UserMainWindow::clearOrders() {
 void UserMainWindow::loadOrders() {
     clearOrders();
 
-    // 关键修正：不使用o.*，明确列出订单表字段，避免覆盖用户表的别名字段
     bool success = false;
+    // 添加 order_status != '已取消' 条件过滤已取消订单
     QString sqlstr = QString(
                          "select "
                          "o.order_id, o.order_no, o.user_id, o.flight_id, "
                          "o.departure_city, o.arrival_city, o.departure_time, "
                          "o.arrival_time, o.price, o.order_time, o.order_status, "
-                         "u.realname as passenger_name, "  // 强制读取用户表最新姓名
-                         "u.idcard as passenger_idcard     "  // 强制读取用户表最新身份证
+                         "u.realname as passenger_name, "
+                         "u.idcard as passenger_idcard "
                          "from order_info o "
                          "inner join user_info u on o.user_id = u.id "
-                         "where o.user_id=%1 "
+                         "where o.user_id=%1 and o.order_status != '已取消' "  // 过滤已取消订单
                          "order by o.order_time desc"
                          ).arg(m_userId);
     QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
@@ -1126,39 +1119,53 @@ void UserMainWindow::handleUnfavorite(const QString &flightId) {
 
 // 取消已支付订单：退还余额并释放座位
 void UserMainWindow::handleCancelOrder(int orderId, const QString &flightId, double price) {
-    int ret = QMessageBox::question(this, "确认取消", "确认取消该订单并退还支付金额吗？", QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    // 1. 显示确认对话框
+    int ret = QMessageBox::question(this, "确认取消",
+                                    "确定要取消此订单吗？\n取消后将退款至您的账户。",
+                                    QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if (ret != QMessageBox::Yes) {
         return;
     }
 
-    // 退还余额
+    // 2. 开始数据库操作
     bool success = false;
-    QString refundSql = QString("update user_info set balance=balance+%1 where id=%2").arg(price).arg(m_userId);
-    QSqlQuery refundQuery = m_dbOperator.DBGetData(refundSql, success);
+
+    // 2.1 更新订单状态为"已取消"
+    QString updateOrderSql = QString("update order_info set order_status='已取消' where order_id=%1").arg(orderId);
+    QSqlQuery orderQuery = m_dbOperator.DBGetData(updateOrderSql, success);
     if (!success) {
-        QMessageBox::warning(this, "取消失败", "退还余额失败：" + refundQuery.lastError().text());
+        QMessageBox::warning(this, "操作失败", "更新订单状态失败：" + orderQuery.lastError().text());
         return;
     }
 
-    // 释放座位
-    QString seatSql = QString("update flight_info set remaining_seats=remaining_seats+1 where flight_id='%1'").arg(flightId);
-    QSqlQuery seatQuery = m_dbOperator.DBGetData(seatSql, success);
-    if (!success) {
-        QMessageBox::warning(this, "取消失败", "更新座位失败：" + seatQuery.lastError().text());
+    // 2.2 恢复航班剩余座位
+    QString flightSql = QString("select remaining_seats from flight_info where flight_id='%1'").arg(flightId);
+    QSqlQuery flightQuery = m_dbOperator.DBGetData(flightSql, success);
+    if (!success || !flightQuery.next()) {
+        QMessageBox::warning(this, "操作失败", "获取航班信息失败：" + flightQuery.lastError().text());
         return;
     }
+    int remainingSeats = flightQuery.value("remaining_seats").toInt() + 1;
+    QString updateFlightSql = QString("update flight_info set remaining_seats=%1 where flight_id='%2'")
+                                  .arg(remainingSeats).arg(flightId);
+    m_dbOperator.DBGetData(updateFlightSql, success);
 
-    // 删除订单
-    QString deleteSql = QString("delete from order_info where order_id=%1").arg(orderId);
-    QSqlQuery deleteQuery = m_dbOperator.DBGetData(deleteSql, success);
-    if (!success) {
-        QMessageBox::warning(this, "取消失败", "删除订单失败：" + deleteQuery.lastError().text());
-        return;
+    // 2.3 退还订单金额到用户账户
+    DBOperator::UserInfo userInfo;
+    if (m_dbOperator.getUserInfo(m_userId, userInfo)) {
+        double newBalance = userInfo.balance + price;
+        QString updateBalanceSql = QString("update user_info set balance=%1 where id=%2")
+                                       .arg(newBalance).arg(m_userId);
+        m_dbOperator.DBGetData(updateBalanceSql, success);
+
+        // 更新界面显示的余额
+        loadUserInfo();
     }
 
-    loadUserInfo();
+    // 3. 重新加载订单列表（会自动过滤已取消订单）
     loadOrders();
-    QMessageBox::information(this, "取消成功", "订单已取消，支付金额已退回账户余额。");
+
+    QMessageBox::information(this, "操作成功", "订单已取消，金额已退还至您的账户");
 }
 
 // 改签订单：选择新航班后差额结算并更新订单
