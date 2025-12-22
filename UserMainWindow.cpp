@@ -21,6 +21,27 @@
 #include <QCheckBox>
 #include <QPushButton>
 
+// 填充 ComboBox 函数（参数：目标 ComboBox、查询 SQL）
+void UserMainWindow::fillComboBox(QComboBox *cbox, const QString &sql) {
+    // 1. 清空原有选项（避免重复）
+    cbox->clear();
+
+    // 2. 执行 SQL 查询
+    bool sf=false;
+    QSqlQuery query = m_dbOperator.DBGetData(sql, sf);
+    if (!sf) {
+        qDebug() << "查询失败：" << query.lastError().text();
+        return;
+    }
+
+    // 3. 遍历查询结果，添加到 ComboBox
+    while (query.next()) {
+        // 假设查询结果的第 0 列是要显示的内容（可根据字段名调整，如 query.value("type").toString()）
+        QString itemText = query.value(0).toString();
+        cbox->addItem(itemText);
+    }
+}
+
 // 构造函数：初始化用户主窗口
 UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent), ui(new Ui::UserMainWindow), m_userId(userId) {
     ui->setupUi(this);
@@ -81,6 +102,11 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent
     if (ui->stackedWidget->currentIndex() == 2) {
         loadFavorites();
     }
+    QString sql = "SELECT DISTINCT departure_city FROM flight_info";
+    fillComboBox(ui->departureCbox, sql);
+    sql = "SELECT DISTINCT arrival_city FROM flight_info";
+    fillComboBox(ui->arrivalCbox, sql);
+
 }
 
 UserMainWindow::~UserMainWindow() {
@@ -343,7 +369,7 @@ void UserMainWindow::loadAllFlights() {
 void UserMainWindow::on_resetBtn_clicked() {
     ui->departureCbox->setCurrentIndex(0);
     ui->arrivalCbox->setCurrentIndex(0);
-    ui->yearSpin->setValue(2025);
+    ui->yearSpin->setValue(2026);
     ui->monthSpin->setValue(1);
     ui->daySpin->setValue(1);
     loadAllFlights();
@@ -1127,7 +1153,7 @@ void UserMainWindow::handleCancelOrder(int orderId, const QString &flightId, dou
         return;
     }
 
-    // 2. 开始数据库操作
+     // 2. 开始数据库操作
     bool success = false;
 
     // 2.1 更新订单状态为"已取消"
@@ -1164,7 +1190,6 @@ void UserMainWindow::handleCancelOrder(int orderId, const QString &flightId, dou
 
     // 3. 重新加载订单列表（会自动过滤已取消订单）
     loadOrders();
-
     QMessageBox::information(this, "操作成功", "订单已取消，金额已退还至您的账户");
 }
 

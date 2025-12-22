@@ -5,6 +5,7 @@
 #include <QMainWindow>
 #include <QSqlQueryModel>
 #include <QPainter>
+#include <QComboBox>
 
 #define QT_CHARTS_USE_NAMESPACE
 
@@ -68,6 +69,8 @@ private slots:
 
     void onEditFlight(const QString &flightId);
 
+    void on_resetBtn_clicked();
+
 private:
     Ui::AdminMainWindow *ui;
     DBOperator *dbOperator;
@@ -101,6 +104,7 @@ private:
     bool saveFlightEditData(const QString &flightId, const QMap<QString, QVariant> &editData);
     QDialog *createUserEditDialog(const QString &username);
     bool saveUserEditData(const QString &username, const QMap<QString, QVariant> &editData);
+    void fillComboBox(QComboBox *cbox, const QString &sql);
 };
 
 #endif // ADMINMAINWINDOW_H

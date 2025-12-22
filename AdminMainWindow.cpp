@@ -30,6 +30,27 @@
 #include <QToolTip>
 #include <QCursor>
 
+// 填充 ComboBox 函数（参数：目标 ComboBox、查询 SQL）
+void AdminMainWindow::fillComboBox(QComboBox *cbox, const QString &sql) {
+    // 1. 清空原有选项（避免重复）
+    cbox->clear();
+
+    // 2. 执行 SQL 查询
+    bool sf=false;
+    QSqlQuery query = dbOperator->DBGetData(sql, sf);
+    if (!sf) {
+        qDebug() << "查询失败：" << query.lastError().text();
+        return;
+    }
+
+    // 3. 遍历查询结果，添加到 ComboBox
+    while (query.next()) {
+        // 假设查询结果的第 0 列是要显示的内容（可根据字段名调整，如 query.value("type").toString()）
+        QString itemText = query.value(0).toString();
+        cbox->addItem(itemText);
+    }
+}
+
 // 构造函数：初始化管理员主窗口
 AdminMainWindow::AdminMainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::AdminMainWindow) {
     ui->setupUi(this);
@@ -52,6 +73,11 @@ AdminMainWindow::AdminMainWindow(QWidget *parent) : QMainWindow(parent), ui(new 
     initOrderView();
     initUserManagement();
     initDataStatistics();
+
+    QString sql = "SELECT DISTINCT departure_city FROM flight_info";
+    fillComboBox(ui->departureCbox, sql);
+    sql = "SELECT DISTINCT arrival_city FROM flight_info";
+    fillComboBox(ui->arrivalCbox, sql);
 }
 
 AdminMainWindow::~AdminMainWindow() {
@@ -85,9 +111,9 @@ void AdminMainWindow::initFlightManagement() {
 
     // 设置默认日期为当前日期
     QDate currentDate = QDate::currentDate();
-    ui->yearSpin->setValue(currentDate.year());
-    ui->monthSpin->setValue(currentDate.month());
-    ui->daySpin->setValue(currentDate.day());
+    ui->yearSpin->setValue(2026);
+    ui->monthSpin->setValue(1);
+    ui->daySpin->setValue(1);
 
     //  设置航班表格选中高亮配置
     ui->flightTable->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -737,8 +763,8 @@ void AdminMainWindow::on_deleteUserBtn_clicked() {
 }
 
 void AdminMainWindow::on_findBtn_clicked() {
-    QString departureCity = ui->departureLineEdit->text().trimmed();
-    QString arrivalCity = ui->destinationLineEdit->text().trimmed();
+    QString departureCity = ui->departureCbox->currentText();
+    QString arrivalCity = ui->arrivalCbox->currentText();
     int year = ui->yearSpin->value();
     int month = ui->monthSpin->value();
     int day = ui->daySpin->value();
@@ -1107,3 +1133,14 @@ bool AdminMainWindow::saveUserEditData(const QString &username, const QMap<QStri
     dbOperator->DBGetData(sql, success);
     return success;
 }
+// 重置查询条件并显示所有航班
+void AdminMainWindow::on_resetBtn_clicked()
+{
+    ui->departureCbox->setCurrentIndex(0);
+    ui->arrivalCbox->setCurrentIndex(0);
+    ui->yearSpin->setValue(2025);
+    ui->monthSpin->setValue(1);
+    ui->daySpin->setValue(1);
+    initFlightManagement();
+}
+

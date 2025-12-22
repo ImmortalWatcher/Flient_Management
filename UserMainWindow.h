@@ -5,6 +5,7 @@
 #include <QMainWindow>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QComboBox>
 
 #include "DBOperator.h"
 
@@ -97,5 +98,6 @@ private:
 
     // 工具函数
     QString formatDateTime(const QDateTime& dateTime);
+    void fillComboBox(QComboBox *cbox, const QString &sql);
 };
 #endif // USERMAINWINDOW_H
