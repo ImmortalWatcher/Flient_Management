@@ -23,5 +23,11 @@
         <file>source/figures/XiamenAir.png</file>
         <file>source/figures/SichuanAirlines.png</file>
         <file>source/figures/JuneyaoAir.png</file>
+        <file>source/figures/9C.png</file>
+        <file>source/figures/SC.png</file>
+        <file>source/figures/FM.png</file>
+        <file>source/figures/JD.png</file>
+        <file>source/figures/8L.png</file>
+        <file>source/figures/KN.png</file>
     </qresource>
 </RCC>

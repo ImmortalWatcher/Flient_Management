@@ -37,6 +37,18 @@ FlightItemWidget::FlightItemWidget(const QString &flightNo, const QString &takeo
         logoPath = ":/img/source/figures/SichuanAirlines.png";
     } else if (airlineCompany == "吉祥航空") {
         logoPath = ":/img/source/figures/JuneyaoAir.png";
+    } else if (airlineCompany == "春秋航空") {
+        logoPath = ":/img/source/figures/9C.png";
+    } else if (airlineCompany == "山东航空") {
+        logoPath = ":/img/source/figures/SC.png";
+    } else if (airlineCompany == "上海航空") {
+        logoPath = ":/img/source/figures/FM.png";
+    } else if (airlineCompany == "首都航空") {
+        logoPath = ":/img/source/figures/JD.png";
+    } else if (airlineCompany == "祥鹏航空") {
+        logoPath = ":/img/source/figures/8L.png";
+    } else if (airlineCompany == "中国联合航空公司") {
+        logoPath = ":/img/source/figures/KN.png";
     } else {
         logoPath = ":/img/source/figures/AirChina.png";
     }
