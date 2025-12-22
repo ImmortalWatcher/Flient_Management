@@ -118,37 +118,49 @@ void AdminMainWindow::initFlightManagement() {
     //  设置航班表格选中高亮配置
     ui->flightTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->flightTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->flightTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->flightTable->setTextElideMode(Qt::ElideNone);
+    ui->flightTable->setShowGrid(true);
+    ui->flightTable->setAlternatingRowColors(false);
     ui->flightTable->setStyleSheet(
         "QTableWidget::item:selected {"
         "    background-color: #90caf9;"
         "    color: #000000;"
-        "    border: 1px solid #42a5f5;"
+        "    border: none;"
+        "    outline: none;"
         "}"
         "QTableWidget::item:selected:active {"
-        "    background-color: #64b5f6;"
+        "    background-color: #90caf9;"
         "    color: #000000;"
-        "    border: 1px solid #2196f3;"
+        "    border: none;"
+        "    outline: none;"
+        "}"
+        "QTableWidget::item:focus {"
+        "    border: none;"
+        "    outline: none;"
         "}"
         "QTableWidget {"
         "    gridline-color: #e0e0e0;"
         "    selection-background-color: #90caf9;"
         "    selection-color: #000000;"
+        "    outline: none;"
         "}"
         "QTableWidget::item {"
         "    padding: 2px;"
+        "    border: none;"
         "}"
-        // 表头居中 (可选，和用户表格保持一致)
         "QHeaderView::section {"
         "    text-align: center;"
         "}"
         );
-    // 表头文本居中对齐 (可选)
+    // 表头文本居中对齐
     QHeaderView *flightHeader = ui->flightTable->horizontalHeader();
     if (flightHeader) {
         flightHeader->setDefaultAlignment(Qt::AlignCenter);
     }
-    // 列宽自适应内容 (可选)
+    // 列宽自适应内容，确保内容完整显示
     ui->flightTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->flightTable->horizontalHeader()->setMinimumSectionSize(80);
 
     loadFlightData();
 }
@@ -159,24 +171,36 @@ void AdminMainWindow::initOrderView() {
 
     ui->twOrderList->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->twOrderList->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->twOrderList->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->twOrderList->setTextElideMode(Qt::ElideNone);
+    ui->twOrderList->setShowGrid(true);
+    ui->twOrderList->setAlternatingRowColors(false);
     ui->twOrderList->setStyleSheet(
         "QTableWidget::item:selected {"
         "    background-color: #90caf9;"
         "    color: #000000;"
-        "    border: 1px solid #42a5f5;"
+        "    border: none;"
+        "    outline: none;"
         "}"
         "QTableWidget::item:selected:active {"
-        "    background-color: #64b5f6;"
+        "    background-color: #90caf9;"
         "    color: #000000;"
-        "    border: 1px solid #2196f3;"
+        "    border: none;"
+        "    outline: none;"
+        "}"
+        "QTableWidget::item:focus {"
+        "    border: none;"
+        "    outline: none;"
         "}"
         "QTableWidget {"
         "    gridline-color: #e0e0e0;"
         "    selection-background-color: #90caf9;"
         "    selection-color: #000000;"
+        "    outline: none;"
         "}"
         "QTableWidget::item {"
         "    padding: 2px;"
+        "    border: none;"
         "}"
         "QHeaderView::section {"
         "    text-align: center;"
@@ -192,8 +216,10 @@ void AdminMainWindow::initOrderView() {
     QHeaderView *orderHeader = ui->twOrderList->horizontalHeader();
     if (orderHeader) {
         orderHeader->setDefaultAlignment(Qt::AlignCenter);
-        orderHeader->setSectionResizeMode(QHeaderView::ResizeToContents);
     }
+    // 列宽自适应内容，确保内容完整显示
+    ui->twOrderList->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->twOrderList->horizontalHeader()->setMinimumSectionSize(80);
 
     ui->cbOrderStatus->clear();
     ui->cbOrderStatus->addItem("全部订单");
@@ -324,7 +350,6 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
 
         // 先收集所有数据
         QVector<QStringList> allRows;
-        QVector<QString> allFlightIds;
         while (query.next()) {
             QStringList values;
             values << query.value("flight_id").toString()
@@ -339,7 +364,6 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
                    << query.value("total_seats").toString()
                    << query.value("remaining_seats").toString();
             allRows.append(values);
-            allFlightIds.append(values.at(0));
         }
 
         // 一次性设置行数
@@ -351,32 +375,10 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
             const QStringList &values = allRows.at(row);
             for (int col = 0; col < values.size(); col++) {
                 QTableWidgetItem *item = new QTableWidgetItem(values.at(col));
+                item->setTextAlignment(Qt::AlignCenter);
+                item->setFlags(item->flags() & ~Qt::ItemIsEditable);
                 ui->flightTable->setItem(row, col, item);
             }
-
-            QPushButton *editBtn = new QPushButton("编辑");
-            QPushButton *deleteBtn = new QPushButton("删除");
-            QString flightId = allFlightIds.at(row);
-
-            connect(editBtn, &QPushButton::clicked, this, [this, flightId]() {
-                onEditFlight(flightId);
-            });
-
-            connect(deleteBtn, &QPushButton::clicked, [this, flightId]() {
-                if (QMessageBox::question(this, "确认", "确定要删除这条航班记录吗?") == QMessageBox::Yes) {
-                    QString sql = QString("delete from flight_info where flight_id = '%1'").arg(flightId);
-                    bool success;
-                    dbOperator->DBGetData(sql, success);
-                    if (success) {
-                        loadFlightData();
-                    } else {
-                        QMessageBox::warning(this, "错误", "删除失败");
-                    }
-                }
-            });
-
-            ui->flightTable->setCellWidget(row, 11, editBtn);
-            ui->flightTable->setCellWidget(row, 12, deleteBtn);
         }
 
         // 重新启用UI更新
@@ -409,6 +411,7 @@ void AdminMainWindow::loadOrderData(const QString &status) {
             for (int col = 0; col < 12; col++) {
                 QTableWidgetItem *item = new QTableWidgetItem(query.value(col).toString());
                 item->setTextAlignment(Qt::AlignCenter);
+                item->setFlags(item->flags() & ~Qt::ItemIsEditable);
                 
                 if (col == 11) {
                     QString status = query.value(col).toString();
