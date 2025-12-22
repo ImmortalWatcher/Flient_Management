@@ -457,6 +457,15 @@ void AdminMainWindow::loadUserData() {
     }
 }
 
+static qreal getAxisMax(qreal value, int base) {
+    if (value <= 0) {
+        return base * 1.2;
+    }
+    qreal scaledValue = value * 1.2;
+    qreal axisMax = ceil(scaledValue / base) * base;
+    return qMax(axisMax, static_cast<qreal>(base));
+}
+
 // 更新统计数据
 void AdminMainWindow::updateStatistics() {
     qint64 totalFlights = 0;
@@ -466,6 +475,7 @@ void AdminMainWindow::updateStatistics() {
 
     bool success;
 
+    // 数据库查询（保持原有逻辑）
     QSqlQuery flightQuery = dbOperator->DBGetData("select count(*) as flight_count from flight_info", success);
     if (success && flightQuery.next()) {
         totalFlights = flightQuery.value("flight_count").toLongLong();
@@ -482,24 +492,40 @@ void AdminMainWindow::updateStatistics() {
         totalAmount = orderQuery.value("total_price").toDouble();
     }
 
-    totalStatsChart->removeAllSeries();
+    // 清理旧系列
+    for (QAbstractSeries *series : totalStatsChart->series()) {
+        QBarSeries *barSeries = qobject_cast<QBarSeries*>(series);
+        if (barSeries) {
+            qDeleteAll(barSeries->barSets());
+        }
+        totalStatsChart->removeSeries(series);
+        delete series;
+    }
+    // 清理旧轴
     QList<QAbstractAxis*> oldAxes = totalStatsChart->axes();
     for (QAbstractAxis* axis : oldAxes) {
         totalStatsChart->removeAxis(axis);
+        delete axis;
     }
 
     QBarSet *countSet = new QBarSet("数量");
-    QBarSet *amountSet = new QBarSet("金额");
-    *countSet << totalFlights << totalUsers << totalOrders << 0;
-    *amountSet << 0 << 0 << 0 << totalAmount;
+    *countSet << static_cast<qreal>(totalFlights)
+              << static_cast<qreal>(totalUsers)
+              << static_cast<qreal>(totalOrders)
+              << 0.0;
     countSet->setColor(QColor(52, 152, 219));
-    amountSet->setColor(QColor(231, 76, 60));
-
     QBarSeries *countSeries = new QBarSeries();
-    QBarSeries *amountSeries = new QBarSeries();
     countSeries->append(countSet);
-    amountSeries->append(amountSet);
     countSeries->setLabelsVisible(false);
+
+    QBarSet *amountSet = new QBarSet("金额");
+    *amountSet << 0.0
+               << 0.0
+               << 0.0
+               << static_cast<qreal>(totalAmount);
+    amountSet->setColor(QColor(231, 76, 60));
+    QBarSeries *amountSeries = new QBarSeries();
+    amountSeries->append(amountSet);
     amountSeries->setLabelsVisible(false);
 
     QStringList categories = {"总航班数", "总用户数", "总订单数", "订单总金额(元)"};
@@ -507,7 +533,7 @@ void AdminMainWindow::updateStatistics() {
     QList<qreal> amountValues = {0.0, 0.0, 0.0, totalAmount};
 
     connect(countSeries, &QBarSeries::hovered, this, [=](bool status, int index, QBarSet *barset) {
-        if (status && index >= 0 && index < categories.size() && countValues[index] > 0) {
+        if (status && index >= 0 && index < 3 && countValues[index] > 0) {
             QString tooltip = QString("%1\n数量：%2").arg(categories[index]).arg(QString::number(countValues[index], 'f', 0));
             QToolTip::showText(QCursor::pos(), tooltip);
         } else {
@@ -516,7 +542,7 @@ void AdminMainWindow::updateStatistics() {
     });
 
     connect(amountSeries, &QBarSeries::hovered, this, [=](bool status, int index, QBarSet *barset) {
-        if (status && index >= 0 && index < categories.size() && amountValues[index] > 0) {
+        if (status && index == 3 && amountValues[index] > 0) {
             QString tooltip = QString("%1\n金额：%2 元").arg(categories[index]).arg(QString::number(amountValues[index], 'f', 2));
             QToolTip::showText(QCursor::pos(), tooltip);
         } else {
@@ -524,38 +550,50 @@ void AdminMainWindow::updateStatistics() {
         }
     });
 
+    totalStatsChart->addSeries(countSeries);
+    totalStatsChart->addSeries(amountSeries);
+
     QBarCategoryAxis *totalXAxis = new QBarCategoryAxis();
-    totalXAxis->append({"总航班数", "总用户数", "总订单数", "订单总金额(元)"});
+    totalXAxis->append(categories);
     totalXAxis->setLabelsFont(QFont("Microsoft YaHei", 12));
     totalStatsChart->addAxis(totalXAxis, Qt::AlignBottom);
     countSeries->attachAxis(totalXAxis);
     amountSeries->attachAxis(totalXAxis);
 
+    // ========== 6. 数量轴（左Y轴） ==========
     QValueAxis *axisY_Count = new QValueAxis();
     axisY_Count->setTitleText("数量");
     axisY_Count->setLabelsFont(QFont("Microsoft YaHei", 12));
     axisY_Count->setLabelFormat("%d");
     axisY_Count->setTickType(QValueAxis::TicksFixed);
-    axisY_Count->setTickInterval(1);
-    qint64 maxCount = qMax(totalFlights, qMax(totalUsers, totalOrders));
-    int countRangeMax = (maxCount <= 0) ? 10 : static_cast<int>(maxCount * 1.3);
-    axisY_Count->setRange(0, countRangeMax);
+    axisY_Count->setTickInterval(4); // 4的倍数间隔
+    qint64 maxCount = qMax<qint64>(0, qMax(totalFlights, qMax(totalUsers, totalOrders)));
+    qreal countAxisMax = getAxisMax(static_cast<qreal>(maxCount), 4); // 调用新工具函数
+    axisY_Count->setRange(0, countAxisMax);
     totalStatsChart->addAxis(axisY_Count, Qt::AlignLeft);
     countSeries->attachAxis(axisY_Count);
 
+    // ========== 7. 金额轴（右Y轴） ==========
     QValueAxis *axisY_Amount = new QValueAxis();
     axisY_Amount->setTitleText("金额（元）");
     axisY_Amount->setLabelsFont(QFont("Microsoft YaHei", 12));
     axisY_Amount->setLabelFormat("%.0f");
     axisY_Amount->setTickType(QValueAxis::TicksFixed);
-    axisY_Amount->setTickInterval(100);
-    double amountRangeMax = (totalAmount <= 0) ? 1000 : totalAmount * 1.3;
-    axisY_Amount->setRange(0, amountRangeMax);
+    int amountTick = 10;
+    if (totalAmount > 1000) amountTick = 100;
+    if (totalAmount > 10000) amountTick = 1000;
+    axisY_Amount->setTickInterval(amountTick);
+    qreal safeTotalAmount = qMax(0.0, totalAmount);
+    qreal amountAxisMax = getAxisMax(safeTotalAmount, 10); // 调用新工具函数
+    axisY_Amount->setRange(0, amountAxisMax);
     totalStatsChart->addAxis(axisY_Amount, Qt::AlignRight);
     amountSeries->attachAxis(axisY_Amount);
 
-    totalStatsChart->addSeries(countSeries);
-    totalStatsChart->addSeries(amountSeries);
+    if (totalStatsChart->metaObject()->indexOfMethod("setAxisY(QAbstractAxis*, QAbstractSeries*)") != -1) {
+        totalStatsChart->setAxisY(axisY_Count, countSeries);
+        totalStatsChart->setAxisY(axisY_Amount, amountSeries);
+    }
+
     totalStatsChart->setTitle("核心运营数据总览（数量/金额双轴）");
     totalStatsChart->setAnimationOptions(QChart::SeriesAnimations);
     totalStatsChart->legend()->setFont(QFont("Microsoft YaHei", 12));
@@ -564,6 +602,7 @@ void AdminMainWindow::updateStatistics() {
 
     QList<QColor> pieColors = {QColor(46, 204, 113), QColor(155, 89, 182), QColor(231, 76, 60), QColor(241, 196, 15), QColor(52, 152, 219), QColor(127, 140, 141)};
 
+    // 航空公司航班占比饼图
     airlineFlightChart->removeAllSeries();
     QPieSeries *airlinePieSeries = new QPieSeries();
     int totalAirlineFlights = 0;
@@ -599,7 +638,6 @@ void AdminMainWindow::updateStatistics() {
             });
             colorIdx++;
         }
-    } else {
     }
 
     airlineFlightChart->addSeries(airlinePieSeries);
@@ -609,6 +647,7 @@ void AdminMainWindow::updateStatistics() {
     airlineFlightChart->legend()->setAlignment(Qt::AlignRight);
     airlineFlightChart->createDefaultAxes();
 
+    // 城市出发航班占比饼图
     cityFlightChart->removeAllSeries();
     QPieSeries *cityPieSeries = new QPieSeries();
     int totalCityFlights = 0;
@@ -644,7 +683,6 @@ void AdminMainWindow::updateStatistics() {
             });
             colorIdx++;
         }
-    } else {
     }
 
     cityFlightChart->addSeries(cityPieSeries);
