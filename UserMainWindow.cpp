@@ -40,6 +40,8 @@ void UserMainWindow::fillComboBox(QComboBox *cbox, const QString &sql) {
 UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent), ui(new Ui::UserMainWindow), m_userId(userId) {
     ui->setupUi(this);
 
+    resetStatus=true;
+
     m_dbOperator.DBOpen();
 
     ui->avatarLabel->setCursor(Qt::PointingHandCursor);
@@ -100,6 +102,10 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent
     fillComboBox(ui->departureCbox, sql);
     sql = "select distinct arrival_city from flight_info";
     fillComboBox(ui->arrivalCbox, sql);
+    loadAllFlights();
+    loadOrders();
+    loadFavorites();
+    loadUserInfo();
 }
 
 UserMainWindow::~UserMainWindow() {
@@ -112,7 +118,8 @@ UserMainWindow::~UserMainWindow() {
 // 切换到航班查询页面
 void UserMainWindow::on_flightQueryBtn_clicked() {
     ui->stackedWidget->setCurrentIndex(0);
-    loadAllFlights();
+    if (resetStatus) loadAllFlights();
+    else on_searchBtn_clicked();
 }
 
 // 切换到我的订单页面
@@ -364,10 +371,13 @@ void UserMainWindow::on_resetBtn_clicked() {
     ui->monthSpin->setValue(1);
     ui->daySpin->setValue(1);
     loadAllFlights();
+    resetStatus=true;
 }
 
 // 根据条件搜索航班
 void UserMainWindow::on_searchBtn_clicked() {
+    resetStatus=false;
+
     clearFlightItems();
 
     QString departure = ui->departureCbox->currentText();
@@ -623,6 +633,9 @@ void UserMainWindow::on_book_clicked(const QString &flightNo) {
         // 刷新用户信息和订单列表
         loadUserInfo();
         loadOrders();
+        loadFavorites();
+        if (resetStatus) loadAllFlights();
+        else on_searchBtn_clicked();
 
         QMessageBox::information(bookDialog, "预订成功", QString("预订成功！\n订单已创建，余额已扣除 %1 元\n当前余额：%2 元").arg(QString::number(price, 'f', 2), QString::number(newBalance, 'f', 2)));
         bookDialog->accept();

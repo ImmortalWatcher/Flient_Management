@@ -50,6 +50,7 @@ private:
 
     // 基础数据
     int m_userId;
+    bool resetStatus;
     DBOperator m_dbOperator;
 
     // 布局相关
