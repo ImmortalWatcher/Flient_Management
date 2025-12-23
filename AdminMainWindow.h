@@ -61,7 +61,7 @@ private slots:
     void on_cbOrderStatus_currentIndexChanged(int index);
 
     // 用户管理相关
-    void on_deleteUserBtn_2_clicked();
+    void on_editUserBtn_clicked();
 
     void on_deleteUserBtn_clicked();
 

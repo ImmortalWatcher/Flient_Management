@@ -45,10 +45,11 @@ else()
     if(ANDROID)
         add_library(Flight_managerment SHARED
             ${PROJECT_SOURCES}
-            # 新增：补全 Qt5 下的源文件（和 Qt6 一致）
+            # 新增：补全 Qt5 下的源文件 (和 Qt6 一致)
             DBOperator.h DBOperator.cpp
             WindowFactory.h WindowFactory.cpp
             figures.qrc
+            airlinelogos.qrc
             avatars.qrc
             LoginDlg.h LoginDlg.cpp LoginDlg.ui
             RegisterDlg.h RegisterDlg.cpp RegisterDlg.ui

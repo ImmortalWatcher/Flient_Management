@@ -40,7 +40,7 @@ void UserMainWindow::fillComboBox(QComboBox *cbox, const QString &sql) {
 UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent), ui(new Ui::UserMainWindow), m_userId(userId) {
     ui->setupUi(this);
 
-    resetStatus=true;
+    resetStatus = true;
 
     m_dbOperator.DBOpen();
 
@@ -596,7 +596,7 @@ void UserMainWindow::on_book_clicked(const QString &flightNo) {
             return;
         }
 
-        //生成 17 位 order_no
+        // 生成 17 位 order_no
         QDateTime orderTime = QDateTime::currentDateTime();
         // 查询数据库中最大的 order_id，用于生成最后 3 位序号
         int maxOrderId = 0;
@@ -923,7 +923,7 @@ void UserMainWindow::loadOrders() {
 
         orderFrameLayout->addLayout(bottomLayout);
 
-        // 操作按钮（原有逻辑不变）
+        // 操作按钮 (原有逻辑不变)
         QHBoxLayout *actionLayout = new QHBoxLayout();
         actionLayout->addStretch();
 
@@ -1104,7 +1104,6 @@ void UserMainWindow::loadFavorites() {
 }
 
 // 取消收藏
-// 取消收藏
 void UserMainWindow::handleUnfavorite(const QString &flightId) {
     if (m_dbOperator.removeFavorite(m_userId, flightId)) {
         QMessageBox::information(this, "已取消收藏", "已取消收藏航班：" + flightId);
@@ -1116,9 +1115,7 @@ void UserMainWindow::handleUnfavorite(const QString &flightId) {
 
 // 取消订单
 void UserMainWindow::handleCancelOrder(int orderId, const QString &flightId, double price) {
-    int ret = QMessageBox::question(this, "确认取消",
-                                    "确定要取消此订单吗？\n取消后将退款至您的账户。",
-                                    QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    int ret = QMessageBox::question(this, "确认取消", "确定要取消此订单吗？\n取消后将退款至您的账户。", QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
     if (ret != QMessageBox::Yes) {
         return;
     }

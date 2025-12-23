@@ -19,12 +19,12 @@ FlightItemWidget::FlightItemWidget(const QString &flightNo, const QString &takeo
     ui->destinationLabel->setText(destination);
     ui->priceLabel->setText(price);
     ui->remainingLabel->setText(remaining);
-    // 提取剩余座位数（假设remaining格式为"数字"或"数字/总数"）
+    // 提取剩余座位数 (假设 remaining 格式为 "数字" 或 "数字/总数")
     int remainingSeats = remaining.split("/").first().toInt();
     if (remainingSeats == 0) {
         ui->remainingLabel->setStyleSheet("color: red;");
     } else {
-        // 确保非0时不保留多余样式（可选，根据原有样式决定）
+        // 确保非 0 时不保留多余样式 (可选，根据原有样式决定)
         ui->remainingLabel->setStyleSheet("");
     }
 

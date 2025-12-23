@@ -263,7 +263,7 @@
      </font>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="page_1">
      <widget class="QTableWidget" name="flightTable">
@@ -2268,7 +2268,7 @@ border: none; /* 移除边框 */</string>
        <string>删除</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="deleteUserBtn_2">
+     <widget class="QPushButton" name="editUserBtn">
       <property name="geometry">
        <rect>
         <x>180</x>

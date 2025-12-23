@@ -376,7 +376,7 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
     }
 }
 
-
+// 加载订单数据到表格
 void AdminMainWindow::loadOrderData(const QString &status) {
     QString sql = "select order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, departure_time, arrival_city, arrival_time, price, order_time, order_status from order_info";
 
@@ -769,7 +769,7 @@ void AdminMainWindow::on_cbOrderStatus_currentIndexChanged(int index) {
     loadOrderData(status);
 }
 
-
+// 删除用户按钮
 void AdminMainWindow::on_deleteUserBtn_clicked() {
     int row = ui->twUserList->currentRow();
     if (row < 0) {
@@ -795,6 +795,7 @@ void AdminMainWindow::on_deleteUserBtn_clicked() {
     }
 }
 
+// 航班查询按钮
 void AdminMainWindow::on_findBtn_clicked() {
     resetStatus=false;
     QString departureCity = ui->departureCbox->currentText();
@@ -970,19 +971,7 @@ QDialog *AdminMainWindow::createFlightEditDialog(const QString &flightId) {
 
 // 保存航班编辑数据
 bool AdminMainWindow::saveFlightEditData(const QString &flightId, const QMap<QString, QVariant> &editData) {
-    QString sql = QString("update flight_info set airline_company = '%1', departure_city = '%2', departure_airport = '%3', departure_time = '%4', arrival_city = '%5', arrival_airport = '%6', arrival_time = '%7', price = %8, total_seats = %9, remaining_seats = %10 where flight_id = '%11'").arg(
-                          editData["airline_company"].toString().replace("'", "''"),
-                          editData["departure_city"].toString().replace("'", "''"),
-                          editData["departure_airport"].toString().replace("'", "''"),
-                          editData["departure_time"].toString(),
-                          editData["arrival_city"].toString().replace("'", "''"),
-                          editData["arrival_airport"].toString().replace("'", "''"),
-                          editData["arrival_time"].toString(),
-                          QString::number(editData["price"].toDouble()),
-                          QString::number(editData["total_seats"].toInt()),
-                          QString::number(editData["remaining_seats"].toInt()),
-                          flightId
-                          );
+    QString sql = QString("update flight_info set airline_company = '%1', departure_city = '%2', departure_airport = '%3', departure_time = '%4', arrival_city = '%5', arrival_airport = '%6', arrival_time = '%7', price = %8, total_seats = %9, remaining_seats = %10 where flight_id = '%11'").arg(editData["airline_company"].toString().replace("'", "''"), editData["departure_city"].toString().replace("'", "''"), editData["departure_airport"].toString().replace("'", "''"), editData["departure_time"].toString(), editData["arrival_city"].toString().replace("'", "''"), editData["arrival_airport"].toString().replace("'", "''"), editData["arrival_time"].toString(), QString::number(editData["price"].toDouble()), QString::number(editData["total_seats"].toInt()), QString::number(editData["remaining_seats"].toInt()), flightId);
 
     bool success;
     dbOperator->DBGetData(sql, success);
@@ -999,7 +988,7 @@ void AdminMainWindow::onEditFlight(const QString &flightId) {
 }
 
 // 编辑选中的用户
-void AdminMainWindow::on_deleteUserBtn_2_clicked() {
+void AdminMainWindow::on_editUserBtn_clicked() {
     int row = ui->twUserList->currentRow();
     if (row < 0) {
         QMessageBox::warning(this, "提示", "请先选择要编辑的用户");
