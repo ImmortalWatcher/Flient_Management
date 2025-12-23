@@ -45,6 +45,7 @@ void AdminMainWindow::fillComboBox(QComboBox *cbox, const QString &sql) {
 // 构造函数
 AdminMainWindow::AdminMainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::AdminMainWindow) {
     ui->setupUi(this);
+    resetStatus=true;
     dbOperator = new DBOperator();
     dbOperator->DBOpen();
 
@@ -72,23 +73,23 @@ AdminMainWindow::AdminMainWindow(QWidget *parent) : QMainWindow(parent), ui(new 
 }
 
 AdminMainWindow::~AdminMainWindow() {
-    delete totalStatsView;
-    delete airlineFlightView;
-    delete airlineOrderView;
-    delete cityFlightView;
-    delete cityOrderView;
+    // delete totalStatsView;
+    // delete airlineFlightView;
+    // delete airlineOrderView;
+    // delete cityFlightView;
+    // delete cityOrderView;
 
-    delete totalStatsChart;
-    delete airlineFlightChart;
-    delete airlineOrderChart;
-    delete cityFlightChart;
-    delete cityOrderChart;
+    // delete totalStatsChart;
+    // delete airlineFlightChart;
+    // delete airlineOrderChart;
+    // delete cityFlightChart;
+    // delete cityOrderChart;
 
     delete ui;
     delete dbOperator;
-    delete flightModel;
-    delete orderModel;
-    delete userModel;
+    // delete flightModel;
+    // delete orderModel;
+    // delete userModel;
 }
 
 // 初始化航班管理模块
@@ -687,7 +688,8 @@ void AdminMainWindow::updateStatistics() {
 // 切换到航班管理页面
 void AdminMainWindow::on_flightManagementBtn_clicked() {
     ui->stackedWidget->setCurrentIndex(0);
-    loadFlightData();
+    if (resetStatus) loadFlightData();
+    else on_findBtn_clicked();
 }
 
 // 切换到订单查看页面
@@ -750,7 +752,8 @@ void AdminMainWindow::on_deleteBtn_clicked() {
         bool success;
         dbOperator->DBGetData(sql, success);
         if (success) {
-            loadFlightData();
+            if (resetStatus) loadFlightData();
+            else on_findBtn_clicked();
             QMessageBox::information(this, "成功", "航班删除成功");
         } else {
             QMessageBox::warning(this, "错误", "删除失败");
@@ -792,6 +795,7 @@ void AdminMainWindow::on_deleteUserBtn_clicked() {
 }
 
 void AdminMainWindow::on_findBtn_clicked() {
+    resetStatus=false;
     QString departureCity = ui->departureCbox->currentText();
     QString arrivalCity = ui->arrivalCbox->currentText();
     int year = ui->yearSpin->value();
@@ -951,7 +955,8 @@ QDialog *AdminMainWindow::createFlightEditDialog(const QString &flightId) {
         if (saveFlightEditData(flightId, editData)) {
             QMessageBox::information(dialog, "成功", "航班信息修改成功！");
             dialog->accept();
-            loadFlightData();
+            if (resetStatus) loadFlightData();
+            else on_findBtn_clicked();
         } else {
             QMessageBox::warning(dialog, "错误", "修改航班信息失败！");
         }
@@ -1140,4 +1145,5 @@ void AdminMainWindow::on_resetBtn_clicked() {
     ui->monthSpin->setValue(1);
     ui->daySpin->setValue(1);
     loadFlightData();
+    resetStatus=true;
 }

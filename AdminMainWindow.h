@@ -74,6 +74,7 @@ private slots:
 private:
     Ui::AdminMainWindow *ui;
     DBOperator *dbOperator;
+    bool resetStatus;
     QSqlQueryModel *flightModel;
     QSqlQueryModel *orderModel;
     QSqlQueryModel *userModel;
