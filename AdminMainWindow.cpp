@@ -695,7 +695,8 @@ void AdminMainWindow::on_flightManagementBtn_clicked() {
 // 切换到订单查看页面
 void AdminMainWindow::on_orderViewBtn_clicked() {
     ui->stackedWidget->setCurrentIndex(1);
-    loadOrderData();
+    QString status = ui->cbOrderStatus->currentText();
+    loadOrderData(status);
 }
 
 // 切换到用户管理页面
