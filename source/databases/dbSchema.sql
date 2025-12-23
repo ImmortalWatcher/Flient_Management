@@ -72,7 +72,14 @@ create table if not exists favorite_info (
 -- ========== 测试数据 ==========
 
 -- 用户数据
-insert into user_info (username, password, phone, email, realname, idcard) values ('test', '123456', '13800138000', 'test@email.com', '张三', '123456789012345678');
+insert into user_info (username, password, phone, email, realname, idcard, avatarid, balance) values ('test', '123456', '13800138000', 'test@email.com', '张三', '123456789012345678', 3, 200);
+insert into user_info (username, password, phone, email, realname, idcard, avatarid, balance) values ('alice', '123456', '13912345678', 'alice.wang@qq.com', '王爱丽', '110101199001011234', 12, 1580);
+insert into user_info (username, password, phone, email, realname, idcard, avatarid, balance) values ('bob', '123456', '15098765432', 'bob.li@163.com', '李波', '320102199203154567', 7, 45);
+insert into user_info (username, password, phone, email, realname, idcard, avatarid, balance) values ('charlie', '123456', '18612345678', 'charlie.zhang@gmail.com', '张查理', '440103199505207890', 15, 890);
+insert into user_info (username, password, phone, email, realname, idcard, avatarid, balance) values ('david', '123456', '13765432109', 'david.zhao@sina.com', '赵大卫', '510104199208081234', 4, 1230);
+insert into user_info (username, password, phone, email, realname, idcard, avatarid, balance) values ('emily', '123456', '15987654321', 'emily.chen@outlook.com', '陈艾米', '330106199401121567', 9, 320);
+insert into user_info (username, password, phone, email, realname, idcard, avatarid, balance) values ('frank', '123456', '18812345678', 'frank.liu@hotmail.com', '刘弗兰克', '420102199612253456', 2, 1680);
+insert into user_info (username, password, phone, email, realname, idcard, avatarid, balance) values ('grace', '123456', '13698765432', 'grace.wu@foxmail.com', '吴格蕾丝', '500103199709088901', 11, 75);
 
 -- 管理员数据
 insert into admin_info (username, password) values ('admin', '123456');
@@ -183,8 +190,24 @@ insert into flight_info values ('厦航MF8801', '厦门航空', '上海', '上�
 insert into flight_info values ('东航MU5101', '东方航空', '北京', '北京首都机场', '2026-01-01 08:00:00', '上海', '上海浦东机场', '2026-01-01 10:15:00', 135, 85, 45);
 insert into flight_info values ('东航MU5103', '东方航空', '北京', '北京大兴机场', '2026-01-01 11:30:00', '上海', '上海虹桥机场', '2026-01-01 13:45:00', 158, 88, 60);
 
--- 更新用户余额
-update user_info set balance = 200 where username = 'test';
+-- 订单数据 (test用户订单最多)
+insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time, order_status) values ('20251215173000001', 1, '东航MU5101', '张三', '123456789012345678', '北京', '上海', '2026-01-01 08:00:00', '2026-01-01 10:15:00', 135, '2025-12-15 17:30:00', '已支付');
+insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time, order_status) values ('20251220143000002', 1, '国航CA8394', '张三', '123456789012345678', '北京', '广州', '2026-01-01 10:30:00', '2026-01-01 15:00:00', 455, '2025-12-20 14:30:00', '已支付');
+insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time, order_status) values ('20251222100000003', 1, '深航ZH9404', '张三', '123456789012345678', '深圳', '成都', '2026-01-01 13:10:00', '2026-01-01 16:30:00', 620, '2025-12-22 10:00:00', '已支付');
+insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time, order_status) values ('20251223153000004', 1, '东航MU2307', '张三', '123456789012345678', '上海', '广州', '2026-01-01 17:15:00', '2026-01-01 19:30:00', 135, '2025-12-23 15:30:00', '已取消');
+insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time, order_status) values ('20251224110000005', 1, '厦航MF8302', '张三', '123456789012345678', '厦门', '上海', '2026-01-08 08:15:00', '2026-01-08 10:40:00', 350, '2025-12-24 11:00:00', '已支付');
+insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time, order_status) values ('20251225160000006', 1, '南航CZ6108', '张三', '123456789012345678', '沈阳', '广州', '2026-01-18 18:00:00', '2026-01-18 21:30:00', 750, '2025-12-25 16:00:00', '已取消');
+insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time, order_status) values ('20251218120000007', 2, '深航ZH1610', '王爱丽', '110101199001011234', '北京', '深圳', '2026-01-01 19:00:00', '2026-01-01 22:25:00', 625, '2025-12-18 12:00:00', '已支付');
+insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time, order_status) values ('20251219140000008', 2, '海航HU7101', '王爱丽', '110101199001011234', '北京', '海口', '2026-01-05 07:00:00', '2026-01-05 11:20:00', 880, '2025-12-19 14:00:00', '已取消');
+insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time, order_status) values ('20251220110000009', 3, '川航3U8888', '李波', '320102199203154567', '成都', '重庆', '2026-01-10 11:40:00', '2026-01-10 13:10:00', 180, '2025-12-20 11:00:00', '已支付');
+insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time, order_status) values ('20251221150000010', 3, '吉祥HO1203', '李波', '320102199203154567', '上海', '南京', '2026-01-12 14:20:00', '2026-01-12 15:50:00', 150, '2025-12-21 15:00:00', '已支付');
+insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time, order_status) values ('20251222100000011', 3, '东航MU5501', '李波', '320102199203154567', '西安', '上海', '2026-01-20 20:10:00', '2026-01-20 22:45:00', 420, '2025-12-22 10:00:00', '已支付');
+insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time, order_status) values ('20251223120000012', 4, '海航HU7306', '张查理', '440103199505207890', '杭州', '北京', '2026-01-25 05:30:00', '2026-01-25 08:00:00', 480, '2025-12-23 12:00:00', '已支付');
+insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time, order_status) values ('20251224140000013', 5, '厦航MF8501', '赵大卫', '510104199208081234', '福州', '深圳', '2026-01-28 10:00:00', '2026-01-28 12:30:00', 520, '2025-12-24 14:00:00', '已支付');
+insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time, order_status) values ('20251225160000014', 5, '川航3U6709', '赵大卫', '510104199208081234', '重庆', '昆明', '2026-01-30 13:45:00', '2026-01-30 16:15:00', 650, '2025-12-25 16:00:00', '已取消');
+insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time, order_status) values ('20251226100000015', 7, '吉祥HO1808', '刘弗兰克', '420102199612253456', '南京', '青岛', '2026-01-31 17:20:00', '2026-01-31 19:00:00', 320, '2025-12-26 10:00:00', '已支付');
 
--- 测试订单数据
-insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_time) values ('20251215173000001', 1, '东航MU5101', '张三', '123456789012345678', '北京', '上海', '2026-01-01 08:00:00', '2026-01-01 10:15:00', 135, '2025-12-15 17:30:00');
+-- 收藏数据 (test用户收藏)
+insert into favorite_info (user_id, flight_id, create_time) values (1, '国航CA1509', '2025-12-20 09:00:00');
+insert into favorite_info (user_id, flight_id, create_time) values (1, '南航CZ3405', '2025-12-21 14:30:00');
+insert into favorite_info (user_id, flight_id, create_time) values (1, '东航MU2901', '2025-12-22 16:20:00');

@@ -1299,39 +1299,97 @@ void UserMainWindow::handleReschedule(int orderId, const QString &oldFlightId, d
         }
     };
 
-    connect(depCityCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), [&](int) {
-        if (depAirportCheck->isChecked()) {
-            updateAirportOptions(depAirportCombo, depCityCombo->currentText(), true);
-        }
-    });
-
-    connect(arrCityCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), [&](int) {
-        if (arrAirportCheck->isChecked()) {
-            updateAirportOptions(arrAirportCombo, arrCityCombo->currentText(), false);
-        }
-    });
-
-    connect(depAirportCheck, &QCheckBox::toggled, [&](bool checked) {
-        depAirportCombo->setEnabled(checked);
-        if (checked) {
-            updateAirportOptions(depAirportCombo, depCityCombo->currentText(), true);
-        }
-    });
-
-    connect(arrAirportCheck, &QCheckBox::toggled, [&](bool checked) {
-        arrAirportCombo->setEnabled(checked);
-        if (checked) {
-            updateAirportOptions(arrAirportCombo, arrCityCombo->currentText(), false);
-        }
-    });
-
-    connect(dateCheck, &QCheckBox::toggled, dateEdit, &QDateEdit::setEnabled);
-
     filterLayout->addLayout(gridLayout);
 
     QLabel *resultLabel = new QLabel(QString("找到 %1 个可改签航班").arg(options.size()), filterDialog);
     resultLabel->setStyleSheet("font-size: 12px; color: #666; padding: 10px 0;");
     filterLayout->addWidget(resultLabel);
+
+    // 实时更新可改签航班数量
+    auto updateFlightCount = [&, depCityCombo, arrCityCombo, depAirportCheck, depAirportCombo, arrAirportCheck, arrAirportCombo, dateCheck, dateEdit, resultLabel]() {
+        QString depCity = depCityCombo->currentText();
+        QString arrCity = arrCityCombo->currentText();
+        QString depAirport = depAirportCheck->isChecked() && depAirportCombo->currentIndex() > 0 ? depAirportCombo->currentText() : "";
+        QString arrAirport = arrAirportCheck->isChecked() && arrAirportCombo->currentIndex() > 0 ? arrAirportCombo->currentText() : "";
+        QDate targetDate = dateCheck->isChecked() ? dateEdit->date() : QDate();
+        
+        bool success = false;
+        QString sqlstr = QString("select count(*) as cnt from flight_info where departure_city='%1' and arrival_city='%2' and remaining_seats>0 and flight_id!='%3'").arg(depCity, arrCity, oldFlightId);
+        
+        if (!depAirport.isEmpty()) {
+            sqlstr += QString(" and departure_airport='%1'").arg(depAirport);
+        }
+        if (!arrAirport.isEmpty()) {
+            sqlstr += QString(" and arrival_airport='%1'").arg(arrAirport);
+        }
+        if (targetDate.isValid()) {
+            sqlstr += QString(" and date(departure_time)='%1'").arg(targetDate.toString("yyyy-MM-dd"));
+        }
+        
+        QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
+        if (success && query.next()) {
+            int count = query.value("cnt").toInt();
+            resultLabel->setText(QString("找到 %1 个可改签航班").arg(count));
+        } else {
+            resultLabel->setText("找到 0 个可改签航班");
+        }
+    };
+
+    connect(depCityCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), [&, updateFlightCount](int) {
+        if (depAirportCheck->isChecked()) {
+            updateAirportOptions(depAirportCombo, depCityCombo->currentText(), true);
+        }
+        updateFlightCount();
+    });
+
+    connect(arrCityCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), [&, updateFlightCount](int) {
+        if (arrAirportCheck->isChecked()) {
+            updateAirportOptions(arrAirportCombo, arrCityCombo->currentText(), false);
+        }
+        updateFlightCount();
+    });
+
+    connect(depAirportCheck, &QCheckBox::toggled, [&, updateFlightCount](bool checked) {
+        depAirportCombo->setEnabled(checked);
+        if (checked) {
+            updateAirportOptions(depAirportCombo, depCityCombo->currentText(), true);
+        }
+        updateFlightCount();
+    });
+
+    connect(arrAirportCheck, &QCheckBox::toggled, [&, updateFlightCount](bool checked) {
+        arrAirportCombo->setEnabled(checked);
+        if (checked) {
+            updateAirportOptions(arrAirportCombo, arrCityCombo->currentText(), false);
+        }
+        updateFlightCount();
+    });
+
+    connect(depAirportCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), [&, updateFlightCount](int) {
+        if (depAirportCheck->isChecked()) {
+            updateFlightCount();
+        }
+    });
+
+    connect(arrAirportCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), [&, updateFlightCount](int) {
+        if (arrAirportCheck->isChecked()) {
+            updateFlightCount();
+        }
+    });
+
+    connect(dateCheck, &QCheckBox::toggled, [&, dateEdit, updateFlightCount](bool checked) {
+        dateEdit->setEnabled(checked);
+        updateFlightCount();
+    });
+
+    connect(dateEdit, &QDateEdit::dateChanged, [&, updateFlightCount](const QDate &) {
+        if (dateCheck->isChecked()) {
+            updateFlightCount();
+        }
+    });
+
+    // 初始化时更新一次航班数量
+    updateFlightCount();
 
     QHBoxLayout *filterBtnLayout = new QHBoxLayout();
     filterBtnLayout->addStretch();
