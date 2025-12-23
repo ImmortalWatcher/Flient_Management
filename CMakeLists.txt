@@ -29,6 +29,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         DBOperator.h DBOperator.cpp
         WindowFactory.h WindowFactory.cpp
         figures.qrc
+        airlinelogos.qrc
         avatars.qrc
         LoginDlg.h LoginDlg.cpp LoginDlg.ui
         RegisterDlg.h RegisterDlg.cpp RegisterDlg.ui

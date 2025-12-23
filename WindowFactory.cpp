@@ -18,7 +18,7 @@ WindowFactory &WindowFactory::instance() {
 // 构造函数：初始化窗口工厂
 WindowFactory::WindowFactory(QObject *parent) : QObject(parent), m_currentMainWindow(nullptr) {}
 
-// 创建主窗口（用户或管理员）
+// 创建主窗口 (用户或管理员)
 QMainWindow *WindowFactory::createMainWindow(bool isAdmin, int userId, QWidget *parent) {
     destroyCurrentWindow();
 
@@ -35,6 +35,7 @@ QMainWindow *WindowFactory::createMainWindow(bool isAdmin, int userId, QWidget *
     if (window) {
         m_currentMainWindow = window;
 
+        // 连接登出信号
         if (!isAdmin) {
             UserMainWindow *userWindow = qobject_cast<UserMainWindow *>(window);
             if (userWindow) {
@@ -68,6 +69,8 @@ QDialog *WindowFactory::createLoginWindow(QWidget *parent) {
                 QMainWindow *mainWindow = createMainWindow(isAdmin, userId);
                 if (mainWindow) {
                     mainWindow->adjustSize();
+
+                    // 居中显示主窗口
                     QScreen *screen = QApplication::primaryScreen();
                     QRect screenGeometry = screen->geometry();
                     QRect windowGeometry = mainWindow->geometry();
@@ -95,10 +98,12 @@ void WindowFactory::switchToLogin() {
     loginDlg->show();
 }
 
+// 获取当前主窗口
 QMainWindow *WindowFactory::currentMainWindow() const {
     return m_currentMainWindow;
 }
 
+// 销毁当前主窗口
 void WindowFactory::destroyCurrentWindow() {
     if (m_currentMainWindow) {
         m_currentMainWindow->close();

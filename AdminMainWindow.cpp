@@ -2,56 +2,47 @@
 #include "ui_AdminMainWindow.h"
 
 #include <QAbstractItemView>
-#include <QDate>
-#include <QDebug>
-#include <QHBoxLayout>
-#include <QHeaderView>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QSqlError>
-#include <QSqlField>
-#include <QSqlQuery>
-#include <QSqlQueryModel>
-#include <QSqlRecord>
-#include <QTableWidget>
-#include <QTableWidgetItem>
-#include <QDialog>
 #include <QBrush>
 #include <QColor>
-#include <QVBoxLayout>
+#include <QCursor>
+#include <QDate>
+#include <QDateTimeEdit>
+#include <QDebug>
+#include <QDialog>
+#include <QDoubleSpinBox>
 #include <QGridLayout>
 #include <QHBoxLayout>
-#include <QLineEdit>
-#include <QDateTimeEdit>
-#include <QDoubleSpinBox>
-#include <QSpinBox>
+#include <QHeaderView>
 #include <QLabel>
+#include <QLineEdit>
 #include <QMap>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QSpinBox>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QSqlQueryModel>
+#include <QTableWidget>
+#include <QTableWidgetItem>
 #include <QToolTip>
-#include <QCursor>
+#include <QVBoxLayout>
 
-// 填充 ComboBox 函数（参数：目标 ComboBox、查询 SQL）
+// 填充 ComboBox 选项
 void AdminMainWindow::fillComboBox(QComboBox *cbox, const QString &sql) {
-    // 1. 清空原有选项（避免重复）
     cbox->clear();
-
-    // 2. 执行 SQL 查询
-    bool sf=false;
+    bool sf = false;
     QSqlQuery query = dbOperator->DBGetData(sql, sf);
     if (!sf) {
         qDebug() << "查询失败：" << query.lastError().text();
         return;
     }
-
-    // 3. 遍历查询结果，添加到 ComboBox
     while (query.next()) {
-        // 假设查询结果的第 0 列是要显示的内容（可根据字段名调整，如 query.value("type").toString()）
         QString itemText = query.value(0).toString();
         cbox->addItem(itemText);
     }
 }
 
-// 构造函数：初始化管理员主窗口
+// 构造函数
 AdminMainWindow::AdminMainWindow(QWidget *parent) : QMainWindow(parent), ui(new Ui::AdminMainWindow) {
     ui->setupUi(this);
     dbOperator = new DBOperator();
@@ -74,9 +65,9 @@ AdminMainWindow::AdminMainWindow(QWidget *parent) : QMainWindow(parent), ui(new 
     initUserManagement();
     initDataStatistics();
 
-    QString sql = "SELECT DISTINCT departure_city FROM flight_info";
+    QString sql = "select distinct departure_city from flight_info";
     fillComboBox(ui->departureCbox, sql);
-    sql = "SELECT DISTINCT arrival_city FROM flight_info";
+    sql = "select distinct arrival_city from flight_info";
     fillComboBox(ui->arrivalCbox, sql);
 }
 
@@ -108,9 +99,6 @@ void AdminMainWindow::initFlightManagement() {
     ui->yearSpin->setRange(2000, 2100);
     ui->monthSpin->setRange(1, 12);
     ui->daySpin->setRange(1, 31);
-
-    // 设置默认日期为当前日期
-    QDate currentDate = QDate::currentDate();
     ui->yearSpin->setValue(2026);
     ui->monthSpin->setValue(1);
     ui->daySpin->setValue(1);
@@ -153,11 +141,13 @@ void AdminMainWindow::initFlightManagement() {
         "    text-align: center;"
         "}"
         );
+
     // 表头文本居中对齐
     QHeaderView *flightHeader = ui->flightTable->horizontalHeader();
     if (flightHeader) {
         flightHeader->setDefaultAlignment(Qt::AlignCenter);
     }
+
     // 列宽自适应内容，确保内容完整显示
     ui->flightTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->flightTable->horizontalHeader()->setMinimumSectionSize(80);
@@ -207,11 +197,7 @@ void AdminMainWindow::initOrderView() {
         "}"
         );
     ui->twOrderList->setColumnCount(12);
-    QStringList orderHeaders = {
-        "订单号", "用户ID", "航班号", "乘客姓名", "身份证号",
-        "出发城市", "起飞时间", "到达城市", "到达时间", "票价",
-        "下单时间", "订单状态"
-    };
+    QStringList orderHeaders = { "订单号", "用户ID", "航班号", "乘客姓名", "身份证号", "出发城市", "起飞时间", "到达城市", "到达时间", "票价", "下单时间", "订单状态" };
     ui->twOrderList->setHorizontalHeaderLabels(orderHeaders);
     QHeaderView *orderHeader = ui->twOrderList->horizontalHeader();
     if (orderHeader) {
@@ -310,7 +296,7 @@ void AdminMainWindow::initDataStatistics() {
     airlineFlightView->setStyleSheet("border: 1px solid #ecf0f1; border-radius: 10px; padding: 10px;");
     mainLayout->addWidget(airlineFlightView);
 
-    // 5.3 城市航班数饼状图
+    // 城市航班数饼状图
     QLabel *cityTitle = new QLabel("各城市出发航班占比", scrollContent);
     cityTitle->setStyleSheet("font-size: 20px; font-weight: bold; color: #2c3e50; margin-bottom: 10px;");
     mainLayout->addWidget(cityTitle, 0, Qt::AlignCenter);
@@ -344,7 +330,7 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
     QSqlQuery query = dbOperator->DBGetData(sql, success);
 
     if (success) {
-        // 禁用UI更新以提高性能
+        // 禁用 UI 更新以提高性能
         ui->flightTable->setUpdatesEnabled(false);
         ui->flightTable->setRowCount(0);
 
@@ -381,7 +367,7 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
             }
         }
 
-        // 重新启用UI更新
+        // 重新启用 UI 更新
         ui->flightTable->setUpdatesEnabled(true);
         ui->flightTable->viewport()->update();
     } else {
@@ -389,7 +375,7 @@ void AdminMainWindow::loadFlightData(const QString &whereClause) {
     }
 }
 
-// 加载订单数据
+
 void AdminMainWindow::loadOrderData(const QString &status) {
     QString sql = "select order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, departure_time, arrival_city, arrival_time, price, order_time, order_status from order_info";
 
@@ -430,8 +416,7 @@ void AdminMainWindow::loadOrderData(const QString &status) {
 
         ui->twOrderList->resizeColumnsToContents();
     } else {
-        QMessageBox::warning(this, "错误",
-                             QString("加载订单数据失败：%1").arg(query.lastError().text()));
+        QMessageBox::warning(this, "错误", QString("加载订单数据失败：%1").arg(query.lastError().text()));
     }
 }
 
@@ -444,7 +429,6 @@ void AdminMainWindow::loadUserData() {
     if (success) {
         ui->twUserList->setRowCount(0);
 
-        // 关键：设置表格样式表，让单元格文本自动换行
         ui->twUserList->setStyleSheet("QTableWidget::item { white-space: normal; }");
 
         int row = 0;
@@ -453,7 +437,7 @@ void AdminMainWindow::loadUserData() {
 
             for (int col = 0; col < 7; col++) {
                 QTableWidgetItem *item = new QTableWidgetItem(query.value(col).toString());
-                item->setTextAlignment(Qt::AlignCenter); // 保持居中对齐
+                item->setTextAlignment(Qt::AlignCenter);
                 ui->twUserList->setItem(row, col, item);
             }
 
@@ -463,11 +447,8 @@ void AdminMainWindow::loadUserData() {
         QHeaderView *header = ui->twUserList->horizontalHeader();
         if (header) {
             header->setDefaultAlignment(Qt::AlignCenter);
-            // 列宽自适应内容（适配换行后的文本宽度）
             header->setSectionResizeMode(QHeaderView::ResizeToContents);
         }
-
-        // 行高自适应内容（关键：换行后行高自动撑开）
         ui->twUserList->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     } else {
         QMessageBox::warning(this, "错误", "加载用户数据失败");
@@ -492,7 +473,7 @@ void AdminMainWindow::updateStatistics() {
 
     bool success;
 
-    // 数据库查询（保持原有逻辑）
+    // 数据库查询 (保持原有逻辑)
     QSqlQuery flightQuery = dbOperator->DBGetData("select count(*) as flight_count from flight_info", success);
     if (success && flightQuery.next()) {
         totalFlights = flightQuery.value("flight_count").toLongLong();
@@ -503,13 +484,12 @@ void AdminMainWindow::updateStatistics() {
         totalUsers = userQuery.value("user_count").toLongLong();
     }
 
-    QSqlQuery orderQuery = dbOperator->DBGetData("select count(*) as order_count, COALESCE(SUM(price), 0) as total_price from order_info", success);
+    QSqlQuery orderQuery = dbOperator->DBGetData("select count(*) as order_count, coalesce(sum(price), 0) as total_price from order_info", success);
     if (success && orderQuery.next()) {
         totalOrders = orderQuery.value("order_count").toLongLong();
         totalAmount = orderQuery.value("total_price").toDouble();
     }
 
-    // 清理旧系列
     for (QAbstractSeries *series : totalStatsChart->series()) {
         QBarSeries *barSeries = qobject_cast<QBarSeries*>(series);
         if (barSeries) {
@@ -518,7 +498,7 @@ void AdminMainWindow::updateStatistics() {
         totalStatsChart->removeSeries(series);
         delete series;
     }
-    // 清理旧轴
+
     QList<QAbstractAxis*> oldAxes = totalStatsChart->axes();
     for (QAbstractAxis* axis : oldAxes) {
         totalStatsChart->removeAxis(axis);
@@ -526,20 +506,14 @@ void AdminMainWindow::updateStatistics() {
     }
 
     QBarSet *countSet = new QBarSet("数量");
-    *countSet << static_cast<qreal>(totalFlights)
-              << static_cast<qreal>(totalUsers)
-              << static_cast<qreal>(totalOrders)
-              << 0.0;
+    *countSet << static_cast<qreal>(totalFlights) << static_cast<qreal>(totalUsers) << static_cast<qreal>(totalOrders) << 0.0;
     countSet->setColor(QColor(52, 152, 219));
     QBarSeries *countSeries = new QBarSeries();
     countSeries->append(countSet);
     countSeries->setLabelsVisible(false);
 
     QBarSet *amountSet = new QBarSet("金额");
-    *amountSet << 0.0
-               << 0.0
-               << 0.0
-               << static_cast<qreal>(totalAmount);
+    *amountSet << 0.0 << 0.0 << 0.0 << static_cast<qreal>(totalAmount);
     amountSet->setColor(QColor(231, 76, 60));
     QBarSeries *amountSeries = new QBarSeries();
     amountSeries->append(amountSet);
@@ -577,20 +551,20 @@ void AdminMainWindow::updateStatistics() {
     countSeries->attachAxis(totalXAxis);
     amountSeries->attachAxis(totalXAxis);
 
-    // ========== 6. 数量轴（左Y轴） ==========
+    // 数量轴
     QValueAxis *axisY_Count = new QValueAxis();
     axisY_Count->setTitleText("数量");
     axisY_Count->setLabelsFont(QFont("Microsoft YaHei", 12));
     axisY_Count->setLabelFormat("%d");
     axisY_Count->setTickType(QValueAxis::TicksFixed);
-    axisY_Count->setTickInterval(4); // 4的倍数间隔
+    axisY_Count->setTickInterval(4);
     qint64 maxCount = qMax<qint64>(0, qMax(totalFlights, qMax(totalUsers, totalOrders)));
-    qreal countAxisMax = getAxisMax(static_cast<qreal>(maxCount), 4); // 调用新工具函数
+    qreal countAxisMax = getAxisMax(static_cast<qreal>(maxCount), 4);
     axisY_Count->setRange(0, countAxisMax);
     totalStatsChart->addAxis(axisY_Count, Qt::AlignLeft);
     countSeries->attachAxis(axisY_Count);
 
-    // ========== 7. 金额轴（右Y轴） ==========
+    // 金额轴
     QValueAxis *axisY_Amount = new QValueAxis();
     axisY_Amount->setTitleText("金额（元）");
     axisY_Amount->setLabelsFont(QFont("Microsoft YaHei", 12));
@@ -601,7 +575,7 @@ void AdminMainWindow::updateStatistics() {
     if (totalAmount > 10000) amountTick = 1000;
     axisY_Amount->setTickInterval(amountTick);
     qreal safeTotalAmount = qMax(0.0, totalAmount);
-    qreal amountAxisMax = getAxisMax(safeTotalAmount, 10); // 调用新工具函数
+    qreal amountAxisMax = getAxisMax(safeTotalAmount, 10);
     axisY_Amount->setRange(0, amountAxisMax);
     totalStatsChart->addAxis(axisY_Amount, Qt::AlignRight);
     amountSeries->attachAxis(axisY_Amount);
@@ -624,7 +598,7 @@ void AdminMainWindow::updateStatistics() {
     QPieSeries *airlinePieSeries = new QPieSeries();
     int totalAirlineFlights = 0;
 
-    QSqlQuery airFlightQuery = dbOperator->DBGetData("SELECT airline_company, COUNT(*) FROM flight_info GROUP BY airline_company", success);
+    QSqlQuery airFlightQuery = dbOperator->DBGetData("select airline_company, count(*) from flight_info group by airline_company", success);
     if (success) {
         while (airFlightQuery.next()) {
             totalAirlineFlights += airFlightQuery.value(1).toInt();
@@ -669,7 +643,7 @@ void AdminMainWindow::updateStatistics() {
     QPieSeries *cityPieSeries = new QPieSeries();
     int totalCityFlights = 0;
 
-    QSqlQuery cityFlightQuery = dbOperator->DBGetData("SELECT departure_city, COUNT(*) FROM flight_info GROUP BY departure_city", success);
+    QSqlQuery cityFlightQuery = dbOperator->DBGetData("select departure_city, count(*) from flight_info group by departure_city", success);
     if (success) {
         while (cityFlightQuery.next()) {
             totalCityFlights += cityFlightQuery.value(1).toInt();
@@ -791,7 +765,7 @@ void AdminMainWindow::on_cbOrderStatus_currentIndexChanged(int index) {
     loadOrderData(status);
 }
 
-// 处理删除用户按钮点击
+
 void AdminMainWindow::on_deleteUserBtn_clicked() {
     int row = ui->twUserList->currentRow();
     if (row < 0) {
@@ -829,7 +803,6 @@ void AdminMainWindow::on_findBtn_clicked() {
     if (!departureCity.isEmpty()) {
         conditions.append(QString("departure_city = '%1'").arg(departureCity));
     }
-
     if (!arrivalCity.isEmpty()) {
         conditions.append(QString("arrival_city = '%1'").arg(arrivalCity));
     }
@@ -837,7 +810,7 @@ void AdminMainWindow::on_findBtn_clicked() {
     QDate selectedDate(year, month, day);
     if (selectedDate.isValid()) {
         QString dateStr = selectedDate.toString("yyyy-MM-dd");
-        conditions.append(QString("DATE(departure_time) = '%1'").arg(dateStr));
+        conditions.append(QString("date(departure_time) = '%1'").arg(dateStr));
     }
 
     QString whereClause = conditions.join(" AND ");
@@ -989,23 +962,10 @@ QDialog *AdminMainWindow::createFlightEditDialog(const QString &flightId) {
     return dialog;
 }
 
-// 保存编辑后的航班数据到数据库
+// 保存航班编辑数据
 bool AdminMainWindow::saveFlightEditData(const QString &flightId, const QMap<QString, QVariant> &editData) {
-    QString sql = QString(
-                      "update flight_info set "
-                      "airline_company = '%1', "
-                      "departure_city = '%2', "
-                      "departure_airport = '%3', "
-                      "departure_time = '%4', "
-                      "arrival_city = '%5', "
-                      "arrival_airport = '%6', "
-                      "arrival_time = '%7', "
-                      "price = %8, "
-                      "total_seats = %9, "
-                      "remaining_seats = %10 "
-                      "where flight_id = '%11'"
-                      ).arg(
-                          editData["airline_company"].toString().replace("'", "''"), // 转义单引号
+    QString sql = QString("update flight_info set airline_company = '%1', departure_city = '%2', departure_airport = '%3', departure_time = '%4', arrival_city = '%5', arrival_airport = '%6', arrival_time = '%7', price = %8, total_seats = %9, remaining_seats = %10 where flight_id = '%11'").arg(
+                          editData["airline_company"].toString().replace("'", "''"),
                           editData["departure_city"].toString().replace("'", "''"),
                           editData["departure_airport"].toString().replace("'", "''"),
                           editData["departure_time"].toString(),
@@ -1032,7 +992,7 @@ void AdminMainWindow::onEditFlight(const QString &flightId) {
     }
 }
 
-// 用户编辑按钮点击事件
+// 编辑选中的用户
 void AdminMainWindow::on_deleteUserBtn_2_clicked() {
     int row = ui->twUserList->currentRow();
     if (row < 0) {
@@ -1059,7 +1019,7 @@ QDialog *AdminMainWindow::createUserEditDialog(const QString &username) {
     QGridLayout *formLayout = new QGridLayout();
     mainLayout->addLayout(formLayout);
 
-    // 用户名字段（只读）
+    // 用户名字段 (只读)
     QLabel *lblUsername = new QLabel("用户名：");
     QLineEdit *leUsername = new QLineEdit();
     leUsername->setReadOnly(true);
@@ -1165,37 +1125,19 @@ QDialog *AdminMainWindow::createUserEditDialog(const QString &username) {
 
 // 保存用户编辑数据
 bool AdminMainWindow::saveUserEditData(const QString &username, const QMap<QString, QVariant> &editData) {
-    QString sql = QString(
-                      "update user_info set "
-                      "password = '%1', "
-                      "phone = '%2', "
-                      "email = '%3', "
-                      "realname = '%4', "
-                      "idcard = '%5', "
-                      "balance = %6 "
-                      "where username = '%7'"
-                      ).arg(
-                          editData["password"].toString().replace("'", "''"),
-                          editData["phone"].toString().replace("'", "''"),
-                          editData["email"].toString().replace("'", "''"),
-                          editData["realname"].toString().replace("'", "''"),
-                          editData["idcard"].toString().replace("'", "''"),
-                          QString::number(editData["balance"].toDouble()),
-                          username
-                          );
+    QString sql = QString("update user_info set password = '%1', phone = '%2', email = '%3', realname = '%4', idcard = '%5', balance = %6 where username = '%7'").arg(editData["password"].toString().replace("'", "''"), editData["phone"].toString().replace("'", "''"), editData["email"].toString().replace("'", "''"), editData["realname"].toString().replace("'", "''"), editData["idcard"].toString().replace("'", "''"), QString::number(editData["balance"].toDouble()), username);
 
     bool success;
     dbOperator->DBGetData(sql, success);
     return success;
 }
+
 // 重置查询条件并显示所有航班
-void AdminMainWindow::on_resetBtn_clicked()
-{
+void AdminMainWindow::on_resetBtn_clicked() {
     ui->departureCbox->setCurrentIndex(0);
     ui->arrivalCbox->setCurrentIndex(0);
-    ui->yearSpin->setValue(2025);
+    ui->yearSpin->setValue(2026);
     ui->monthSpin->setValue(1);
     ui->daySpin->setValue(1);
-    initFlightManagement();
+    loadFlightData();
 }
-

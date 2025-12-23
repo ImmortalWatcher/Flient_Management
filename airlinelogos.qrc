@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/img">
+        <file>source/airlinelogos/CA.png</file>
+        <file>source/airlinelogos/KN.png</file>
+        <file>source/airlinelogos/MU.png</file>
+        <file>source/airlinelogos/HU.png</file>
+        <file>source/airlinelogos/HO.png</file>
+        <file>source/airlinelogos/SC.png</file>
+        <file>source/airlinelogos/FM.png</file>
+        <file>source/airlinelogos/ZH.png</file>
+        <file>source/airlinelogos/3U.png</file>
+        <file>source/airlinelogos/MF.png</file>
+        <file>source/airlinelogos/8L.png</file>
+        <file>source/airlinelogos/9C.png</file>
+        <file>source/airlinelogos/CZ.png</file>
+        <file>source/airlinelogos/JD.png</file>
+    </qresource>
+</RCC>

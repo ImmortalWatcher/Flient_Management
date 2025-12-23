@@ -8,7 +8,6 @@
 // 程序入口函数
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
-    // 设置当最后一个窗口关闭时不自动退出程序，以便注销后可以回到登录窗口
     a.setQuitOnLastWindowClosed(false);
 
     // 打开数据库连接
@@ -20,9 +19,8 @@ int main(int argc, char *argv[]) {
     a.setApplicationVersion("1.0.0");
     a.setOrganizationName("FlightManagement");
 
-    // 获取窗口工厂单例并创建登录窗口
+    // 创建登录窗口
     WindowFactory &factory = WindowFactory::instance();
-
     QDialog *loginWindow = factory.createLoginWindow();
     if (loginWindow) {
         loginWindow->show();

@@ -3,7 +3,9 @@
 
 #include "FlightItemWidget.h"
 
+#include <QCheckBox>
 #include <QComboBox>
+#include <QDateEdit>
 #include <QDateTime>
 #include <QDialog>
 #include <QEvent>
@@ -13,36 +15,28 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QMouseEvent>
+#include <QPushButton>
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QVBoxLayout>
 #include <QVector>
-#include <QDateEdit>
-#include <QCheckBox>
-#include <QPushButton>
 
-// 填充 ComboBox 函数（参数：目标 ComboBox、查询 SQL）
+// 填充 ComboBox 选项
 void UserMainWindow::fillComboBox(QComboBox *cbox, const QString &sql) {
-    // 1. 清空原有选项（避免重复）
     cbox->clear();
-
-    // 2. 执行 SQL 查询
-    bool sf=false;
+    bool sf = false;
     QSqlQuery query = m_dbOperator.DBGetData(sql, sf);
     if (!sf) {
         qDebug() << "查询失败：" << query.lastError().text();
         return;
     }
-
-    // 3. 遍历查询结果，添加到 ComboBox
     while (query.next()) {
-        // 假设查询结果的第 0 列是要显示的内容（可根据字段名调整，如 query.value("type").toString()）
         QString itemText = query.value(0).toString();
         cbox->addItem(itemText);
     }
 }
 
-// 构造函数：初始化用户主窗口
+// 构造函数
 UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent), ui(new Ui::UserMainWindow), m_userId(userId) {
     ui->setupUi(this);
 
@@ -102,11 +96,10 @@ UserMainWindow::UserMainWindow(int userId, QWidget *parent) : QMainWindow(parent
     if (ui->stackedWidget->currentIndex() == 2) {
         loadFavorites();
     }
-    QString sql = "SELECT DISTINCT departure_city FROM flight_info";
+    QString sql = "select distinct departure_city from flight_info";
     fillComboBox(ui->departureCbox, sql);
-    sql = "SELECT DISTINCT arrival_city FROM flight_info";
+    sql = "select distinct arrival_city from flight_info";
     fillComboBox(ui->arrivalCbox, sql);
-
 }
 
 UserMainWindow::~UserMainWindow() {
@@ -291,7 +284,7 @@ void UserMainWindow::loadUserInfo() {
     }
 }
 
-// 清空航班列表中的所有条目
+// 清空航班列表
 void UserMainWindow::clearFlightItems() {
     while (QLayoutItem *item = flightLayout->takeAt(0)) {
         if (QWidget *widget = item->widget()) {
@@ -318,7 +311,6 @@ void UserMainWindow::loadAllFlights() {
     ui->scrollAreaWidgetContents_1->setMinimumWidth(contentWidth);
     ui->scrollAreaWidgetContents_1->resize(contentWidth, ui->scrollAreaWidgetContents_1->height());
 
-    // 遍历查询结果，创建航班条目
     int count = 0;
     while (query.next()) {
         count++;
@@ -358,14 +350,13 @@ void UserMainWindow::loadAllFlights() {
     flightLayout->activate();
 
     ui->scrollAreaWidgetContents_1->updateGeometry();
-
     ui->scrollAreaWidgetContents_1->adjustSize();
     ui->scrollAreaWidgetContents_1->update();
     ui->scrollArea_1->update();
     ui->scrollArea_1->viewport()->update();
 }
 
-// 重置查询条件并显示所有航班
+// 重置查询条件
 void UserMainWindow::on_resetBtn_clicked() {
     ui->departureCbox->setCurrentIndex(0);
     ui->arrivalCbox->setCurrentIndex(0);
@@ -439,16 +430,14 @@ void UserMainWindow::on_searchBtn_clicked() {
     flightLayout->activate();
 
     ui->scrollAreaWidgetContents_1->updateGeometry();
-
     ui->scrollAreaWidgetContents_1->adjustSize();
     ui->scrollAreaWidgetContents_1->update();
     ui->scrollArea_1->update();
     ui->scrollArea_1->viewport()->update();
 }
 
-// 处理航班预订按钮点击
+// 处理航班预订
 void UserMainWindow::on_book_clicked(const QString &flightNo) {
-    // 查询航班详细信息
     bool success = false;
     QString sqlstr = QString("select * from flight_info where flight_id='%1'").arg(flightNo);
     QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
@@ -597,33 +586,24 @@ void UserMainWindow::on_book_clicked(const QString &flightNo) {
             return;
         }
 
-        //生成17位order_no
+        //生成 17 位 order_no
         QDateTime orderTime = QDateTime::currentDateTime();
-        // 查询数据库中最大的order_id，用于生成最后3位序号
+        // 查询数据库中最大的 order_id，用于生成最后 3 位序号
         int maxOrderId = 0;
         bool isMaxIdSuccess = false;
         QSqlQuery maxIdQuery = m_dbOperator.DBGetData("select max(order_id) from order_info", isMaxIdSuccess);
         if (isMaxIdSuccess && maxIdQuery.next() && !maxIdQuery.value(0).isNull()) {
-            maxOrderId = maxIdQuery.value(0).toInt() + 1; // 自增1保证唯一
+            maxOrderId = maxIdQuery.value(0).toInt() + 1;
         } else {
-            maxOrderId = 1; // 无订单时从1开始
+            maxOrderId = 1;
         }
-        // 生成17位订单号：年(4)+月(2)+日(2)+时(2)+分(2)+秒(2)+序号(3)
-        QString orderNo = QString("%1%2%3%4%5%6%7")
-                              .arg(orderTime.date().year(), 4, 10, QChar('0'))
-                              .arg(orderTime.date().month(), 2, 10, QChar('0'))
-                              .arg(orderTime.date().day(), 2, 10, QChar('0'))
-                              .arg(orderTime.time().hour(), 2, 10, QChar('0'))
-                              .arg(orderTime.time().minute(), 2, 10, QChar('0'))
-                              .arg(orderTime.time().second(), 2, 10, QChar('0'))
-                              .arg(maxOrderId, 3, 10, QChar('0'));
+        // 生成17位订单号：年(4) + 月(2) + 日(2) + 时(2) + 分(2) + 秒(2) + 序号(3)
+        QString orderNo = QString("%1%2%3%4%5%6%7").arg(orderTime.date().year(), 4, 10, QChar('0')).arg(orderTime.date().month(), 2, 10, QChar('0')).arg(orderTime.date().day(), 2, 10, QChar('0')).arg(orderTime.time().hour(), 2, 10, QChar('0')).arg(orderTime.time().minute(), 2, 10, QChar('0')).arg(orderTime.time().second(), 2, 10, QChar('0')).arg(maxOrderId, 3, 10, QChar('0'));
 
         // 创建订单
         // 订单内保存城市维度，便于后续改签同城航线匹配
-        QString insertSql = QString("insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_status) values ('%1', %2, '%3', '%4', '%5', '%6', '%7', '%8', '%9', %10, '%11')")
-                                .arg(orderNo).arg(m_userId).arg(flightNo).arg(passengerName).arg(passengerIdcard)
-                                .arg(departureCity).arg(arrivalCity).arg(departureTime.toString("yyyy-MM-dd hh:mm:ss"))
-                                .arg(arrivalTime.toString("yyyy-MM-dd hh:mm:ss")).arg(price).arg("已支付");
+        QString insertSql = QString("insert into order_info (order_no, user_id, flight_id, passenger_name, passenger_idcard, departure_city, arrival_city, departure_time, arrival_time, price, order_status) values ('%1', %2, '%3', '%4', '%5', '%6', '%7', '%8', '%9', %10, '%11')").arg(orderNo).arg(m_userId).arg(flightNo).arg(passengerName).arg(passengerIdcard).arg(departureCity).arg(arrivalCity).arg(departureTime.toString("yyyy-MM-dd hh:mm:ss")).arg(arrivalTime.toString("yyyy-MM-dd hh:mm:ss")).arg(price).arg("已支付");
+
         bool insertSuccess = false;
         QSqlQuery insertQuery = m_dbOperator.DBGetData(insertSql, insertSuccess);
 
@@ -669,7 +649,6 @@ void UserMainWindow::on_collect_clicked(const QString &flightNo) {
 
     if (m_dbOperator.addFavorite(m_userId, flightNo)) {
         QMessageBox::information(this, "收藏成功", "已收藏航班：" + flightNo);
-        // 如果当前在收藏页，立即刷新
         if (ui->stackedWidget->currentIndex() == 2) {
             loadFavorites();
         }
@@ -678,18 +657,18 @@ void UserMainWindow::on_collect_clicked(const QString &flightNo) {
     }
 }
 
-// 处理编辑个人信息按钮点击，进入编辑模式
+// 进入编辑模式
 void UserMainWindow::on_editInfoBtn_clicked() {
     enterEditMode();
 }
 
-// 处理保存按钮点击，保存用户信息
+// 保存用户信息
 void UserMainWindow::on_saveBtn_clicked() {
     saveUserInfo();
     exitEditMode();
 }
 
-// 处理取消按钮点击，退出编辑模式并恢复原始数据
+// 取消编辑
 void UserMainWindow::on_cancelBtn_clicked() {
     ui->UsernameLabel->setText(m_originalUserInfo.username);
     ui->PasswordLabel->setText(m_originalUserInfo.password);
@@ -849,24 +828,12 @@ void UserMainWindow::clearOrders() {
     }
 }
 
-// 加载订单列表（最终修正版）
+// 加载订单列表
 void UserMainWindow::loadOrders() {
     clearOrders();
 
     bool success = false;
-    // 添加 order_status != '已取消' 条件过滤已取消订单
-    QString sqlstr = QString(
-                         "select "
-                         "o.order_id, o.order_no, o.user_id, o.flight_id, "
-                         "o.departure_city, o.arrival_city, o.departure_time, "
-                         "o.arrival_time, o.price, o.order_time, o.order_status, "
-                         "u.realname as passenger_name, "
-                         "u.idcard as passenger_idcard "
-                         "from order_info o "
-                         "inner join user_info u on o.user_id = u.id "
-                         "where o.user_id=%1 and o.order_status != '已取消' "  // 过滤已取消订单
-                         "order by o.order_time desc"
-                         ).arg(m_userId);
+    QString sqlstr = QString("select o.order_id, o.order_no, o.user_id, o.flight_id, o.departure_city, o.arrival_city, o.departure_time, o.arrival_time, o.price, o.order_time, o.order_status, u.realname as passenger_name, u.idcard as passenger_idcard from order_info o inner join user_info u on o.user_id = u.id where o.user_id=%1 and o.order_status != '已取消' order by o.order_time desc").arg(m_userId);
     QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
 
     if (!success) {
@@ -879,7 +846,6 @@ void UserMainWindow::loadOrders() {
         count++;
         int orderId = query.value("order_id").toInt();
         QString flightId = query.value("flight_id").toString();
-        // 此时读取的是用户表最新数据，而非订单表旧数据
         QString passengerName = query.value("passenger_name").toString();
         QString passengerIdcard = query.value("passenger_idcard").toString();
         QString departureCity = query.value("departure_city").toString();
@@ -888,16 +854,7 @@ void UserMainWindow::loadOrders() {
         QDateTime arrivalTime = query.value("arrival_time").toDateTime();
         double price = query.value("price").toDouble();
         QDateTime orderTime = query.value("order_time").toDateTime();
-
-        // 生成订单号（原有逻辑不变）
-        QString orderNo = QString("%1%2%3%4%5%6%7").arg(
-                                                       orderTime.date().year(), 4, 10, QChar('0')).arg(
-                                  orderTime.date().month(), 2, 10, QChar('0')).arg(
-                                  orderTime.date().day(), 2, 10, QChar('0')).arg(
-                                  orderTime.time().hour(), 2, 10, QChar('0')).arg(
-                                  orderTime.time().minute(), 2, 10, QChar('0')).arg(
-                                  orderTime.time().second(), 2, 10, QChar('0')).arg(
-                                  orderId, 3, 10, QChar('0'));
+        QString orderNo = QString("%1%2%3%4%5%6%7").arg(orderTime.date().year(), 4, 10, QChar('0')).arg(orderTime.date().month(), 2, 10, QChar('0')).arg(orderTime.date().day(), 2, 10, QChar('0')).arg(orderTime.time().hour(), 2, 10, QChar('0')).arg(orderTime.time().minute(), 2, 10, QChar('0')).arg(orderTime.time().second(), 2, 10, QChar('0')).arg(orderId, 3, 10, QChar('0'));
 
         // 格式化时间（原有逻辑不变）
         QString takeoffTime = formatDateTime(departureTime);
@@ -1134,6 +1091,7 @@ void UserMainWindow::loadFavorites() {
 }
 
 // 取消收藏
+// 取消收藏
 void UserMainWindow::handleUnfavorite(const QString &flightId) {
     if (m_dbOperator.removeFavorite(m_userId, flightId)) {
         QMessageBox::information(this, "已取消收藏", "已取消收藏航班：" + flightId);
@@ -1143,9 +1101,8 @@ void UserMainWindow::handleUnfavorite(const QString &flightId) {
     }
 }
 
-// 取消已支付订单：退还余额并释放座位
+// 取消订单
 void UserMainWindow::handleCancelOrder(int orderId, const QString &flightId, double price) {
-    // 1. 显示确认对话框
     int ret = QMessageBox::question(this, "确认取消",
                                     "确定要取消此订单吗？\n取消后将退款至您的账户。",
                                     QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
@@ -1153,10 +1110,8 @@ void UserMainWindow::handleCancelOrder(int orderId, const QString &flightId, dou
         return;
     }
 
-     // 2. 开始数据库操作
     bool success = false;
 
-    // 2.1 更新订单状态为"已取消"
     QString updateOrderSql = QString("update order_info set order_status='已取消' where order_id=%1").arg(orderId);
     QSqlQuery orderQuery = m_dbOperator.DBGetData(updateOrderSql, success);
     if (!success) {
@@ -1164,36 +1119,32 @@ void UserMainWindow::handleCancelOrder(int orderId, const QString &flightId, dou
         return;
     }
 
-    // 2.2 恢复航班剩余座位
     QString flightSql = QString("select remaining_seats from flight_info where flight_id='%1'").arg(flightId);
     QSqlQuery flightQuery = m_dbOperator.DBGetData(flightSql, success);
     if (!success || !flightQuery.next()) {
         QMessageBox::warning(this, "操作失败", "获取航班信息失败：" + flightQuery.lastError().text());
         return;
     }
+
     int remainingSeats = flightQuery.value("remaining_seats").toInt() + 1;
-    QString updateFlightSql = QString("update flight_info set remaining_seats=%1 where flight_id='%2'")
-                                  .arg(remainingSeats).arg(flightId);
+    QString updateFlightSql = QString("update flight_info set remaining_seats=%1 where flight_id='%2'").arg(remainingSeats).arg(flightId);
     m_dbOperator.DBGetData(updateFlightSql, success);
 
-    // 2.3 退还订单金额到用户账户
     DBOperator::UserInfo userInfo;
     if (m_dbOperator.getUserInfo(m_userId, userInfo)) {
         double newBalance = userInfo.balance + price;
-        QString updateBalanceSql = QString("update user_info set balance=%1 where id=%2")
-                                       .arg(newBalance).arg(m_userId);
+        QString updateBalanceSql = QString("update user_info set balance=%1 where id=%2").arg(newBalance).arg(m_userId);
         m_dbOperator.DBGetData(updateBalanceSql, success);
 
         // 更新界面显示的余额
         loadUserInfo();
     }
 
-    // 3. 重新加载订单列表（会自动过滤已取消订单）
     loadOrders();
     QMessageBox::information(this, "操作成功", "订单已取消，金额已退还至您的账户");
 }
 
-// 改签订单：选择新航班后差额结算并更新订单
+// 改签订单
 void UserMainWindow::handleReschedule(int orderId, const QString &oldFlightId, double oldPrice, const QString &departureCity, const QString &arrivalCity) {
     struct FlightOption {
         QString flightId;
@@ -1223,7 +1174,6 @@ void UserMainWindow::handleReschedule(int orderId, const QString &oldFlightId, d
         }
         
         sqlstr += " order by departure_time";
-        
         QSqlQuery query = m_dbOperator.DBGetData(sqlstr, success);
         if (!success) {
             return false;
@@ -1692,7 +1642,7 @@ void UserMainWindow::exitEditMode() {
     }
 }
 
-// 保存用户信息到数据库
+// 保存用户信息
 void UserMainWindow::saveUserInfo() {
     if (!m_isEditMode) {
         return;
@@ -1831,7 +1781,7 @@ void UserMainWindow::saveUserInfo() {
     QMessageBox::information(this, "成功", "个人信息已更新！");
 }
 
-// 格式化日期时间为中文格式
+// 格式化日期时间
 QString UserMainWindow::formatDateTime(const QDateTime& dateTime) {
     return QString("%1年%2月%3日 %4:%5")
         .arg(dateTime.date().year())

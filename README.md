@@ -37,9 +37,11 @@ Flient_Management/
 ├─ 资源文件
 │  ├─ figures.qrc              # 界面图标资源文件配置
 │  ├─ avatars.qrc              # 用户头像资源文件配置
+│  ├─ airlinelogos.qrc         # 航空公司标志资源文件配置
 │  └─ source/                  # 资源文件目录
 │     ├─ databases/            # 数据库相关文件
 │     │  └─ dbSchema.sql       # 数据库表结构定义和测试数据
 │     ├─ figures/              # 界面图标资源
-│     └─ avatars/              # 用户头像资源 (15 个可选头像)
+│     ├─ avatars/              # 用户头像资源 (15 个可选头像)
+│     └─ airlinelogos/         # 航空公司标志资源
 ```

@@ -270,9 +270,9 @@
       <property name="geometry">
        <rect>
         <x>20</x>
-        <y>189</y>
+        <y>190</y>
         <width>600</width>
-        <height>301</height>
+        <height>300</height>
        </rect>
       </property>
       <property name="font">
@@ -347,8 +347,8 @@
      <widget class="QPushButton" name="editBtn">
       <property name="geometry">
        <rect>
-        <x>100</x>
-        <y>510</y>
+        <x>120</x>
+        <y>505</y>
         <width>165</width>
         <height>25</height>
        </rect>
@@ -368,7 +368,7 @@
       <property name="geometry">
        <rect>
         <x>360</x>
-        <y>510</y>
+        <y>505</y>
         <width>165</width>
         <height>25</height>
        </rect>
@@ -1921,7 +1921,7 @@ border: none; /* 移除边框 */</string>
        </property>
        <property name="geometry">
         <rect>
-         <x>235</x>
+         <x>240</x>
          <y>110</y>
          <width>120</width>
          <height>30</height>
@@ -1959,8 +1959,8 @@ border: none; /* 移除边框 */</string>
        <rect>
         <x>20</x>
         <y>60</y>
-        <width>611</width>
-        <height>471</height>
+        <width>610</width>
+        <height>470</height>
        </rect>
       </property>
       <property name="font">
@@ -2108,7 +2108,7 @@ border: none; /* 移除边框 */</string>
        <rect>
         <x>20</x>
         <y>20</y>
-        <width>101</width>
+        <width>100</width>
         <height>25</height>
        </rect>
       </property>
@@ -2143,7 +2143,7 @@ border: none; /* 移除边框 */</string>
         <x>20</x>
         <y>30</y>
         <width>610</width>
-        <height>431</height>
+        <height>430</height>
        </rect>
       </property>
       <property name="font">
@@ -2243,7 +2243,7 @@ border: none; /* 移除边框 */</string>
      <widget class="QPushButton" name="deleteUserBtn">
       <property name="geometry">
        <rect>
-        <x>350</x>
+        <x>390</x>
         <y>480</y>
         <width>91</width>
         <height>31</height>
@@ -2271,7 +2271,7 @@ border: none; /* 移除边框 */</string>
      <widget class="QPushButton" name="deleteUserBtn_2">
       <property name="geometry">
        <rect>
-        <x>150</x>
+        <x>180</x>
         <y>480</y>
         <width>91</width>
         <height>31</height>

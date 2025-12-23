@@ -13,9 +13,11 @@ void DBOperator::DBOpen() {
         } else {
             dbcon = QSqlDatabase::addDatabase("QODBC", connectionName);
         }
+
         dbcon.setHostName("127.0.0.1");
         dbcon.setPort(3306);
         dbcon.setDatabaseName("flient_managementODBC");
+
         bool ok = dbcon.open();
         if (!ok) {
             qDebug() << "Error, flient_managementODBC 数据库文件打开失败！";
@@ -42,7 +44,7 @@ QSqlQuery DBOperator::DBGetData(QString sqlstr, bool &sucessFlag) {
 // 根据用户 ID 获取用户完整信息
 bool DBOperator::getUserInfo(int userId, UserInfo &userInfo) {
     bool sf = false;
-    QString sqlstr = QString("select username, password, phone, email, realname, idcard, avatarid, COALESCE(balance, 0) as balance from user_info where id=%1").arg(userId);
+    QString sqlstr = QString("select username, password, phone, email, realname, idcard, avatarid, coalesce(balance, 0) as balance from user_info where id=%1").arg(userId);
     QSqlQuery qs = DBGetData(sqlstr, sf);
 
     if (sf && qs.next()) {
@@ -56,6 +58,7 @@ bool DBOperator::getUserInfo(int userId, UserInfo &userInfo) {
         userInfo.avatarId = qs.value("avatarid").toInt();
         return true;
     }
+
     return false;
 }
 
@@ -88,11 +91,14 @@ bool DBOperator::isFavorite(int userId, const QString &flightId) {
     bool sf = false;
     QString sqlstr = QString("select count(1) from favorite_info where user_id=%1 and flight_id='%2'").arg(userId).arg(flightId);
     QSqlQuery qs = DBGetData(sqlstr, sf);
+
     if (!sf) {
         return false;
     }
+
     if (qs.next()) {
         return qs.value(0).toInt() > 0;
     }
+
     return false;
 }

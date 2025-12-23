@@ -74,6 +74,7 @@ bool RegDlg::validateInput(QString &username, QString &password, QString &repass
         QMessageBox::warning(this, "警告", "身份证号格式不正确，请输入18位身份证号");
         return false;
     }
+
     return true;
 }
 
@@ -86,6 +87,8 @@ void RegDlg::on_regBtn_clicked() {
     }
 
     bool success = false;
+
+    // 检查用户名是否已存在 (用户表)
     QString checkSql = QString("select count(1) from user_info where username='%1'").arg(username);
     QSqlQuery checkQuery = dbp.DBGetData(checkSql, success);
     if (!success) {
@@ -97,6 +100,7 @@ void RegDlg::on_regBtn_clicked() {
         return;
     }
 
+    // 检查用户名是否已存在 (管理员表)
     checkSql = QString("select count(1) from admin_info where username='%1'").arg(username);
     checkQuery = dbp.DBGetData(checkSql, success);
     if (!success) {
@@ -108,6 +112,7 @@ void RegDlg::on_regBtn_clicked() {
         return;
     }
 
+    // 检查手机号是否已被注册
     checkSql = QString("select count(1) from user_info where phone='%1'").arg(phone);
     checkQuery = dbp.DBGetData(checkSql, success);
     if (!success) {
@@ -119,6 +124,7 @@ void RegDlg::on_regBtn_clicked() {
         return;
     }
 
+    // 检查邮箱是否已被注册
     checkSql = QString("select count(1) from user_info where email='%1'").arg(email);
     checkQuery = dbp.DBGetData(checkSql, success);
     if (!success) {
@@ -130,6 +136,7 @@ void RegDlg::on_regBtn_clicked() {
         return;
     }
 
+    // 检查身份证号是否已被注册
     checkSql = QString("select count(1) from user_info where idcard='%1'").arg(idcard);
     checkQuery = dbp.DBGetData(checkSql, success);
     if (!success) {
@@ -141,6 +148,7 @@ void RegDlg::on_regBtn_clicked() {
         return;
     }
 
+    // 插入新用户数据
     QString insertSql = QString("insert into user_info(username, password, phone, email, realname, idcard, avatarid) values('%1', '%2', '%3', '%4', '%5', '%6', 1)").arg(username, password, phone, email, realname, idcard);
     QSqlQuery insertQuery = dbp.DBGetData(insertSql, success);
     if (!success) {
